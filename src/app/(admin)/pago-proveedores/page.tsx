@@ -6,17 +6,87 @@ import ExecutionHistory from "../../../components/ExecutionHistory";
 import { SupplierPaymentService } from "../../../services/supplierPaymentService";
 import { SupplierPaymentProcess, ProcessExecution } from "../../../types/supplierPayment";
 
+// Mock data for UI visualization
+const mockProcessInfo: SupplierPaymentProcess = {
+  id: "supplier-payment-process-001",
+  name: "Sincronización de Pagos a Proveedores",
+  description: "Proceso automatizado que sincroniza los pagos realizados a proveedores desde Colppy hacia el sistema interno de gestión.",
+  isActive: true,
+  schedule: "0 8 * * 1-5", // Monday to Friday at 8 AM
+  nextExecution: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow at same time
+  lastExecution: {
+    id: "exec-20241208-001",
+    status: "success",
+    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 3 * 60 * 1000).toISOString(), // 3 minutes duration
+    message: "Proceso completado exitosamente. Se procesaron 45 pagos a proveedores.",
+    recordsProcessed: 45
+  }
+};
+
+const mockExecutions: ProcessExecution[] = [
+  {
+    id: "exec-20241208-001",
+    status: "success",
+    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 3 * 60 * 1000).toISOString(),
+    message: "Proceso completado exitosamente. Se procesaron 45 pagos a proveedores.",
+    recordsProcessed: 45
+  },
+  {
+    id: "exec-20241207-001",
+    status: "success",
+    startTime: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 26 * 60 * 60 * 1000 + 4 * 60 * 1000).toISOString(),
+    message: "Sincronización completada. Se procesaron 38 registros de pagos.",
+    recordsProcessed: 38
+  },
+  {
+    id: "exec-20241206-001",
+    status: "error",
+    startTime: new Date(Date.now() - 50 * 60 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 50 * 60 * 60 * 1000 + 1 * 60 * 1000).toISOString(),
+    message: "Error de conexión con Colppy. Timeout en la respuesta del servidor.",
+    recordsProcessed: 0
+  },
+  {
+    id: "exec-20241205-001",
+    status: "success",
+    startTime: new Date(Date.now() - 74 * 60 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 74 * 60 * 60 * 1000 + 5 * 60 * 1000).toISOString(),
+    message: "Proceso completado. Se sincronizaron 52 pagos a proveedores.",
+    recordsProcessed: 52
+  },
+  {
+    id: "exec-20241204-001",
+    status: "success",
+    startTime: new Date(Date.now() - 98 * 60 * 60 * 1000).toISOString(),
+    endTime: new Date(Date.now() - 98 * 60 * 60 * 1000 + 2 * 60 * 1000).toISOString(),
+    message: "Sincronización exitosa. 29 registros procesados.",
+    recordsProcessed: 29
+  },
+  {
+    id: "exec-20241203-001",
+    status: "running",
+    startTime: new Date(Date.now() - 122 * 60 * 60 * 1000).toISOString(),
+    message: "Proceso en ejecución. Conectando con Colppy...",
+    recordsProcessed: 12
+  }
+];
+
 export default function PagoProveedoresPage() {
-  const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(null);
-  const [executions, setExecutions] = useState<ProcessExecution[]>([]);
+  const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(mockProcessInfo);
+  const [executions, setExecutions] = useState<ProcessExecution[]>(mockExecutions);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Changed to false to show mock data immediately
   const [error, setError] = useState<string | null>(null);
 
   const loadProcessInfo = async () => {
+    // Simulate API call with mock data
     try {
-      const info = await SupplierPaymentService.getProcessInfo();
-      setProcessInfo(info);
+      setTimeout(() => {
+        setProcessInfo(mockProcessInfo);
+      }, 500);
     } catch (err) {
       console.error('Error loading process info:', err);
       setError('Error al cargar información del proceso');
@@ -24,9 +94,11 @@ export default function PagoProveedoresPage() {
   };
 
   const loadExecutionHistory = async () => {
+    // Simulate API call with mock data
     try {
-      const history = await SupplierPaymentService.getExecutionHistory(20);
-      setExecutions(history);
+      setTimeout(() => {
+        setExecutions(mockExecutions);
+      }, 300);
     } catch (err) {
       console.error('Error loading execution history:', err);
       setError('Error al cargar historial de ejecuciones');
@@ -44,7 +116,10 @@ export default function PagoProveedoresPage() {
   };
 
   useEffect(() => {
-    loadData();
+    // Using mock data directly, no need to load
+    setProcessInfo(mockProcessInfo);
+    setExecutions(mockExecutions);
+    setLoading(false);
   }, []);
 
   const handleExecuteProcess = async () => {
@@ -52,17 +127,47 @@ export default function PagoProveedoresPage() {
     
     setIsExecuting(true);
     try {
-      const response = await SupplierPaymentService.executeProcess({
-        processId: processInfo.id
-      });
+      // Simulate API call with mock response
+      const mockResponse = {
+        executionId: `exec-${new Date().toISOString().split('T')[0]}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+        status: 'started' as const,
+        message: 'Proceso de sincronización iniciado correctamente'
+      };
       
       // Show success message
-      alert(`Proceso iniciado exitosamente. ID de ejecución: ${response.executionId}`);
+      alert(`Proceso iniciado exitosamente. ID de ejecución: ${mockResponse.executionId}`);
       
-      // Refresh the execution history after a short delay
+      // Add new execution to the beginning of the list
+      const newExecution: ProcessExecution = {
+        id: mockResponse.executionId,
+        status: 'running',
+        startTime: new Date().toISOString(),
+        message: 'Proceso en ejecución. Sincronizando con Colppy...',
+        recordsProcessed: 0
+      };
+      
+      setExecutions(prev => [newExecution, ...prev]);
+      
+      // Simulate process completion after 3 seconds
       setTimeout(() => {
-        loadExecutionHistory();
-      }, 1000);
+        const completedExecution: ProcessExecution = {
+          ...newExecution,
+          status: 'success',
+          endTime: new Date().toISOString(),
+          message: `Proceso completado exitosamente. Se procesaron ${Math.floor(Math.random() * 50) + 20} pagos a proveedores.`,
+          recordsProcessed: Math.floor(Math.random() * 50) + 20
+        };
+        
+        setExecutions(prev => prev.map(exec => 
+          exec.id === newExecution.id ? completedExecution : exec
+        ));
+        
+        // Update process info with new last execution
+        setProcessInfo(prev => prev ? {
+          ...prev,
+          lastExecution: completedExecution
+        } : prev);
+      }, 3000);
       
     } catch (err) {
       console.error('Error executing process:', err);
