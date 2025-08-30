@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-brand;
+  background-color: #f4f4f4;
+  color: #1a1a1a;
+  letter-spacing: 0.01em;
+}
+
+/* ----------------------------
+   Componentes reutilizables
+-----------------------------*/
+
+.btn-primary {
+  @apply w-full bg-black hover:bg-neutral-800 text-white py-2.5 rounded-md font-semibold transition;
+}
+
+.input {
+  @apply w-full px-4 py-2 border border-neutral-300 rounded-md bg-white
+         focus:outline-none focus:ring-2 focus:ring-black/60 transition;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-card border border-neutral-200;
+}
