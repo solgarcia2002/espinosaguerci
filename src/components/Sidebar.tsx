@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   {
-    title: "Robots",
+    title: "Gestión",
     links: [
+      { label: "Caja Diaria", href: "/caja-diaria" },
       { label: "Colppy Pago a Proveedores", href: "/pago-proveedores" },
     ],
   },
