@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MovimientoCaja, ResumenCaja, FiltrosCaja as FiltrosCajaType } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { toast } from 'sonner';
+import Layout from '@/components/Layout';
 import CajaDiariaTabs from '@/components/caja-diaria/CajaDiariaTabs';
 
 export default function CajaDiariaPage() {
@@ -96,26 +97,28 @@ export default function CajaDiariaPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
-        <p className="text-gray-600 mt-1">
-          Gestiona los movimientos de caja y mantén el control de tus finanzas diarias
-        </p>
-      </div>
+    <Layout>
+      <div className="p-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
+          <p className="text-gray-600 mt-1">
+            Gestiona los movimientos de caja y mantén el control de tus finanzas diarias
+          </p>
+        </div>
 
-      <CajaDiariaTabs
-        movimientos={movimientos}
-        resumen={resumen}
-        filtros={filtros}
-        loading={loading}
-        onFiltrosChange={handleFiltrosChange}
-        onExportar={handleExportar}
-        onLimpiar={handleLimpiarFiltros}
-        onEdit={handleEditarMovimiento}
-        onRefresh={cargarDatos}
-        onNuevoMovimiento={handleNuevoMovimiento}
-      />
-    </div>
+        <CajaDiariaTabs
+          movimientos={movimientos}
+          resumen={resumen}
+          filtros={filtros}
+          loading={loading}
+          onFiltrosChange={handleFiltrosChange}
+          onExportar={handleExportar}
+          onLimpiar={handleLimpiarFiltros}
+          onEdit={handleEditarMovimiento}
+          onRefresh={cargarDatos}
+          onNuevoMovimiento={handleNuevoMovimiento}
+        />
+      </div>
+    </Layout>
   );
 }

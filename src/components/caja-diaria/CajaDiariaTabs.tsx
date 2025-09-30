@@ -25,52 +25,52 @@ interface CajaDiariaTabsProps {
 
 const tabs = [
   {
-    id: 'resumen',
-    name: 'Resumen Diario',
-    icon: '📊',
-    description: 'Vista general del día'
-  },
-  {
-    id: 'movimientos',
-    name: 'Movimientos',
+    id: 'disponibilidad',
+    name: 'DISPONIBILIDAD',
     icon: '💰',
-    description: 'Lista de todos los movimientos'
+    description: 'Dinero disponible en caja'
   },
   {
-    id: 'ingresos',
-    name: 'Ingresos',
+    id: 'pagado',
+    name: 'PAGADO',
+    icon: '✅',
+    description: 'Movimientos ya pagados'
+  },
+  {
+    id: 'cobrado',
+    name: 'COBRADO',
     icon: '📈',
-    description: 'Solo movimientos de ingreso'
+    description: 'Dinero cobrado de clientes'
   },
   {
-    id: 'egresos',
-    name: 'Egresos',
-    icon: '📉',
-    description: 'Solo movimientos de egreso'
+    id: 'pendiente-cobro',
+    name: 'PENDIENTE DE COBRO',
+    icon: '⏳',
+    description: 'Cobros pendientes de clientes'
   },
   {
-    id: 'clientes',
-    name: 'Clientes',
-    icon: '👥',
-    description: 'Gestión de clientes'
+    id: 'pendiente-pago',
+    name: 'PENDIENTE DE PAGO',
+    icon: '📋',
+    description: 'Pagos pendientes a proveedores'
   },
   {
     id: 'proveedores',
-    name: 'Proveedores',
+    name: 'PROVEEDORES',
     icon: '🏢',
     description: 'Gestión de proveedores'
   },
   {
-    id: 'reportes',
-    name: 'Reportes',
-    icon: '📋',
-    description: 'Reportes y estadísticas'
+    id: 'clientes',
+    name: 'CLIENTES',
+    icon: '👥',
+    description: 'Gestión de clientes'
   },
   {
-    id: 'configuracion',
-    name: 'Configuración',
-    icon: '⚙️',
-    description: 'Configuración de caja'
+    id: 'consolidado',
+    name: 'CONSOLIDADO',
+    icon: '📊',
+    description: 'Resumen consolidado de caja'
   }
 ];
 
@@ -86,7 +86,7 @@ export default function CajaDiariaTabs({
   onRefresh,
   onNuevoMovimiento
 }: CajaDiariaTabsProps) {
-  const [activeTab, setActiveTab] = useState('resumen');
+  const [activeTab, setActiveTab] = useState('disponibilidad');
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [movimientoEditando, setMovimientoEditando] = useState<MovimientoCaja | undefined>();
 
@@ -114,10 +114,14 @@ export default function CajaDiariaTabs({
   // Filtrar movimientos según la pestaña activa
   const getMovimientosFiltrados = () => {
     switch (activeTab) {
-      case 'ingresos':
+      case 'cobrado':
         return movimientos.filter(m => m.tipo === 'ingreso');
-      case 'egresos':
+      case 'pagado':
         return movimientos.filter(m => m.tipo === 'egreso');
+      case 'pendiente-cobro':
+        return movimientos.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'pendiente');
+      case 'pendiente-pago':
+        return movimientos.filter(m => m.tipo === 'egreso' && m.metodoPago === 'pendiente');
       default:
         return movimientos;
     }
@@ -136,36 +140,36 @@ export default function CajaDiariaTabs({
     }
 
     switch (activeTab) {
-      case 'resumen':
+      case 'disponibilidad':
         return (
           <div>
             {resumen ? (
               <ResumenCajaComponent resumen={resumen} />
             ) : (
               <div className="card p-8 text-center">
-                <div className="text-gray-400 text-6xl mb-4">📊</div>
+                <div className="text-gray-400 text-6xl mb-4">💰</div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No hay resumen disponible
+                  Dinero Disponible en Caja
                 </h3>
                 <p className="text-gray-500">
-                  Selecciona una fecha específica para ver el resumen diario.
+                  Aquí se muestra el dinero disponible en caja.
                 </p>
               </div>
             )}
           </div>
         );
 
-      case 'movimientos':
+      case 'pagado':
         return (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Todos los Movimientos</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Movimientos Pagados</h3>
               <button
                 onClick={handleNuevoMovimiento}
                 className="btn-primary flex items-center space-x-2"
               >
                 <span>➕</span>
-                <span>Nuevo Movimiento</span>
+                <span>Nuevo Pago</span>
               </button>
             </div>
             <MovimientosTable
@@ -176,17 +180,17 @@ export default function CajaDiariaTabs({
           </div>
         );
 
-      case 'ingresos':
+      case 'cobrado':
         return (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Movimientos de Ingreso</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Dinero Cobrado</h3>
               <button
                 onClick={handleNuevoMovimiento}
                 className="btn-primary flex items-center space-x-2"
               >
                 <span>➕</span>
-                <span>Nuevo Ingreso</span>
+                <span>Nuevo Cobro</span>
               </button>
             </div>
             <MovimientosTable
@@ -197,17 +201,38 @@ export default function CajaDiariaTabs({
           </div>
         );
 
-      case 'egresos':
+      case 'pendiente-cobro':
         return (
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Movimientos de Egreso</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Pendiente de Cobro</h3>
               <button
                 onClick={handleNuevoMovimiento}
                 className="btn-primary flex items-center space-x-2"
               >
                 <span>➕</span>
-                <span>Nuevo Egreso</span>
+                <span>Nuevo Cobro Pendiente</span>
+              </button>
+            </div>
+            <MovimientosTable
+              movimientos={getMovimientosFiltrados()}
+              onEdit={handleEdit}
+              onRefresh={onRefresh}
+            />
+          </div>
+        );
+
+      case 'pendiente-pago':
+        return (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Pendiente de Pago</h3>
+              <button
+                onClick={handleNuevoMovimiento}
+                className="btn-primary flex items-center space-x-2"
+              >
+                <span>➕</span>
+                <span>Nuevo Pago Pendiente</span>
               </button>
             </div>
             <MovimientosTable
@@ -224,10 +249,10 @@ export default function CajaDiariaTabs({
       case 'proveedores':
         return <GestionProveedores />;
 
-      case 'reportes':
+      case 'consolidado':
         return (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Reportes y Estadísticas</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumen Consolidado</h3>
             <EstadisticasCaja movimientos={movimientos} />
             <div className="card p-6 mt-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">Exportar Reportes</h4>
@@ -251,40 +276,6 @@ export default function CajaDiariaTabs({
                     <h5 className="font-medium text-gray-900">Reportes Avanzados</h5>
                     <p className="text-sm text-gray-500">Gráficos y análisis</p>
                   </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'configuracion':
-        return (
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuración de Caja</h3>
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Saldo Inicial</h4>
-                <p className="text-sm text-gray-500 mb-3">
-                  Configura el saldo inicial para el día.
-                </p>
-                <button
-                  onClick={() => {/* TODO: Implementar configuración de saldo */}}
-                  className="btn-primary"
-                >
-                  Configurar Saldo Inicial
-                </button>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Sincronización con Colppy</h4>
-                <p className="text-sm text-gray-500 mb-3">
-                  Gestiona la sincronización automática de clientes y proveedores.
-                </p>
-                <button
-                  onClick={() => {/* TODO: Implementar configuración de sincronización */}}
-                  className="btn-primary"
-                >
-                  Configurar Sincronización
                 </button>
               </div>
             </div>
@@ -326,7 +317,7 @@ export default function CajaDiariaTabs({
       </div>
 
       {/* Filtros (solo en tabs de movimientos) */}
-      {['movimientos', 'ingresos', 'egresos'].includes(activeTab) && (
+      {['pagado', 'cobrado', 'pendiente-cobro', 'pendiente-pago'].includes(activeTab) && (
         <FiltrosCaja
           filtros={filtros}
           onFiltrosChange={onFiltrosChange}

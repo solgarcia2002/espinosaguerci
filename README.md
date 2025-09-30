@@ -7,16 +7,16 @@ Sistema completo de gestión empresarial con integración a Colppy y funcionalid
 ### 📑 Sistema de Caja Diaria
 Sistema completo de gestión de caja diaria que reemplaza el archivo Excel `CAJA DIARIA 11-08-2025.xlsx` con una interfaz web moderna y funcional.
 
-La interfaz está organizada en **8 tabs principales** que replican la estructura del Excel original:
+La interfaz está organizada en **8 tabs principales** que replican exactamente la estructura del Excel original:
 
-1. **📊 Resumen Diario**: Vista general del día con métricas clave
-2. **💰 Movimientos**: Lista completa de todos los movimientos
-3. **📈 Ingresos**: Solo movimientos de ingreso con filtros específicos
-4. **📉 Egresos**: Solo movimientos de egreso con filtros específicos
-5. **👥 Clientes**: Gestión completa de clientes con sincronización Colppy
-6. **🏢 Proveedores**: Gestión completa de proveedores con sincronización Colppy
-7. **📋 Reportes**: Estadísticas avanzadas y exportación
-8. **⚙️ Configuración**: Configuración de caja y sincronización
+1. **💰 DISPONIBILIDAD**: Dinero disponible en caja
+2. **✅ PAGADO**: Movimientos ya pagados
+3. **📈 COBRADO**: Dinero cobrado de clientes
+4. **⏳ PENDIENTE DE COBRO**: Cobros pendientes de clientes
+5. **📋 PENDIENTE DE PAGO**: Pagos pendientes a proveedores
+6. **🏢 PROVEEDORES**: Gestión completa de proveedores con sincronización Colppy
+7. **👥 CLIENTES**: Gestión completa de clientes con sincronización Colppy
+8. **📊 CONSOLIDADO**: Resumen consolidado y estadísticas avanzadas
 
 ### 📊 Gestión de Movimientos
 - **Ingresos y Egresos**: Registro completo de todos los movimientos de caja
@@ -169,12 +169,11 @@ NEXTAUTH_URL=http://localhost:3000
 ### Navegación por Tabs (Caja Diaria)
 1. **Acceder a Caja Diaria**: Navegar a `/caja-diaria` desde el sidebar
 2. **Seleccionar Tab**: Hacer clic en cualquier tab para cambiar de vista
-3. **Resumen Diario**: Ver métricas generales del día
-4. **Movimientos**: Gestionar todos los movimientos de caja
-5. **Ingresos/Egresos**: Ver solo movimientos específicos
-6. **Clientes/Proveedores**: Gestionar contactos y sincronizar con Colppy
-7. **Reportes**: Ver estadísticas y exportar datos
-8. **Configuración**: Configurar parámetros del sistema
+3. **DISPONIBILIDAD**: Ver dinero disponible en caja
+4. **PAGADO/COBRADO**: Gestionar movimientos ya procesados
+5. **PENDIENTE DE COBRO/PAGO**: Gestionar movimientos pendientes
+6. **CLIENTES/PROVEEDORES**: Gestionar contactos y sincronizar con Colppy
+7. **CONSOLIDADO**: Ver estadísticas y exportar datos
 
 ### Funciones Principales
 - **Crear Movimiento**: Botón "Nuevo Movimiento" en tabs de movimientos
