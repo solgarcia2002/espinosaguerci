@@ -45,6 +45,7 @@ export default function MovimientosTable({ movimientos, onEdit, onRefresh }: Mov
       case 'transferencia': return '🏦';
       case 'cheque': return '📄';
       case 'tarjeta': return '💳';
+      case 'pendiente': return '⏳';
       default: return '💰';
     }
   };

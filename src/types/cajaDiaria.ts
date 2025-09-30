@@ -30,7 +30,7 @@ export interface MovimientoCaja {
   proveedorId?: string;
   cliente?: Cliente;
   proveedor?: Proveedor;
-  metodoPago: 'efectivo' | 'transferencia' | 'cheque' | 'tarjeta';
+  metodoPago: 'efectivo' | 'transferencia' | 'cheque' | 'tarjeta' | 'pendiente';
   observaciones?: string;
   usuario: string;
   createdAt: string;

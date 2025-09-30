@@ -48,6 +48,7 @@ export default function EstadisticasCaja({ movimientos }: EstadisticasCajaProps)
       case 'transferencia': return '🏦';
       case 'cheque': return '📄';
       case 'tarjeta': return '💳';
+      case 'pendiente': return '⏳';
       default: return '💰';
     }
   };

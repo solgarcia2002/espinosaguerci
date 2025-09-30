@@ -16,7 +16,7 @@ const movimientoSchema = z.object({
   monto: z.number().min(0.01, 'El monto debe ser mayor a 0'),
   clienteId: z.string().optional(),
   proveedorId: z.string().optional(),
-  metodoPago: z.enum(['efectivo', 'transferencia', 'cheque', 'tarjeta'], { 
+  metodoPago: z.enum(['efectivo', 'transferencia', 'cheque', 'tarjeta', 'pendiente'], { 
     required_error: 'El método de pago es requerido' 
   }),
   observaciones: z.string().optional(),
@@ -218,6 +218,7 @@ export default function MovimientoForm({ movimiento, onSuccess, onCancel }: Movi
                   <option value="transferencia">Transferencia</option>
                   <option value="cheque">Cheque</option>
                   <option value="tarjeta">Tarjeta</option>
+                  <option value="pendiente">Pendiente</option>
                 </select>
                 {errors.metodoPago && (
                   <p className="text-red-500 text-xs mt-1">{errors.metodoPago.message}</p>

@@ -100,6 +100,7 @@ export default function FiltrosCaja({ filtros, onFiltrosChange, onExportar, onLi
               <option value="transferencia">Transferencia</option>
               <option value="cheque">Cheque</option>
               <option value="tarjeta">Tarjeta</option>
+              <option value="pendiente">Pendiente</option>
             </select>
           </div>
         </div>
