@@ -1,5 +1,5 @@
 const getTenantId = (): string => {
-  return process.env.TENANT || "043ef5db-f30e-48c7-81d8-d3893b9496bb";
+  return process.env.TENANT || "d9d1c7f9-8909-4d43-a32b-278174459446";
 };
 
 export async function apiClient<T>(
