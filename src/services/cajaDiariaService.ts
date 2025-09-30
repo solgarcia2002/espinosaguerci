@@ -1,9 +1,26 @@
 import { apiClient } from './apiClient';
 import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
+import { 
+  mockMovimientos, 
+  mockResumen, 
+  mockClientes, 
+  mockProveedores, 
+  filterMovimientos, 
+  simulateApiDelay 
+} from '@/data/mockData';
 
 export class CajaDiariaService {
   async obtenerMovimientos(filtros?: FiltrosCaja): Promise<MovimientoCaja[]> {
     try {
+      // Simular delay de API
+      await simulateApiDelay(300);
+      
+      // Usar datos mockeados temporalmente
+      const movimientosFiltrados = filterMovimientos(mockMovimientos, filtros || {});
+      
+      return movimientosFiltrados;
+      
+      /* Código original para cuando esté el backend:
       const params: Record<string, string> = {};
       
       if (filtros?.fechaDesde) params.fechaDesde = filtros.fechaDesde;
@@ -22,6 +39,7 @@ export class CajaDiariaService {
       );
       
       return response || [];
+      */
     } catch (error) {
       console.error('Error al obtener movimientos:', error);
       throw new Error('No se pudieron obtener los movimientos de caja');
@@ -30,6 +48,25 @@ export class CajaDiariaService {
 
   async crearMovimiento(movimiento: Omit<MovimientoCaja, 'id' | 'createdAt' | 'updatedAt'>): Promise<MovimientoCaja> {
     try {
+      // Simular delay de API
+      await simulateApiDelay(500);
+      
+      // Crear nuevo movimiento con datos mockeados
+      const nuevoMovimiento: MovimientoCaja = {
+        ...movimiento,
+        id: `mock_${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        cliente: movimiento.clienteId ? mockClientes.find(c => c.id === movimiento.clienteId) : undefined,
+        proveedor: movimiento.proveedorId ? mockProveedores.find(p => p.id === movimiento.proveedorId) : undefined
+      };
+      
+      // Agregar a la lista mockeada (solo en memoria)
+      mockMovimientos.push(nuevoMovimiento);
+      
+      return nuevoMovimiento;
+      
+      /* Código original para cuando esté el backend:
       const response = await apiClient<MovimientoCaja>(
         'caja-diaria/movimientos',
         {
@@ -39,6 +76,7 @@ export class CajaDiariaService {
       );
       
       return response;
+      */
     } catch (error) {
       console.error('Error al crear movimiento:', error);
       throw new Error('No se pudo crear el movimiento');
@@ -78,6 +116,27 @@ export class CajaDiariaService {
 
   async obtenerResumenDiario(fecha: string): Promise<ResumenCaja> {
     try {
+      // Simular delay de API
+      await simulateApiDelay(400);
+      
+      // Usar datos mockeados temporalmente
+      const movimientosDelDia = mockMovimientos.filter(m => m.fecha === fecha);
+      const totalIngresos = movimientosDelDia.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
+      const totalEgresos = movimientosDelDia.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0);
+      
+      const resumen: ResumenCaja = {
+        fecha,
+        saldoInicial: 100000.00, // Mock
+        totalIngresos,
+        totalEgresos,
+        saldoFinal: 100000.00 + totalIngresos - totalEgresos,
+        movimientos: movimientosDelDia,
+        cantidadMovimientos: movimientosDelDia.length
+      };
+      
+      return resumen;
+      
+      /* Código original para cuando esté el backend:
       const response = await apiClient<ResumenCaja>(
         'caja-diaria/resumen',
         {
@@ -87,6 +146,7 @@ export class CajaDiariaService {
       );
       
       return response;
+      */
     } catch (error) {
       console.error('Error al obtener resumen diario:', error);
       throw new Error('No se pudo obtener el resumen diario');
@@ -95,6 +155,13 @@ export class CajaDiariaService {
 
   async obtenerClientes(): Promise<Cliente[]> {
     try {
+      // Simular delay de API
+      await simulateApiDelay(200);
+      
+      // Usar datos mockeados temporalmente
+      return mockClientes;
+      
+      /* Código original para cuando esté el backend:
       const response = await apiClient<Cliente[]>(
         'caja-diaria/clientes',
         {
@@ -103,6 +170,7 @@ export class CajaDiariaService {
       );
       
       return response || [];
+      */
     } catch (error) {
       console.error('Error al obtener clientes:', error);
       throw new Error('No se pudieron obtener los clientes');
@@ -111,6 +179,13 @@ export class CajaDiariaService {
 
   async obtenerProveedores(): Promise<Proveedor[]> {
     try {
+      // Simular delay de API
+      await simulateApiDelay(200);
+      
+      // Usar datos mockeados temporalmente
+      return mockProveedores;
+      
+      /* Código original para cuando esté el backend:
       const response = await apiClient<Proveedor[]>(
         'caja-diaria/proveedores',
         {
@@ -119,6 +194,7 @@ export class CajaDiariaService {
       );
       
       return response || [];
+      */
     } catch (error) {
       console.error('Error al obtener proveedores:', error);
       throw new Error('No se pudieron obtener los proveedores');
