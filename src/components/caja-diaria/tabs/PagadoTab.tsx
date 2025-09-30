@@ -83,47 +83,41 @@ export default function PagadoTab() {
   const cantidadPagos = movimientos.length;
 
   return (
-    <div className="space-y-6">
-      {/* Resumen de pagos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card p-6 bg-red-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-red-600">Total Pagado</p>
-              <p className="text-2xl font-bold text-red-900">
-                {formatCurrency(totalPagado)}
-              </p>
+    <div className="space-y-4">
+      {/* Resumen en formato de grilla */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        {/* Header de la grilla */}
+        <div className="bg-gray-50 border-b border-gray-200">
+          <div className="grid grid-cols-4 gap-0">
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200">
+              Concepto
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <span className="text-red-600 text-xl">✅</span>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+              Total Pagado
             </div>
-          </div>
-        </div>
-
-        <div className="card p-6 bg-blue-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-blue-600">Cantidad de Pagos</p>
-              <p className="text-2xl font-bold text-blue-900">
-                {cantidadPagos}
-              </p>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+              Cantidad
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-xl">📋</span>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">
+              Promedio
             </div>
           </div>
         </div>
 
-        <div className="card p-6 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Promedio por Pago</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {cantidadPagos > 0 ? formatCurrency(totalPagado / cantidadPagos) : '$0.00'}
-              </p>
+        {/* Datos de la grilla */}
+        <div className="divide-y divide-gray-200">
+          <div className="grid grid-cols-4 gap-0 hover:bg-gray-50">
+            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+              Pagos Realizados
             </div>
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-              <span className="text-gray-600 text-xl">📊</span>
+            <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono font-semibold">
+              {formatCurrency(totalPagado)}
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-right font-mono">
+              {cantidadPagos}
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+              {cantidadPagos > 0 ? formatCurrency(totalPagado / cantidadPagos) : '$0.00'}
             </div>
           </div>
         </div>
@@ -137,17 +131,21 @@ export default function PagadoTab() {
         onLimpiar={handleLimpiarFiltros}
       />
 
-      {/* Tabla de movimientos */}
-      <div className="card p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Movimientos Pagados</h3>
-          <button
-            onClick={handleNuevoMovimiento}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <span>➕</span>
-            <span>Nuevo Pago</span>
-          </button>
+      {/* Tabla de movimientos en formato de grilla */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-semibold text-gray-700">
+              Movimientos Pagados ({cantidadPagos})
+            </h3>
+            <button
+              onClick={handleNuevoMovimiento}
+              className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 flex items-center space-x-1"
+            >
+              <span>➕</span>
+              <span>Nuevo Pago</span>
+            </button>
+          </div>
         </div>
         
         {loading ? (
@@ -155,11 +153,79 @@ export default function PagadoTab() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <MovimientosTable
-            movimientos={movimientos}
-            onEdit={handleEditarMovimiento}
-            onRefresh={cargarMovimientos}
-          />
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Proveedor
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Concepto
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Método de Pago
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Observaciones
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Monto
+                  </th>
+                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {movimientos.map((movimiento) => (
+                  <tr key={movimiento.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 text-sm text-gray-900 font-mono">
+                      {new Date(movimiento.fecha).toLocaleDateString('es-AR')}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">
+                      {movimiento.proveedor?.nombre || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">
+                      {movimiento.concepto}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-600 capitalize">
+                      {movimiento.metodoPago}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-600">
+                      {movimiento.observaciones || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-red-600 text-right font-mono font-semibold">
+                      -{formatCurrency(movimiento.monto)}
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <button
+                        onClick={() => handleEditarMovimiento(movimiento)}
+                        className="text-blue-600 hover:text-blue-800 text-xs px-1 py-0.5 rounded hover:bg-blue-50"
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        
+        {movimientos.length === 0 && !loading && (
+          <div className="p-8 text-center">
+            <div className="text-gray-400 text-4xl mb-4">✅</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No hay pagos registrados
+            </h3>
+            <p className="text-gray-500 text-sm">
+              Los pagos realizados aparecerán aquí.
+            </p>
+          </div>
         )}
       </div>
 

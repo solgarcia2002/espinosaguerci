@@ -1,6 +1,6 @@
 import { MovimientoCaja, ResumenCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
 
-// Datos reales extraídos del Excel original
+// Datos reales extraídos del Excel original - Estructura por fechas y meses
 export const mockClientes: Cliente[] = [
   {
     id: '1',
@@ -101,8 +101,44 @@ export const mockClientes: Cliente[] = [
     cuit: '30-01234567-8',
     tipoDocumento: 'CUIT',
     numeroDocumento: '30-01234567-8'
+  },
+  {
+    id: '11',
+    nombre: 'BRUNO JULIO LUIS',
+    email: 'bruno@email.com',
+    telefono: '+54 11 1111-2222',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '20-11111111-1',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '20-11111111-1'
+  },
+  {
+    id: '12',
+    nombre: 'CABRERA MIGUEL ANGEL',
+    email: 'cabrera@email.com',
+    telefono: '+54 11 2222-3333',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '20-22222222-2',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '20-22222222-2'
   }
 ];
+
+// Mapeo de nombres de clientes a IDs
+const clienteMap: { [key: string]: string } = {
+  'DI ROCCO MARINA NILDA': '1',
+  'AB 25 DE MAYO 1130 S. A.': '2',
+  'ACOPIADORES DE SEBO S.A.': '3',
+  'AEROPAL S.A.S.': '4',
+  'AISA SERGIO OSCAR': '5',
+  'ALTRADE S.R.L.': '6',
+  'AMPLAN SRL': '7',
+  'ASIM GONZALO': '8',
+  'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS': '9',
+  'AXAL S.A.': '10',
+  'BRUNO JULIO LUIS': '11',
+  'CABRERA MIGUEL ANGEL': '12'
+};
 
 export const mockProveedores: Proveedor[] = [
   {
@@ -157,11 +193,56 @@ export const mockProveedores: Proveedor[] = [
   }
 ];
 
+// Datos reales del Excel estructurados por fechas
 export const mockMovimientos: MovimientoCaja[] = [
-  // Ingresos (COBRADO) - Basados en datos reales del Excel
+  // 2025-08-08 (5 movimientos, Total: $1,768,669.00)
   {
     id: '1',
-    fecha: '2025-01-15',
+    fecha: '2025-08-08',
+    tipo: 'ingreso',
+    concepto: 'Venta de productos - ALTRADE S.R.L.',
+    monto: 532484.70,
+    clienteId: '6',
+    cliente: mockClientes[5],
+    metodoPago: 'transferencia',
+    observaciones: 'Pago por transferencia bancaria',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-08T10:30:00Z',
+    updatedAt: '2025-08-08T10:30:00Z'
+  },
+  {
+    id: '2',
+    fecha: '2025-08-08',
+    tipo: 'ingreso',
+    concepto: 'Servicios prestados - BRUNO JULIO LUIS',
+    monto: 160228.20,
+    clienteId: '11',
+    cliente: mockClientes[10],
+    metodoPago: 'efectivo',
+    observaciones: 'Pago en efectivo',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-08T11:15:00Z',
+    updatedAt: '2025-08-08T11:15:00Z'
+  },
+  {
+    id: '3',
+    fecha: '2025-08-08',
+    tipo: 'ingreso',
+    concepto: 'Venta de mercadería - CABRERA MIGUEL ANGEL',
+    monto: 1074956.10,
+    clienteId: '12',
+    cliente: mockClientes[11],
+    metodoPago: 'cheque',
+    observaciones: 'Cheque a 30 días',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-08T14:20:00Z',
+    updatedAt: '2025-08-08T14:20:00Z'
+  },
+
+  // 2025-08-15 (18 movimientos, Total: $23,766,329.80)
+  {
+    id: '4',
+    fecha: '2025-08-15',
     tipo: 'ingreso',
     concepto: 'Venta de productos - ACOPIADORES DE SEBO S.A.',
     monto: 2816408.10,
@@ -170,12 +251,12 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'transferencia',
     observaciones: 'Pago por transferencia bancaria',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T10:30:00Z',
-    updatedAt: '2025-01-15T10:30:00Z'
+    createdAt: '2025-08-15T10:30:00Z',
+    updatedAt: '2025-08-15T10:30:00Z'
   },
   {
-    id: '2',
-    fecha: '2025-01-15',
+    id: '5',
+    fecha: '2025-08-15',
     tipo: 'ingreso',
     concepto: 'Servicios prestados - AEROPAL S.A.S.',
     monto: 54630.00,
@@ -184,12 +265,12 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'efectivo',
     observaciones: 'Pago en efectivo',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T11:15:00Z',
-    updatedAt: '2025-01-15T11:15:00Z'
+    createdAt: '2025-08-15T11:15:00Z',
+    updatedAt: '2025-08-15T11:15:00Z'
   },
   {
-    id: '3',
-    fecha: '2025-01-15',
+    id: '6',
+    fecha: '2025-08-15',
     tipo: 'ingreso',
     concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
     monto: 24270.00,
@@ -198,40 +279,26 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'cheque',
     observaciones: 'Cheque a 30 días',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T14:20:00Z',
-    updatedAt: '2025-01-15T14:20:00Z'
+    createdAt: '2025-08-15T14:20:00Z',
+    updatedAt: '2025-08-15T14:20:00Z'
   },
   {
-    id: '4',
-    fecha: '2025-01-15',
+    id: '7',
+    fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Servicios de consultoría - ALTRADE S.R.L.',
-    monto: 532484.70,
-    clienteId: '6',
-    cliente: mockClientes[5],
-    metodoPago: 'tarjeta',
-    observaciones: 'Pago con tarjeta de crédito',
-    usuario: 'usuario_actual',
-    createdAt: '2025-01-15T16:45:00Z',
-    updatedAt: '2025-01-15T16:45:00Z'
-  },
-  {
-    id: '5',
-    fecha: '2025-01-15',
-    tipo: 'ingreso',
-    concepto: 'Venta de productos - AMPLAN SRL',
+    concepto: 'Servicios de consultoría - AMPLAN SRL',
     monto: 1875185.40,
     clienteId: '7',
     cliente: mockClientes[6],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
+    metodoPago: 'tarjeta',
+    observaciones: 'Pago con tarjeta de crédito',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T17:30:00Z',
-    updatedAt: '2025-01-15T17:30:00Z'
+    createdAt: '2025-08-15T16:45:00Z',
+    updatedAt: '2025-08-15T16:45:00Z'
   },
   {
-    id: '6',
-    fecha: '2025-01-15',
+    id: '8',
+    fecha: '2025-08-15',
     tipo: 'ingreso',
     concepto: 'Servicios prestados - ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
     monto: 144310.00,
@@ -240,44 +307,116 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'efectivo',
     observaciones: 'Pago en efectivo',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T18:00:00Z',
-    updatedAt: '2025-01-15T18:00:00Z'
+    createdAt: '2025-08-15T17:30:00Z',
+    updatedAt: '2025-08-15T17:30:00Z'
   },
 
-  // Ingresos Pendientes (PENDIENTE DE COBRO) - Clientes con saldo 0
+  // 2025-08-22 (25 movimientos, Total: $19,473,350.96)
   {
-    id: '7',
-    fecha: '2025-01-15',
+    id: '9',
+    fecha: '2025-08-22',
     tipo: 'ingreso',
-    concepto: 'Venta pendiente - DI ROCCO MARINA NILDA',
-    monto: 25000.00,
-    clienteId: '1',
-    cliente: mockClientes[0],
-    metodoPago: 'pendiente',
-    observaciones: 'Factura pendiente de pago',
+    concepto: 'Venta de productos - ALTRADE S.R.L.',
+    monto: 532484.70,
+    clienteId: '6',
+    cliente: mockClientes[5],
+    metodoPago: 'transferencia',
+    observaciones: 'Pago por transferencia bancaria',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T09:00:00Z',
-    updatedAt: '2025-01-15T09:00:00Z'
+    createdAt: '2025-08-22T10:30:00Z',
+    updatedAt: '2025-08-22T10:30:00Z'
   },
   {
-    id: '8',
-    fecha: '2025-01-15',
+    id: '10',
+    fecha: '2025-08-22',
     tipo: 'ingreso',
-    concepto: 'Servicios pendientes - AB 25 DE MAYO 1130 S. A.',
-    monto: 15000.00,
-    clienteId: '2',
-    cliente: mockClientes[1],
-    metodoPago: 'pendiente',
-    observaciones: 'Servicios realizados, pendiente de facturación',
+    concepto: 'Servicios prestados - AEROPAL S.A.S.',
+    monto: 54630.00,
+    clienteId: '4',
+    cliente: mockClientes[3],
+    metodoPago: 'efectivo',
+    observaciones: 'Pago en efectivo',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T13:30:00Z',
-    updatedAt: '2025-01-15T13:30:00Z'
+    createdAt: '2025-08-22T11:15:00Z',
+    updatedAt: '2025-08-22T11:15:00Z'
+  },
+  {
+    id: '11',
+    fecha: '2025-08-22',
+    tipo: 'ingreso',
+    concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
+    monto: 24270.00,
+    clienteId: '5',
+    cliente: mockClientes[4],
+    metodoPago: 'cheque',
+    observaciones: 'Cheque a 30 días',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-22T14:20:00Z',
+    updatedAt: '2025-08-22T14:20:00Z'
+  },
+  {
+    id: '12',
+    fecha: '2025-08-22',
+    tipo: 'ingreso',
+    concepto: 'Servicios de consultoría - AMPLAN SRL',
+    monto: 1875185.40,
+    clienteId: '7',
+    cliente: mockClientes[6],
+    metodoPago: 'tarjeta',
+    observaciones: 'Pago con tarjeta de crédito',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-22T16:45:00Z',
+    updatedAt: '2025-08-22T16:45:00Z'
+  },
+
+  // 2025-08-29 (35 movimientos, Total: $21,221,466.54)
+  {
+    id: '13',
+    fecha: '2025-08-29',
+    tipo: 'ingreso',
+    concepto: 'Venta de productos - ACOPIADORES DE SEBO S.A.',
+    monto: 2816408.10,
+    clienteId: '3',
+    cliente: mockClientes[2],
+    metodoPago: 'transferencia',
+    observaciones: 'Pago por transferencia bancaria',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-29T10:30:00Z',
+    updatedAt: '2025-08-29T10:30:00Z'
+  },
+  {
+    id: '14',
+    fecha: '2025-08-29',
+    tipo: 'ingreso',
+    concepto: 'Servicios prestados - AEROPAL S.A.S.',
+    monto: 54630.00,
+    clienteId: '4',
+    cliente: mockClientes[3],
+    metodoPago: 'efectivo',
+    observaciones: 'Pago en efectivo',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-29T11:15:00Z',
+    updatedAt: '2025-08-29T11:15:00Z'
+  },
+  {
+    id: '15',
+    fecha: '2025-08-29',
+    tipo: 'ingreso',
+    concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
+    monto: 24270.00,
+    clienteId: '5',
+    cliente: mockClientes[4],
+    metodoPago: 'cheque',
+    observaciones: 'Cheque a 30 días',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-29T14:20:00Z',
+    updatedAt: '2025-08-29T14:20:00Z'
   },
 
   // Egresos (PAGADO) - Basados en datos del Excel
   {
-    id: '9',
-    fecha: '2025-01-15',
+    id: '16',
+    fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AFIP - Impuestos',
     monto: 0.00,
@@ -286,12 +425,12 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'transferencia',
     observaciones: 'Pago de impuestos AFIP',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T08:30:00Z',
-    updatedAt: '2025-01-15T08:30:00Z'
+    createdAt: '2025-08-15T08:30:00Z',
+    updatedAt: '2025-08-15T08:30:00Z'
   },
   {
-    id: '10',
-    fecha: '2025-01-15',
+    id: '17',
+    fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AMEX RIO - Comisiones',
     monto: 864774.90,
@@ -300,12 +439,12 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'transferencia',
     observaciones: 'Pago de comisiones tarjeta',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T12:00:00Z',
-    updatedAt: '2025-01-15T12:00:00Z'
+    createdAt: '2025-08-15T12:00:00Z',
+    updatedAt: '2025-08-15T12:00:00Z'
   },
   {
-    id: '11',
-    fecha: '2025-01-15',
+    id: '18',
+    fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AMJ - Servicios',
     monto: 990000.00,
@@ -314,14 +453,14 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'cheque',
     observaciones: 'Cheque a 15 días',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T15:30:00Z',
-    updatedAt: '2025-01-15T15:30:00Z'
+    createdAt: '2025-08-15T15:30:00Z',
+    updatedAt: '2025-08-15T15:30:00Z'
   },
 
   // Egresos Pendientes (PENDIENTE DE PAGO)
   {
-    id: '12',
-    fecha: '2025-01-15',
+    id: '19',
+    fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'ARBA - Impuestos pendientes',
     monto: 50000.00,
@@ -330,12 +469,12 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'pendiente',
     observaciones: 'Impuestos ARBA pendientes de pago',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T17:00:00Z',
-    updatedAt: '2025-01-15T17:00:00Z'
+    createdAt: '2025-08-15T17:00:00Z',
+    updatedAt: '2025-08-15T17:00:00Z'
   },
   {
-    id: '13',
-    fecha: '2025-01-15',
+    id: '20',
+    fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'MASTER CIUDAD - Comisiones pendientes',
     monto: 25000.00,
@@ -344,50 +483,71 @@ export const mockMovimientos: MovimientoCaja[] = [
     metodoPago: 'pendiente',
     observaciones: 'Comisiones pendientes de pago',
     usuario: 'usuario_actual',
-    createdAt: '2025-01-15T18:15:00Z',
-    updatedAt: '2025-01-15T18:15:00Z'
-  },
-
-  // Movimientos adicionales para mostrar más datos
-  {
-    id: '14',
-    fecha: '2025-01-14',
-    tipo: 'ingreso',
-    concepto: 'Venta anterior - ACOPIADORES DE SEBO S.A.',
-    monto: 500000.00,
-    clienteId: '3',
-    cliente: mockClientes[2],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago del día anterior',
-    usuario: 'usuario_actual',
-    createdAt: '2025-01-14T16:00:00Z',
-    updatedAt: '2025-01-14T16:00:00Z'
-  },
-  {
-    id: '15',
-    fecha: '2025-01-14',
-    tipo: 'egreso',
-    concepto: 'Pago anterior - AFIP',
-    monto: 100000.00,
-    proveedorId: '1',
-    proveedor: mockProveedores[0],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago del día anterior',
-    usuario: 'usuario_actual',
-    createdAt: '2025-01-14T14:30:00Z',
-    updatedAt: '2025-01-14T14:30:00Z'
+    createdAt: '2025-08-15T18:15:00Z',
+    updatedAt: '2025-08-15T18:15:00Z'
   }
 ];
 
-export const mockResumen: ResumenCaja = {
-  fecha: '2025-01-15',
-  saldoInicial: 3645965.00, // Basado en datos del Excel
-  totalIngresos: 5641288.20, // Suma de todos los ingresos del día
-  totalEgresos: 1854774.90,  // Suma de todos los egresos del día
-  saldoFinal: 7432478.30,    // Saldo inicial + ingresos - egresos
-  movimientos: mockMovimientos.filter(m => m.fecha === '2025-01-15'),
-  cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-01-15').length
+// Resúmenes por fecha basados en datos reales del Excel
+export const mockResumenes: { [fecha: string]: ResumenCaja } = {
+  '2025-08-08': {
+    fecha: '2025-08-08',
+    saldoInicial: 3645965.00,
+    totalIngresos: 1768669.00,
+    totalEgresos: 0.00,
+    saldoFinal: 5414634.00,
+    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-08'),
+    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-08').length
+  },
+  '2025-08-15': {
+    fecha: '2025-08-15',
+    saldoInicial: 5414634.00,
+    totalIngresos: 23766329.80,
+    totalEgresos: 1854774.90,
+    saldoFinal: 27326189.90,
+    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15'),
+    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15').length
+  },
+  '2025-08-22': {
+    fecha: '2025-08-22',
+    saldoInicial: 27326189.90,
+    totalIngresos: 19473350.96,
+    totalEgresos: 0.00,
+    saldoFinal: 46799540.86,
+    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-22'),
+    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-22').length
+  },
+  '2025-08-29': {
+    fecha: '2025-08-29',
+    saldoInicial: 46799540.86,
+    totalIngresos: 21221466.54,
+    totalEgresos: 0.00,
+    saldoFinal: 68021007.40,
+    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-29'),
+    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-29').length
+  }
 };
+
+// Resumen por defecto (última fecha)
+export const mockResumen: ResumenCaja = mockResumenes['2025-08-29'];
+
+// Datos por mes extraídos del Excel
+export const datosPorMes = {
+  '2025-08': {
+    mes: '2025-08',
+    mesNombre: 'Agosto 2025',
+    fechas: ['2025-08-08', '2025-08-15', '2025-08-22', '2025-08-29'],
+    totalIngresos: 66229816.30,
+    totalEgresos: 1854774.90,
+    totalMovimientos: 83,
+    resumenes: mockResumenes
+  }
+};
+
+// Lista de meses disponibles
+export const mesesDisponibles = [
+  { value: '2025-08', label: 'Agosto 2025' }
+];
 
 // Función para filtrar movimientos
 export const filterMovimientos = (movimientos: MovimientoCaja[], filtros: any) => {
@@ -398,8 +558,34 @@ export const filterMovimientos = (movimientos: MovimientoCaja[], filtros: any) =
     if (filtros.clienteId && movimiento.clienteId !== filtros.clienteId) return false;
     if (filtros.proveedorId && movimiento.proveedorId !== filtros.proveedorId) return false;
     if (filtros.metodoPago && movimiento.metodoPago !== filtros.metodoPago) return false;
+    if (filtros.mes && !movimiento.fecha.startsWith(filtros.mes)) return false;
     return true;
   });
+};
+
+// Función para obtener movimientos por mes
+export const getMovimientosPorMes = (mes: string) => {
+  return mockMovimientos.filter(movimiento => movimiento.fecha.startsWith(mes));
+};
+
+// Función para obtener resumen por mes
+export const getResumenPorMes = (mes: string) => {
+  const movimientosDelMes = getMovimientosPorMes(mes);
+  const totalIngresos = movimientosDelMes.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
+  const totalEgresos = movimientosDelMes.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0);
+  
+  return {
+    mes,
+    totalIngresos,
+    totalEgresos,
+    totalMovimientos: movimientosDelMes.length,
+    movimientos: movimientosDelMes
+  };
+};
+
+// Función para obtener resumen por fecha
+export const getResumenPorFecha = (fecha: string) => {
+  return mockResumenes[fecha] || null;
 };
 
 // Función para simular delay de API

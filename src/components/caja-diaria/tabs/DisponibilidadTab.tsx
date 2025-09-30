@@ -38,150 +38,164 @@ export default function DisponibilidadTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Selector de fecha */}
-      <div className="card p-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex items-center space-x-4">
           <label className="text-sm font-medium text-gray-700">Fecha:</label>
           <input
             type="date"
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
-            className="input"
+            className="px-2 py-1 border border-gray-300 rounded text-xs"
           />
           <button
             onClick={cargarDisponibilidad}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
           >
             Actualizar
           </button>
         </div>
       </div>
 
-      {/* Resumen de disponibilidad */}
+      {/* Resumen en formato de grilla */}
       {resumen ? (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="card p-6 bg-blue-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Saldo Inicial</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  {formatCurrency(resumen.saldoInicial)}
-                </p>
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          {/* Header de la grilla */}
+          <div className="bg-gray-50 border-b border-gray-200">
+            <div className="grid grid-cols-5 gap-0">
+              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200">
+                Concepto
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 text-xl">💰</span>
+              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+                Saldo Inicial
               </div>
-            </div>
-          </div>
-
-          <div className="card p-6 bg-green-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600">Total Ingresos</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {formatCurrency(resumen.totalIngresos)}
-                </p>
+              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+                Ingresos
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 text-xl">📈</span>
+              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+                Egresos
+              </div>
+              <div className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">
+                Saldo Final
               </div>
             </div>
           </div>
 
-          <div className="card p-6 bg-red-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600">Total Egresos</p>
-                <p className="text-2xl font-bold text-red-900">
-                  {formatCurrency(resumen.totalEgresos)}
-                </p>
+          {/* Datos de la grilla */}
+          <div className="divide-y divide-gray-200">
+            <div className="grid grid-cols-5 gap-0 hover:bg-gray-50">
+              <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+                Disponibilidad de Caja
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-red-600 text-xl">📉</span>
+              <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-right font-mono">
+                {formatCurrency(resumen.saldoInicial)}
               </div>
-            </div>
-          </div>
-
-          <div className={`card p-6 ${
-            resumen.saldoFinal >= 0 ? 'bg-green-50' : 'bg-red-50'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`text-sm font-medium ${
-                  resumen.saldoFinal >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  Dinero Disponible
-                </p>
-                <p className={`text-2xl font-bold ${
-                  resumen.saldoFinal >= 0 ? 'text-green-900' : 'text-red-900'
-                }`}>
-                  {formatCurrency(resumen.saldoFinal)}
-                </p>
+              <div className="px-4 py-3 text-sm text-green-600 border-r border-gray-200 text-right font-mono">
+                {formatCurrency(resumen.totalIngresos)}
               </div>
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                resumen.saldoFinal >= 0 ? 'bg-green-100' : 'bg-red-100'
+              <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono">
+                {formatCurrency(resumen.totalEgresos)}
+              </div>
+              <div className={`px-4 py-3 text-sm text-right font-mono font-semibold ${
+                resumen.saldoFinal >= 0 ? 'text-green-600' : 'text-red-600'
               }`}>
-                <span className={`text-xl ${
-                  resumen.saldoFinal >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {resumen.saldoFinal >= 0 ? '✅' : '⚠️'}
-                </span>
+                {formatCurrency(resumen.saldoFinal)}
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="card p-8 text-center">
-          <div className="text-gray-400 text-6xl mb-4">💰</div>
+        <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+          <div className="text-gray-400 text-4xl mb-4">💰</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No hay datos de disponibilidad
           </h3>
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm">
             Selecciona una fecha para ver el dinero disponible en caja.
           </p>
         </div>
       )}
 
-      {/* Detalle de movimientos del día */}
+      {/* Tabla de movimientos del día */}
       {resumen && resumen.movimientos.length > 0 && (
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Movimientos del Día
-          </h3>
-          <div className="space-y-2">
-            {resumen.movimientos.slice(0, 10).map((movimiento) => (
-              <div key={movimiento.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <span className={`w-3 h-3 rounded-full ${
-                    movimiento.tipo === 'ingreso' ? 'bg-green-500' : 'bg-red-500'
-                  }`}></span>
-                  <div>
-                    <p className="font-medium text-gray-900">{movimiento.concepto}</p>
-                    <p className="text-sm text-gray-500">
-                      {movimiento.cliente?.nombre || movimiento.proveedor?.nombre || 'Sin asociar'}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`font-semibold ${
-                    movimiento.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {movimiento.tipo === 'ingreso' ? '+' : '-'}
-                    {formatCurrency(movimiento.monto)}
-                  </p>
-                  <p className="text-sm text-gray-500 capitalize">
-                    {movimiento.metodoPago}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {resumen.movimientos.length > 10 && (
-              <p className="text-center text-gray-500 text-sm mt-4">
-                Y {resumen.movimientos.length - 10} movimientos más...
-              </p>
-            )}
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+            <h3 className="text-sm font-semibold text-gray-700">
+              Movimientos del Día ({resumen.movimientos.length})
+            </h3>
           </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Hora
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tipo
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Concepto
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Cliente/Proveedor
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Método
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Monto
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {resumen.movimientos.slice(0, 20).map((movimiento) => (
+                  <tr key={movimiento.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 text-sm text-gray-900 font-mono">
+                      {new Date(movimiento.createdAt).toLocaleTimeString('es-AR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        movimiento.tipo === 'ingreso' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {movimiento.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-900">
+                      {movimiento.concepto}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-600">
+                      {movimiento.cliente?.nombre || movimiento.proveedor?.nombre || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-600 capitalize">
+                      {movimiento.metodoPago}
+                    </td>
+                    <td className={`px-4 py-2 text-sm text-right font-mono ${
+                      movimiento.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {movimiento.tipo === 'ingreso' ? '+' : '-'}
+                      {formatCurrency(movimiento.monto)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {resumen.movimientos.length > 20 && (
+            <div className="bg-gray-50 px-4 py-2 text-center">
+              <p className="text-sm text-gray-500">
+                Mostrando 20 de {resumen.movimientos.length} movimientos
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

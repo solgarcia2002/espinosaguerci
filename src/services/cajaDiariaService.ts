@@ -3,9 +3,13 @@ import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor } from '@/
 import { 
   mockMovimientos, 
   mockResumen, 
+  mockResumenes,
   mockClientes, 
   mockProveedores, 
   filterMovimientos, 
+  getMovimientosPorMes,
+  getResumenPorMes,
+  getResumenPorFecha,
   simulateApiDelay 
 } from '@/data/mockData';
 
@@ -119,12 +123,18 @@ export class CajaDiariaService {
       // Simular delay de API
       await simulateApiDelay(400);
       
-      // Usar datos mockeados temporalmente
+      // Usar datos mockeados con resúmenes por fecha
+      const resumen = getResumenPorFecha(fecha);
+      if (resumen) {
+        return resumen;
+      }
+      
+      // Si no existe resumen para esa fecha, crear uno dinámico
       const movimientosDelDia = mockMovimientos.filter(m => m.fecha === fecha);
       const totalIngresos = movimientosDelDia.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
       const totalEgresos = movimientosDelDia.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0);
       
-      const resumen: ResumenCaja = {
+      const resumenDinamico: ResumenCaja = {
         fecha,
         saldoInicial: 100000.00, // Mock
         totalIngresos,
@@ -134,7 +144,7 @@ export class CajaDiariaService {
         cantidadMovimientos: movimientosDelDia.length
       };
       
-      return resumen;
+      return resumenDinamico;
       
       /* Código original para cuando esté el backend:
       const response = await apiClient<ResumenCaja>(
@@ -150,6 +160,31 @@ export class CajaDiariaService {
     } catch (error) {
       console.error('Error al obtener resumen diario:', error);
       throw new Error('No se pudo obtener el resumen diario');
+    }
+  }
+
+  async obtenerResumenPorMes(mes: string): Promise<any> {
+    try {
+      // Simular delay de API
+      await simulateApiDelay(400);
+      
+      // Usar datos mockeados con resúmenes por mes
+      return getResumenPorMes(mes);
+      
+      /* Código original para cuando esté el backend:
+      const response = await apiClient<any>(
+        'caja-diaria/resumen-mes',
+        {
+          method: 'GET'
+        },
+        { mes }
+      );
+      
+      return response;
+      */
+    } catch (error) {
+      console.error('Error al obtener resumen por mes:', error);
+      throw new Error('No se pudo obtener el resumen por mes');
     }
   }
 

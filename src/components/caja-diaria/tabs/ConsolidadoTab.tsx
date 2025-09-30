@@ -86,162 +86,191 @@ export default function ConsolidadoTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Selector de fechas */}
-      <div className="card p-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex items-center space-x-4">
           <label className="text-sm font-medium text-gray-700">Período:</label>
           <input
             type="date"
             value={fechaDesde}
             onChange={(e) => setFechaDesde(e.target.value)}
-            className="input"
+            className="px-2 py-1 border border-gray-300 rounded text-xs"
           />
-          <span className="text-gray-500">hasta</span>
+          <span className="text-gray-500 text-xs">hasta</span>
           <input
             type="date"
             value={fechaHasta}
             onChange={(e) => setFechaHasta(e.target.value)}
-            className="input"
+            className="px-2 py-1 border border-gray-300 rounded text-xs"
           />
           <button
             onClick={cargarDatos}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
           >
             Actualizar
           </button>
           <button
             onClick={handleExportar}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+            className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
           >
             📊 Exportar
           </button>
         </div>
       </div>
 
-      {/* Resumen consolidado */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="card p-6 bg-green-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-green-600">Total Ingresos</p>
-              <p className="text-2xl font-bold text-green-900">
-                {formatCurrency(totalIngresos)}
-              </p>
-              <p className="text-xs text-green-600 mt-1">
-                Cobrado: {formatCurrency(ingresosCobrados)} | Pendiente: {formatCurrency(ingresosPendientes)}
-              </p>
+      {/* Resumen consolidado en formato de grilla */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        {/* Header de la grilla */}
+        <div className="bg-gray-50 border-b border-gray-200">
+          <div className="grid grid-cols-5 gap-0">
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200">
+              Concepto
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 text-xl">📈</span>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+              Total
             </div>
-          </div>
-        </div>
-
-        <div className="card p-6 bg-red-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-red-600">Total Egresos</p>
-              <p className="text-2xl font-bold text-red-900">
-                {formatCurrency(totalEgresos)}
-              </p>
-              <p className="text-xs text-red-600 mt-1">
-                Pagado: {formatCurrency(egresosPagados)} | Pendiente: {formatCurrency(egresosPendientes)}
-              </p>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+              Realizado
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <span className="text-red-600 text-xl">📉</span>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
+              Pendiente
+            </div>
+            <div className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">
+              Cantidad
             </div>
           </div>
         </div>
 
-        <div className={`card p-6 ${
-          saldoNeto >= 0 ? 'bg-green-50' : 'bg-red-50'
-        }`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className={`text-sm font-medium ${
-                saldoNeto >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                Saldo Neto
-              </p>
-              <p className={`text-2xl font-bold ${
-                saldoNeto >= 0 ? 'text-green-900' : 'text-red-900'
-              }`}>
-                {formatCurrency(saldoNeto)}
-              </p>
+        {/* Datos de la grilla */}
+        <div className="divide-y divide-gray-200">
+          <div className="grid grid-cols-5 gap-0 hover:bg-gray-50">
+            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+              Ingresos
             </div>
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              saldoNeto >= 0 ? 'bg-green-100' : 'bg-red-100'
+            <div className="px-4 py-3 text-sm text-green-600 border-r border-gray-200 text-right font-mono font-semibold">
+              {formatCurrency(totalIngresos)}
+            </div>
+            <div className="px-4 py-3 text-sm text-green-600 border-r border-gray-200 text-right font-mono">
+              {formatCurrency(ingresosCobrados)}
+            </div>
+            <div className="px-4 py-3 text-sm text-yellow-600 border-r border-gray-200 text-right font-mono">
+              {formatCurrency(ingresosPendientes)}
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+              {movimientos.filter(m => m.tipo === 'ingreso').length}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-5 gap-0 hover:bg-gray-50">
+            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
+              Egresos
+            </div>
+            <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono font-semibold">
+              {formatCurrency(totalEgresos)}
+            </div>
+            <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono">
+              {formatCurrency(egresosPagados)}
+            </div>
+            <div className="px-4 py-3 text-sm text-orange-600 border-r border-gray-200 text-right font-mono">
+              {formatCurrency(egresosPendientes)}
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+              {movimientos.filter(m => m.tipo === 'egreso').length}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-5 gap-0 hover:bg-gray-50 bg-gray-50">
+            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 font-semibold">
+              Saldo Neto
+            </div>
+            <div className={`px-4 py-3 text-sm border-r border-gray-200 text-right font-mono font-semibold ${
+              saldoNeto >= 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              <span className={`text-xl ${
-                saldoNeto >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {saldoNeto >= 0 ? '✅' : '⚠️'}
-              </span>
+              {formatCurrency(saldoNeto)}
             </div>
-          </div>
-        </div>
-
-        <div className="card p-6 bg-blue-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-blue-600">Total Movimientos</p>
-              <p className="text-2xl font-bold text-blue-900">
-                {movimientos.length}
-              </p>
-              <p className="text-xs text-blue-600 mt-1">
-                Ingresos: {movimientos.filter(m => m.tipo === 'ingreso').length} | 
-                Egresos: {movimientos.filter(m => m.tipo === 'egreso').length}
-              </p>
+            <div className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200 text-right font-mono">
+              -
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 text-xl">📊</span>
+            <div className="px-4 py-3 text-sm text-gray-600 border-r border-gray-200 text-right font-mono">
+              -
+            </div>
+            <div className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+              {movimientos.length}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Estado de pendientes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Cobros Pendientes
+      {/* Estado de pendientes en formato de grilla */}
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+          <h3 className="text-sm font-semibold text-gray-700">
+            Estado de Pendientes
           </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Pendiente:</span>
-              <span className="font-bold text-yellow-600">
-                {formatCurrency(ingresosPendientes)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Cantidad:</span>
-              <span className="font-bold text-gray-900">
-                {movimientos.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'pendiente').length}
-              </span>
-            </div>
-          </div>
         </div>
-
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Pagos Pendientes
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Pendiente:</span>
-              <span className="font-bold text-orange-600">
-                {formatCurrency(egresosPendientes)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Cantidad:</span>
-              <span className="font-bold text-gray-900">
-                {movimientos.filter(m => m.tipo === 'egreso' && m.metodoPago === 'pendiente').length}
-              </span>
-            </div>
-          </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tipo
+                </th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total Pendiente
+                </th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cantidad
+                </th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Promedio
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              <tr className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">⏳</span>
+                    <span>Cobros Pendientes</span>
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-sm text-yellow-600 text-right font-mono font-semibold">
+                  {formatCurrency(ingresosPendientes)}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                  {movimientos.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'pendiente').length}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-600 text-right font-mono">
+                  {movimientos.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'pendiente').length > 0 
+                    ? formatCurrency(ingresosPendientes / movimientos.filter(m => m.tipo === 'ingreso' && m.metodoPago === 'pendiente').length)
+                    : '$0.00'
+                  }
+                </td>
+              </tr>
+              <tr className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">⏳</span>
+                    <span>Pagos Pendientes</span>
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-sm text-orange-600 text-right font-mono font-semibold">
+                  {formatCurrency(egresosPendientes)}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                  {movimientos.filter(m => m.tipo === 'egreso' && m.metodoPago === 'pendiente').length}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-600 text-right font-mono">
+                  {movimientos.filter(m => m.tipo === 'egreso' && m.metodoPago === 'pendiente').length > 0 
+                    ? formatCurrency(egresosPendientes / movimientos.filter(m => m.tipo === 'egreso' && m.metodoPago === 'pendiente').length)
+                    : '$0.00'
+                  }
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -250,29 +279,48 @@ export default function ConsolidadoTab() {
 
       {/* Resumen diario si está disponible */}
       {resumen && (
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Resumen del Día {fechaDesde}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Saldo Inicial</p>
-              <p className="text-xl font-bold text-gray-900">
-                {formatCurrency(resumen.saldoInicial)}
-              </p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Saldo Final</p>
-              <p className="text-xl font-bold text-gray-900">
-                {formatCurrency(resumen.saldoFinal)}
-              </p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Movimientos del Día</p>
-              <p className="text-xl font-bold text-gray-900">
-                {resumen.cantidadMovimientos}
-              </p>
-            </div>
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+            <h3 className="text-sm font-semibold text-gray-700">
+              Resumen del Día {fechaDesde}
+            </h3>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Concepto
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Saldo Inicial
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Saldo Final
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Movimientos
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                <tr className="hover:bg-gray-50">
+                  <td className="px-4 py-2 text-sm text-gray-900">
+                    Disponibilidad de Caja
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                    {formatCurrency(resumen.saldoInicial)}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono font-semibold">
+                    {formatCurrency(resumen.saldoFinal)}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                    {resumen.cantidadMovimientos}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       )}

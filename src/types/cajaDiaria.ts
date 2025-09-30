@@ -54,6 +54,7 @@ export interface FiltrosCaja {
   clienteId?: string;
   proveedorId?: string;
   metodoPago?: string;
+  mes?: string;
 }
 
 export interface ColppyCredentials {
