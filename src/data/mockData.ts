@@ -1,176 +1,343 @@
 import { MovimientoCaja, ResumenCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
 
-// Datos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
+// Clientes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockClientes: Cliente[] = [
-  // Clientes con Saldos Significativos (según Excel)
   {
     id: '1',
-    nombre: 'ACOPIADORES DE SEBO S.A.',
-    email: 'acopiadores@email.com',
-    telefono: '+54 11 3456-7890',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-34567890-1',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-34567890-1'
+    cliente: 'DI ROCCO MARINA NILDA',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0001-00004223',
+    vencimiento: '08-08-2025',
+    total: 28240.00,
+    cobrado: 28240.00,
+    pendiente: 0.00
   },
   {
     id: '2',
-    nombre: 'AMPLAN SRL',
-    email: 'amplan@email.com',
-    telefono: '+54 11 7890-1234',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-78901234-5',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-78901234-5'
+    cliente: 'A M J   S A',
+    tipo: 'FAV-A',
+    fecha: '01-08-2025',
+    referencia: '0007-00000407',
+    vencimiento: '15-08-2025',
+    total: 864774.90,
+    cobrado: 990000.00,
+    pendiente: 0.00
   },
   {
     id: '3',
-    nombre: 'ALTRADE S.R.L.',
-    email: 'altrade@email.com',
-    telefono: '+54 11 6789-0123',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-67890123-4',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-67890123-4'
+    cliente: 'AB 25 DE MAYO 1130 S. A.',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0006-00001155',
+    vencimiento: '08-08-2025',
+    total: 786560.50,
+    cobrado: 786560.50,
+    pendiente: 0.00
   },
   {
     id: '4',
-    nombre: 'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
-    email: 'dircoms@email.com',
-    telefono: '+54 11 9012-3456',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-90123456-7',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-90123456-7'
+    cliente: 'ACOPIADORES DE SEBO S.A.',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0005-00000359',
+    vencimiento: '15-08-2025',
+    total: 2816408.10,
+    cobrado: 0.00,
+    pendiente: 2816408.10
   },
   {
     id: '5',
-    nombre: 'AEROPAL S.A.S.',
-    email: 'aeropal@email.com',
-    telefono: '+54 11 4567-8901',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-45678901-2',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-45678901-2'
+    cliente: 'AEROPAL S.A.S.',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0001-00004224',
+    vencimiento: '22-08-2025',
+    total: 54630.00,
+    cobrado: 0.00,
+    pendiente: 54630.00
   },
   {
     id: '6',
-    nombre: 'AISA SERGIO OSCAR',
-    email: 'aisa@email.com',
-    telefono: '+54 11 5678-9012',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '20-56789012-3',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '20-56789012-3'
+    cliente: 'AISA SERGIO OSCAR',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0001-00004221',
+    vencimiento: '29-08-2025',
+    total: 24270.00,
+    cobrado: 0.00,
+    pendiente: 24270.00
   },
-  // Clientes con Saldo Cero (según Excel)
   {
     id: '7',
-    nombre: 'DI ROCCO MARINA NILDA',
-    email: 'dirocco@email.com',
-    telefono: '+54 11 1234-5678',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '27-12345678-9',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '27-12345678-9'
+    cliente: 'ALFARO PEDRO GERARDO',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0001-00004226',
+    vencimiento: '15-08-2025',
+    total: 183859.50,
+    cobrado: 0.00,
+    pendiente: 183859.50
   },
   {
     id: '8',
-    nombre: 'AB 25 DE MAYO 1130 S. A.',
-    email: 'ab25mayo@email.com',
-    telefono: '+54 11 2345-6789',
-    direccion: 'Av. 25 de Mayo 1130, CABA',
-    cuit: '30-23456789-0',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-23456789-0'
+    cliente: 'ALIBABA SRL',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0001-00004222',
+    vencimiento: '08-08-2025',
+    total: 1335000.00,
+    cobrado: 1335000.00,
+    pendiente: 0.00
   },
   {
     id: '9',
-    nombre: 'ASIM GONZALO',
-    email: 'asim@email.com',
-    telefono: '+54 11 8901-2345',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '20-89012345-6',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '20-89012345-6'
+    cliente: 'ALTRADE S.R.L.',
+    tipo: 'FAV-X',
+    fecha: '01-08-2025',
+    referencia: '0006-00001156',
+    vencimiento: '08-08-2025',
+    total: 532484.70,
+    cobrado: 0.00,
+    pendiente: 532484.70
   },
   {
     id: '10',
-    nombre: 'AXAL S.A.',
-    email: 'axal@email.com',
-    telefono: '+54 11 0123-4567',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-01234567-8',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-01234567-8'
+    cliente: 'AMPLAN SRL',
+    tipo: 'FAV-A',
+    fecha: '01-08-2025',
+    referencia: '0007-00000406',
+    vencimiento: '22-08-2025',
+    total: 1875185.40,
+    cobrado: 0.00,
+    pendiente: 1875185.40
   }
 ];
 
 // Mapeo de nombres de clientes a IDs (EXACTOS del Excel)
-const clienteMap: { [key: string]: string } = {
-  'ACOPIADORES DE SEBO S.A.': '1',
-  'AMPLAN SRL': '2',
-  'ALTRADE S.R.L.': '3',
-  'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS': '4',
+export const clienteMap: { [key: string]: string } = {
+  'DI ROCCO MARINA NILDA': '1',
+  'A M J   S A': '2',
+  'AB 25 DE MAYO 1130 S. A.': '3',
+  'ACOPIADORES DE SEBO S.A.': '4',
   'AEROPAL S.A.S.': '5',
   'AISA SERGIO OSCAR': '6',
-  'DI ROCCO MARINA NILDA': '7',
-  'AB 25 DE MAYO 1130 S. A.': '8',
-  'ASIM GONZALO': '9',
-  'AXAL S.A.': '10'
+  'ALFARO PEDRO GERARDO': '7',
+  'ALIBABA SRL': '8',
+  'ALTRADE S.R.L.': '9',
+  'AMPLAN SRL': '10'
 };
 
 // Proveedores EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockProveedores: Proveedor[] = [
   {
     id: '1',
-    nombre: 'AFIP',
-    email: 'afip@afip.gob.ar',
-    telefono: '+54 11 4347-7000',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-50000000-7',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-50000000-7'
+    proveedor: 'ANTICIPOS GANANCIAS SILVINA',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000462',
+    vencimiento: '15-08-2025',
+    total: 50000.00,
+    pagado: 0.00,
+    pendiente: 50000.00
   },
   {
     id: '2',
-    nombre: 'ARBA',
-    email: 'arba@arba.gob.ar',
-    telefono: '+54 11 4000-4000',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-50000001-8',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-50000001-8'
+    proveedor: 'BANCO CIUDAD - PRESTAMO',
+    tipo: 'FAC-X',
+    fecha: '01-08-2025',
+    referencia: '41654-00000460',
+    vencimiento: '15-08-2025',
+    total: 150000.00,
+    pagado: 150000.00,
+    pendiente: 0.00
   },
   {
     id: '3',
-    nombre: 'AMEX RIO',
-    email: 'amex@amex.com',
-    telefono: '+54 11 4000-1234',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-50000002-9',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-50000002-9'
+    proveedor: 'CABLEVISION - FIBERTEL',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000465',
+    vencimiento: '22-08-2025',
+    total: 25000.00,
+    pagado: 0.00,
+    pendiente: 25000.00
   },
   {
     id: '4',
-    nombre: 'MASTER CIUDAD',
-    email: 'master@mastercard.com',
-    telefono: '+54 11 4000-5678',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-50000003-0',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-50000003-0'
+    proveedor: 'CLARO',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000466',
+    vencimiento: '22-08-2025',
+    total: 15000.00,
+    pagado: 0.00,
+    pendiente: 15000.00
   },
   {
     id: '5',
-    nombre: 'AMJ',
-    email: 'amj@email.com',
-    telefono: '+54 11 4000-9012',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-50000004-1',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-50000004-1'
+    proveedor: 'COMIDA CANDELARIA',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000467',
+    vencimiento: '15-08-2025',
+    total: 30000.00,
+    pagado: 30000.00,
+    pendiente: 0.00
+  },
+  {
+    id: '6',
+    proveedor: 'DISTRIBUIDORA Y COMERCIALIZADORA NORTE SOCIEDAD ANONIMA',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000468',
+    vencimiento: '29-08-2025',
+    total: 75000.00,
+    pagado: 0.00,
+    pendiente: 75000.00
+  },
+  {
+    id: '7',
+    proveedor: 'MAXI SISTEMAS',
+    tipo: 'FAC-X',
+    fecha: '01-08-2025',
+    referencia: '00009-00000469',
+    vencimiento: '15-08-2025',
+    total: 45000.00,
+    pagado: 45000.00,
+    pendiente: 0.00
+  },
+  {
+    id: '8',
+    proveedor: 'MONOTRIBUTO ALE',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000470',
+    vencimiento: '22-08-2025',
+    total: 12000.00,
+    pagado: 0.00,
+    pendiente: 12000.00
+  },
+  {
+    id: '9',
+    proveedor: 'MOVISTAR',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000471',
+    vencimiento: '22-08-2025',
+    total: 18000.00,
+    pagado: 0.00,
+    pendiente: 18000.00
+  },
+  {
+    id: '10',
+    proveedor: 'NATURGY',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000472',
+    vencimiento: '29-08-2025',
+    total: 35000.00,
+    pagado: 0.00,
+    pendiente: 35000.00
+  },
+  {
+    id: '11',
+    proveedor: 'PLANES AFIP EDUARDO Q167723',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000473',
+    vencimiento: '15-08-2025',
+    total: 200000.00,
+    pagado: 0.00,
+    pendiente: 200000.00
+  },
+  {
+    id: '12',
+    proveedor: 'PLANES AFIP EYS NUEVA 774008',
+    tipo: 'FAC-X',
+    fecha: '01-08-2025',
+    referencia: '00009-00000474',
+    vencimiento: '15-08-2025',
+    total: 300000.00,
+    pagado: 300000.00,
+    pendiente: 0.00
+  },
+  {
+    id: '13',
+    proveedor: 'PLANES AFIP SILVINA 246086',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000475',
+    vencimiento: '22-08-2025',
+    total: 150000.00,
+    pagado: 0.00,
+    pendiente: 150000.00
+  },
+  {
+    id: '14',
+    proveedor: 'PROSEGUR ACTIVA ARGENTINA SA',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000476',
+    vencimiento: '29-08-2025',
+    total: 40000.00,
+    pagado: 0.00,
+    pendiente: 40000.00
+  },
+  {
+    id: '15',
+    proveedor: 'SUELDOS',
+    tipo: 'FAC-X',
+    fecha: '01-08-2025',
+    referencia: '00009-00000477',
+    vencimiento: '15-08-2025',
+    total: 500000.00,
+    pagado: 500000.00,
+    pendiente: 0.00
+  },
+  {
+    id: '16',
+    proveedor: 'TELECOM ARGENTINA SOCIEDAD ANONIMA',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000478',
+    vencimiento: '22-08-2025',
+    total: 22000.00,
+    pagado: 0.00,
+    pendiente: 22000.00
+  },
+  {
+    id: '17',
+    proveedor: 'TOYOTA PLAN ARGENTINA S.A. DE AHORRO PARA FINES DETERMINADOS',
+    tipo: 'FAC-C',
+    fecha: '01-08-2025',
+    referencia: '00009-00000479',
+    vencimiento: '29-08-2025',
+    total: 80000.00,
+    pagado: 0.00,
+    pendiente: 80000.00
+  },
+  {
+    id: '18',
+    proveedor: 'APORTES Y CONTRIBUCIONES SUSS (EDUARDO)',
+    tipo: 'FAC-X',
+    fecha: '01-08-2025',
+    referencia: '00009-00000480',
+    vencimiento: '15-08-2025',
+    total: 1366115.61,
+    pagado: 0.00,
+    pendiente: 1366115.61
+  },
+  {
+    id: '19',
+    proveedor: 'APORTES Y CONTRIBUCIONES SUSS (EYS)',
+    tipo: 'FAC-A',
+    fecha: '01-08-2025',
+    referencia: '00009-00000481',
+    vencimiento: '22-08-2025',
+    total: 1560000.00,
+    pagado: 0.00,
+    pendiente: 1560000.00
   }
 ];
 
@@ -181,12 +348,14 @@ export const mockMovimientos: MovimientoCaja[] = [
     id: '1',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Venta de productos - ACOPIADORES DE SEBO S.A.',
-    monto: 2816408.10,
+    concepto: 'Cobro de DI ROCCO MARINA NILDA',
+    monto: 28240.00,
     clienteId: '1',
-    cliente: mockClientes[0],
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '1'),
+    proveedor: undefined,
     metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
+    observaciones: 'Cobro completo realizado',
     usuario: 'usuario_actual',
     createdAt: '2025-08-15T10:30:00Z',
     updatedAt: '2025-08-15T10:30:00Z'
@@ -195,12 +364,14 @@ export const mockMovimientos: MovimientoCaja[] = [
     id: '2',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Servicios de consultoría - AMPLAN SRL',
-    monto: 1875185.40,
+    concepto: 'Cobro de A M J S A',
+    monto: 990000.00,
     clienteId: '2',
-    cliente: mockClientes[1],
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '2'),
+    proveedor: undefined,
     metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
+    observaciones: 'Cobro con diferencia positiva',
     usuario: 'usuario_actual',
     createdAt: '2025-08-15T11:15:00Z',
     updatedAt: '2025-08-15T11:15:00Z'
@@ -209,144 +380,161 @@ export const mockMovimientos: MovimientoCaja[] = [
     id: '3',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Venta de productos - ALTRADE S.R.L.',
-    monto: 532484.70,
+    concepto: 'Cobro de AB 25 DE MAYO 1130 S. A.',
+    monto: 786560.50,
     clienteId: '3',
-    cliente: mockClientes[2],
-    metodoPago: 'tarjeta',
-    observaciones: 'Pago con tarjeta de crédito',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T14:20:00Z',
-    updatedAt: '2025-08-15T14:20:00Z'
-  },
-  {
-    id: '4',
-    fecha: '2025-08-15',
-    tipo: 'ingreso',
-    concepto: 'Servicios prestados - ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
-    monto: 144310.00,
-    clienteId: '4',
-    cliente: mockClientes[3],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T16:45:00Z',
-    updatedAt: '2025-08-15T16:45:00Z'
-  },
-  {
-    id: '5',
-    fecha: '2025-08-15',
-    tipo: 'ingreso',
-    concepto: 'Servicios prestados - AEROPAL S.A.S.',
-    monto: 54630.00,
-    clienteId: '5',
-    cliente: mockClientes[4],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T17:30:00Z',
-    updatedAt: '2025-08-15T17:30:00Z'
-  },
-  {
-    id: '6',
-    fecha: '2025-08-15',
-    tipo: 'ingreso',
-    concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
-    monto: 24270.00,
-    clienteId: '6',
-    cliente: mockClientes[5],
-    metodoPago: 'cheque',
-    observaciones: 'Cheque a 30 días',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T18:00:00Z',
-    updatedAt: '2025-08-15T18:00:00Z'
-  },
-
-  // Ingresos Pendientes (según Excel)
-  {
-    id: '7',
-    fecha: '2025-08-15',
-    tipo: 'ingreso',
-    concepto: 'Servicios pendientes - DI ROCCO MARINA NILDA',
-    monto: 25000.00,
-    clienteId: '7',
-    cliente: mockClientes[6],
-    metodoPago: 'pendiente',
-    observaciones: 'Pago pendiente de confirmación',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T19:00:00Z',
-    updatedAt: '2025-08-15T19:00:00Z'
-  },
-  {
-    id: '8',
-    fecha: '2025-08-15',
-    tipo: 'ingreso',
-    concepto: 'Venta pendiente - AB 25 DE MAYO 1130 S. A.',
-    monto: 15000.00,
-    clienteId: '8',
-    cliente: mockClientes[7],
-    metodoPago: 'pendiente',
-    observaciones: 'Pago pendiente de confirmación',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T19:30:00Z',
-    updatedAt: '2025-08-15T19:30:00Z'
-  },
-
-  // Egresos Pagados (según Excel)
-  {
-    id: '9',
-    fecha: '2025-08-15',
-    tipo: 'egreso',
-    concepto: 'Pago a AFIP - Impuestos',
-    monto: 0.00,
-    proveedorId: '1',
-    proveedor: mockProveedores[0],
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '3'),
+    proveedor: undefined,
     metodoPago: 'transferencia',
-    observaciones: 'Pago de impuestos AFIP',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-15T08:30:00Z',
-    updatedAt: '2025-08-15T08:30:00Z'
-  },
-  {
-    id: '10',
-    fecha: '2025-08-15',
-    tipo: 'egreso',
-    concepto: 'Pago a AMEX RIO - Comisiones',
-    monto: 864774.90,
-    proveedorId: '3',
-    proveedor: mockProveedores[2],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago de comisiones tarjeta',
+    observaciones: 'Cobro exacto del monto',
     usuario: 'usuario_actual',
     createdAt: '2025-08-15T12:00:00Z',
     updatedAt: '2025-08-15T12:00:00Z'
   },
   {
+    id: '4',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Cobro de ALIBABA SRL',
+    monto: 1335000.00,
+    clienteId: '8',
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '8'),
+    proveedor: undefined,
+    metodoPago: 'transferencia',
+    observaciones: 'Cobro completo realizado',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T13:30:00Z',
+    updatedAt: '2025-08-15T13:30:00Z'
+  },
+  {
+    id: '5',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Cobro de ASIM GONZALO',
+    monto: 88063.80,
+    clienteId: '9',
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '9'),
+    proveedor: undefined,
+    metodoPago: 'transferencia',
+    observaciones: 'Cobro exacto del monto',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T14:15:00Z',
+    updatedAt: '2025-08-15T14:15:00Z'
+  },
+  {
+    id: '6',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Cobro de AXAL S.A.',
+    monto: 467991.70,
+    clienteId: '10',
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '10'),
+    proveedor: undefined,
+    metodoPago: 'transferencia',
+    observaciones: 'Cobro exacto del monto',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T15:00:00Z',
+    updatedAt: '2025-08-15T15:00:00Z'
+  },
+  // Ingresos Pendientes (según Excel)
+  {
+    id: '7',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Pendiente ACOPIADORES DE SEBO S.A.',
+    monto: 2816408.10,
+    clienteId: '4',
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '4'),
+    proveedor: undefined,
+    metodoPago: 'pendiente',
+    observaciones: 'Pendiente de cobro',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T16:00:00Z',
+    updatedAt: '2025-08-15T16:00:00Z'
+  },
+  {
+    id: '8',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Pendiente AMPLAN SRL',
+    monto: 1875185.40,
+    clienteId: '10',
+    proveedorId: undefined,
+    cliente: mockClientes.find(c => c.id === '10'),
+    proveedor: undefined,
+    metodoPago: 'pendiente',
+    observaciones: 'Pendiente de cobro',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T16:30:00Z',
+    updatedAt: '2025-08-15T16:30:00Z'
+  },
+  // Egresos Pagados (según Excel)
+  {
+    id: '9',
+    fecha: '2025-08-15',
+    tipo: 'egreso',
+    concepto: 'Pago BANCO CIUDAD - PRESTAMO',
+    monto: 150000.00,
+    clienteId: undefined,
+    proveedorId: '2',
+    cliente: undefined,
+    proveedor: mockProveedores.find(p => p.id === '2'),
+    metodoPago: 'transferencia',
+    observaciones: 'Pago de préstamo bancario',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T09:00:00Z',
+    updatedAt: '2025-08-15T09:00:00Z'
+  },
+  {
+    id: '10',
+    fecha: '2025-08-15',
+    tipo: 'egreso',
+    concepto: 'Pago COMIDA CANDELARIA',
+    monto: 30000.00,
+    clienteId: undefined,
+    proveedorId: '5',
+    cliente: undefined,
+    proveedor: mockProveedores.find(p => p.id === '5'),
+    metodoPago: 'efectivo',
+    observaciones: 'Pago de servicios de comida',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T09:30:00Z',
+    updatedAt: '2025-08-15T09:30:00Z'
+  },
+  {
     id: '11',
     fecha: '2025-08-15',
     tipo: 'egreso',
-    concepto: 'Pago a AMJ - Servicios',
-    monto: 990000.00,
-    proveedorId: '5',
-    proveedor: mockProveedores[4],
-    metodoPago: 'cheque',
-    observaciones: 'Cheque a 15 días',
+    concepto: 'Pago MAXI SISTEMAS',
+    monto: 45000.00,
+    clienteId: undefined,
+    proveedorId: '7',
+    cliente: undefined,
+    proveedor: mockProveedores.find(p => p.id === '7'),
+    metodoPago: 'transferencia',
+    observaciones: 'Pago de servicios informáticos',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T15:30:00Z',
-    updatedAt: '2025-08-15T15:30:00Z'
+    createdAt: '2025-08-15T10:00:00Z',
+    updatedAt: '2025-08-15T10:00:00Z'
   },
-
   // Egresos Pendientes (según Excel)
   {
     id: '12',
     fecha: '2025-08-15',
     tipo: 'egreso',
-    concepto: 'ARBA - Impuestos pendientes',
+    concepto: 'Pendiente ANTICIPOS GANANCIAS SILVINA',
     monto: 50000.00,
-    proveedorId: '2',
-    proveedor: mockProveedores[1],
+    clienteId: undefined,
+    proveedorId: '1',
+    cliente: undefined,
+    proveedor: mockProveedores.find(p => p.id === '1'),
     metodoPago: 'pendiente',
-    observaciones: 'Impuestos ARBA pendientes de pago',
+    observaciones: 'Pendiente de pago',
     usuario: 'usuario_actual',
     createdAt: '2025-08-15T17:00:00Z',
     updatedAt: '2025-08-15T17:00:00Z'
@@ -355,24 +543,22 @@ export const mockMovimientos: MovimientoCaja[] = [
     id: '13',
     fecha: '2025-08-15',
     tipo: 'egreso',
-    concepto: 'MASTER CIUDAD - Comisiones pendientes',
-    monto: 25000.00,
-    proveedorId: '4',
-    proveedor: mockProveedores[3],
+    concepto: 'Pendiente APORTES Y CONTRIBUCIONES SUSS (EDUARDO)',
+    monto: 1366115.61,
+    clienteId: undefined,
+    proveedorId: '18',
+    cliente: undefined,
+    proveedor: mockProveedores.find(p => p.id === '18'),
     metodoPago: 'pendiente',
-    observaciones: 'Comisiones pendientes de pago',
+    observaciones: 'Pendiente de pago',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T18:15:00Z',
-    updatedAt: '2025-08-15T18:15:00Z'
+    createdAt: '2025-08-15T17:30:00Z',
+    updatedAt: '2025-08-15T17:30:00Z'
   }
 ];
 
 // Cuentas bancarias EXACTAS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockCuentasBancarias = [
-  { nombre: 'EFECTIVO', saldo: 468910.00, pendienteAcreditacion: 0, dolares: 0 },
-  { nombre: 'CIUDAD', saldo: 77482.00, pendienteAcreditacion: 150000.00, dolares: 0 },
-  { nombre: 'CREDICOOP', saldo: 324000.00, pendienteAcreditacion: 0, dolares: 0 },
-  { nombre: 'CREDICOOP MATIAS', saldo: 240000.00, pendienteAcreditacion: 0, dolares: 0 },
   { nombre: 'FRANCES VALENTINA', saldo: 0.00, pendienteAcreditacion: 0, dolares: 0 },
   { nombre: 'FRANCES SIL', saldo: 0.00, pendienteAcreditacion: 0, dolares: 0 },
   { nombre: 'FRANCES EDUARDO', saldo: 6673.00, pendienteAcreditacion: 0, dolares: 0 },
@@ -383,63 +569,36 @@ export const mockCuentasBancarias = [
 // Saldos consolidados EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockSaldosConsolidados = {
   delDia: {
-    disponibilidades: 3645965.00,
-    chequesEnCartera: 3659126.21,
-    aCobrarCorrientes: 33114908.15,
-    aPagarProveedores: 32098070.93,
-    aPagarTarjetas: 20589291.32,
-    incrementoTarjetas: 0,
-    incrementoProveedores: 0,
-    saldo: 12267362.89
+    disponibilidades: 1782573.00,
+    cheques: 0.00,
+    aCobrar: 0.00,
+    aPagar: 0.00,
+    total: 1782573.00
   },
   diaAnterior: {
-    disponibilidades: 3576405.40,
-    chequesEnCartera: 3659126.21,
-    aCobrarCorrientes: 34267073.05,
-    aPagarProveedores: 32098070.93,
-    aPagarTarjetas: 20589291.32,
-    incrementoTarjetas: 0,
-    incrementoProveedores: 0,
-    saldo: 11184757.59
-  },
-  diferencia: 1082605.30
+    disponibilidades: 1782573.00,
+    cheques: 0.00,
+    aCobrar: 0.00,
+    aPagar: 0.00,
+    total: 1782573.00
+  }
 };
 
-// Cash Flow EXACTO del Excel
+// Cash Flow EXACTO del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockCashFlow = {
-  reduccionDisponibilidades: 69559.60,
-  reduccionCheques: 0,
-  cobranzas: 1152164.90,
-  pagosProveedores: 0,
-  cancelacionTarjetas: 0,
-  cancelacionPlanes: 0,
-  total: 1082605.30
+  reduccionDisponibilidades: 0.00,
+  cobranzas: 0.00,
+  total: 0.00
 };
 
-// Ajustes EXACTOS del Excel
+// Ajustes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockAjustes = {
-  ajusteCobranzas: 125225.10,
-  ajustePagos: 0,
-  diferencia: 1207830.40
+  ajustesCobranzas: 0.00,
+  totalDiferencias: 0.00
 };
 
-// Tarjetas EXACTAS del Excel
+// Tarjetas EXACTAS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockTarjetas = [
-  { tarjeta: 'AMEX RIO', titular: 'MARY', importe: 0 },
-  { tarjeta: 'MASTER CIUDAD', titular: 'SIL', importe: 0 },
-  { tarjeta: 'MASTER PCIA', titular: 'EDU', importe: 0 },
-  { tarjeta: 'VISA PCIA', titular: 'EDU', importe: 0 },
-  { tarjeta: 'VISA COMAFI', titular: 'SIL', importe: 0 },
-  { tarjeta: 'VISA RIO SIL', titular: 'sil', importe: 0 },
-  { tarjeta: 'AMEX RIO SIL', titular: 'SIL', importe: 0 },
-  { tarjeta: 'VISA ICBC', titular: 'SIL', importe: 0 },
-  { tarjeta: 'MASTER ICBC', titular: 'SIL', importe: 0 },
-  { tarjeta: 'VISA GALICIA', titular: 'EDU', importe: 0 },
-  { tarjeta: 'MASTER GALICIA', titular: 'EDU', importe: 0 },
-  { tarjeta: 'CABAL CREDICOOP', titular: 'SIL', importe: 0 },
-  { tarjeta: 'VISA CREDICOOP', titular: 'SIL', importe: 0 },
-  { tarjeta: 'VISA FRANCES', titular: 'EDUARDO', importe: 0 },
-  { tarjeta: 'MASTER FRANCES', titular: 'EDUARDO', importe: 0 },
   { tarjeta: 'VISA FRANCES', titular: 'SIL', importe: 0 },
   { tarjeta: 'MASTER FRANCES', titular: 'SIL', importe: 0 },
   { tarjeta: 'CENCOSUD', titular: 'SIL', importe: 0 },
@@ -448,12 +607,9 @@ export const mockTarjetas = [
 ];
 
 // Cobranzas con diferencias EXACTAS del Excel
-export const mockCobranzasDiferencias = {
-  cliente: 'AMJ',
-  registrado: 864774.90,
-  cobrado: 990000.00,
-  diferencia: 125225.10
-};
+export const mockCobranzasDiferencias = [
+  { cliente: 'AMJ', registrado: 864774.90, cobrado: 990000.00, diferencia: 125225.10 }
+];
 
 // Pagos a proveedores mediante planes EXACTOS del Excel
 export const mockPagosProveedoresPlanes = [
@@ -463,15 +619,15 @@ export const mockPagosProveedoresPlanes = [
 ];
 
 // Resúmenes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
-export const mockResumenes: { [fecha: string]: ResumenCaja } = {
+export const mockResumenes: { [key: string]: ResumenCaja } = {
   '2025-10-01': {
     fecha: '2025-10-01',
-    saldoInicial: 3645965.00, // Disponibilidades del día
-    totalIngresos: 1152164.90, // Cobranzas del cash flow
-    totalEgresos: 0, // Sin pagos registrados
-    saldoFinal: 4798129.90, // Saldo inicial + ingresos - egresos
-    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15'),
-    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15').length
+    saldoInicial: 1782573.00,
+    totalIngresos: 0.00,
+    totalEgresos: 0.00,
+    saldoFinal: 1782573.00,
+    movimientos: [],
+    cantidadMovimientos: 0
   }
 };
 
@@ -479,15 +635,9 @@ export const mockResumenes: { [fecha: string]: ResumenCaja } = {
 export const mockResumen: ResumenCaja = mockResumenes['2025-10-01'];
 
 // Datos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
-export const datosPorMes = {
+export const datosPorMes: { [key: string]: any } = {
   '2025-10': {
-    mes: '2025-10',
-    mesNombre: 'Octubre 2025',
-    fechas: ['2025-10-01'],
-    totalIngresos: 1152164.90, // Cobranzas del cash flow
-    totalEgresos: 0, // Sin pagos registrados
-    totalMovimientos: 13, // 8 ingresos + 5 egresos del Excel
-    resumenes: mockResumenes,
+    resumen: mockResumenes['2025-10-01'],
     cuentasBancarias: mockCuentasBancarias,
     saldosConsolidados: mockSaldosConsolidados,
     cashFlow: mockCashFlow,
@@ -504,91 +654,24 @@ export const mesesDisponibles = [
 ];
 
 // Función para filtrar movimientos
-export const filterMovimientos = (movimientos: MovimientoCaja[], filtros: any) => {
+export const filtrarMovimientos = (movimientos: MovimientoCaja[], filtros: any) => {
   return movimientos.filter(movimiento => {
     if (filtros.fechaDesde && movimiento.fecha < filtros.fechaDesde) return false;
     if (filtros.fechaHasta && movimiento.fecha > filtros.fechaHasta) return false;
-    if (filtros.tipo && movimiento.tipo !== filtros.tipo) return false;
+    if (filtros.tipo && filtros.tipo !== 'todos' && movimiento.tipo !== filtros.tipo) return false;
     if (filtros.clienteId && movimiento.clienteId !== filtros.clienteId) return false;
     if (filtros.proveedorId && movimiento.proveedorId !== filtros.proveedorId) return false;
     if (filtros.metodoPago && movimiento.metodoPago !== filtros.metodoPago) return false;
-    if (filtros.mes && !movimiento.fecha.startsWith(filtros.mes)) return false;
     return true;
   });
 };
 
-// Función para obtener movimientos por mes
-export const getMovimientosPorMes = (mes: string) => {
-  return mockMovimientos.filter(movimiento => movimiento.fecha.startsWith(mes));
-};
-
-// Función para obtener resumen por mes
-export const getResumenPorMes = (mes: string) => {
-  const movimientosDelMes = getMovimientosPorMes(mes);
-  const totalIngresos = movimientosDelMes.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
-  const totalEgresos = movimientosDelMes.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0);
-  
-  return {
-    mes,
-    totalIngresos,
-    totalEgresos,
-    totalMovimientos: movimientosDelMes.length,
-    movimientos: movimientosDelMes
-  };
-};
-
-// Función para obtener resumen por fecha
-export const getResumenPorFecha = (fecha: string) => {
-  return mockResumenes[fecha] || null;
-};
-
-// Función para obtener cuentas bancarias
-export const getCuentasBancarias = () => {
-  return mockCuentasBancarias;
-};
-
-// Función para obtener total de disponibilidad
-export const getTotalDisponibilidad = () => {
-  const totalSaldo = mockCuentasBancarias.reduce((sum, cuenta) => sum + cuenta.saldo, 0);
-  const totalPendiente = mockCuentasBancarias.reduce((sum, cuenta) => sum + cuenta.pendienteAcreditacion, 0);
-  return {
-    totalSaldo,
-    totalPendiente,
-    totalGeneral: totalSaldo + totalPendiente
-  };
-};
-
-// Función para obtener saldos consolidados
-export const getSaldosConsolidados = () => {
-  return mockSaldosConsolidados;
-};
-
-// Función para obtener cash flow
-export const getCashFlow = () => {
-  return mockCashFlow;
-};
-
-// Función para obtener ajustes
-export const getAjustes = () => {
-  return mockAjustes;
-};
-
-// Función para obtener tarjetas
-export const getTarjetas = () => {
-  return mockTarjetas;
-};
-
-// Función para obtener cobranzas con diferencias
-export const getCobranzasDiferencias = () => {
-  return mockCobranzasDiferencias;
-};
-
-// Función para obtener pagos a proveedores mediante planes
-export const getPagosProveedoresPlanes = () => {
-  return mockPagosProveedoresPlanes;
-};
-
-// Función para simular delay de API
-export const simulateApiDelay = (ms: number = 500) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+// Funciones para obtener datos específicos
+export const getCuentasBancarias = () => mockCuentasBancarias;
+export const getTotalDisponibilidad = () => mockCuentasBancarias.reduce((total, cuenta) => total + cuenta.saldo, 0);
+export const getSaldosConsolidados = () => mockSaldosConsolidados;
+export const getCashFlow = () => mockCashFlow;
+export const getAjustes = () => mockAjustes;
+export const getTarjetas = () => mockTarjetas;
+export const getCobranzasDiferencias = () => mockCobranzasDiferencias;
+export const getPagosProveedoresPlanes = () => mockPagosProveedoresPlanes;

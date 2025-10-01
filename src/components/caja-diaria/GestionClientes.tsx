@@ -44,9 +44,11 @@ export default function GestionClientes() {
   };
 
   const clientesFiltrados = clientes.filter(cliente =>
-    cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    cliente.email?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    cliente.cuit?.includes(busqueda)
+    cliente.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
+    cliente.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
+    cliente.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
+    cliente.fecha.includes(busqueda) ||
+    cliente.vencimiento.includes(busqueda)
   );
 
   if (loading) {
@@ -132,54 +134,77 @@ export default function GestionClientes() {
                     Cliente
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    CUIT
+                    Tipo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                    Fecha
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Teléfono
+                    Referencia
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Dirección
+                    Vencimiento
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Documento
+                    Total
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Cobrado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pendiente
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {clientesFiltrados.map((cliente) => (
                   <tr key={cliente.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="text-2xl mr-3">👤</div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {cliente.nombre}
+                          <div className="text-sm font-medium text-gray-900 max-w-xs">
+                            {cliente.cliente}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.cuit || '-'}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        cliente.tipo === 'FAV-X' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : cliente.tipo === 'FAV-A'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {cliente.tipo}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.email || '-'}
+                      {cliente.fecha}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                      {cliente.referencia}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.telefono || '-'}
+                      {cliente.vencimiento}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      <div className="max-w-xs truncate">
-                        {cliente.direccion || '-'}
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="font-medium">
+                        ${cliente.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>
-                        <div>{cliente.tipoDocumento || 'N/A'}</div>
-                        <div className="text-xs">{cliente.numeroDocumento || 'N/A'}</div>
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="font-medium text-green-600">
+                        ${cliente.cobrado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className={`font-medium ${
+                        cliente.pendiente > 0 ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                        ${cliente.pendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
                     </td>
                   </tr>
                 ))}

@@ -1,23 +1,25 @@
 export interface Cliente {
   id: string;
-  nombre: string;
-  email?: string;
-  telefono?: string;
-  direccion?: string;
-  cuit?: string;
-  tipoDocumento?: string;
-  numeroDocumento?: string;
+  cliente: string;
+  tipo: string;
+  fecha: string;
+  referencia: string;
+  vencimiento: string;
+  total: number;
+  cobrado: number;
+  pendiente: number;
 }
 
 export interface Proveedor {
   id: string;
-  nombre: string;
-  email?: string;
-  telefono?: string;
-  direccion?: string;
-  cuit?: string;
-  tipoDocumento?: string;
-  numeroDocumento?: string;
+  proveedor: string;
+  tipo: string;
+  fecha: string;
+  referencia: string;
+  vencimiento: string;
+  total: number;
+  pagado: number;
+  pendiente: number;
 }
 
 export interface MovimientoCaja {

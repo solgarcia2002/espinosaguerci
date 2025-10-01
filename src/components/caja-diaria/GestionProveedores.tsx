@@ -44,9 +44,11 @@ export default function GestionProveedores() {
   };
 
   const proveedoresFiltrados = proveedores.filter(proveedor =>
-    proveedor.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    proveedor.email?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    proveedor.cuit?.includes(busqueda)
+    proveedor.proveedor.toLowerCase().includes(busqueda.toLowerCase()) ||
+    proveedor.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
+    proveedor.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
+    proveedor.fecha.includes(busqueda) ||
+    proveedor.vencimiento.includes(busqueda)
   );
 
   if (loading) {
@@ -65,12 +67,12 @@ export default function GestionProveedores() {
       {/* Header con acciones */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Gestión de Proveedores</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Gestión de Facturas de Proveedores</h3>
           <p className="text-sm text-gray-500">
-            {proveedores.length} proveedores registrados desde Excel
+            {proveedores.length} facturas registradas desde Excel
           </p>
           <p className="text-xs text-blue-600">
-            📊 Datos del Excel sincronizados con Colppy vía Backend
+            📄 Facturas del Excel sincronizadas con Colppy vía Backend
           </p>
         </div>
         <button
@@ -88,7 +90,7 @@ export default function GestionProveedores() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar proveedores por nombre, email o CUIT..."
+            placeholder="Buscar por proveedor, tipo, referencia, fecha o vencimiento..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="input pl-10"
@@ -132,54 +134,77 @@ export default function GestionProveedores() {
                     Proveedor
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    CUIT
+                    Tipo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                    Fecha
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Teléfono
+                    Referencia
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Dirección
+                    Vencimiento
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Documento
+                    Total
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pagado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pendiente
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {proveedoresFiltrados.map((proveedor) => (
                   <tr key={proveedor.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="text-2xl mr-3">🏢</div>
+                        <div className="text-2xl mr-3">📄</div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {proveedor.nombre}
+                          <div className="text-sm font-medium text-gray-900 max-w-xs">
+                            {proveedor.proveedor}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {proveedor.cuit || '-'}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        proveedor.tipo === 'FAC-C' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : proveedor.tipo === 'FAC-X'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {proveedor.tipo}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {proveedor.email || '-'}
+                      {proveedor.fecha}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                      {proveedor.referencia}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {proveedor.telefono || '-'}
+                      {proveedor.vencimiento}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      <div className="max-w-xs truncate">
-                        {proveedor.direccion || '-'}
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="font-medium">
+                        ${proveedor.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>
-                        <div>{proveedor.tipoDocumento || 'N/A'}</div>
-                        <div className="text-xs">{proveedor.numeroDocumento || 'N/A'}</div>
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className="font-medium text-green-600">
+                        ${proveedor.pagado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <span className={`font-medium ${
+                        proveedor.pendiente > 0 ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                        ${proveedor.pendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                      </span>
                     </td>
                   </tr>
                 ))}
