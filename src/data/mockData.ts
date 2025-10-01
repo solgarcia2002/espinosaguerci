@@ -367,38 +367,52 @@ export const mockMovimientos: MovimientoCaja[] = [
   }
 ];
 
+// Cuentas bancarias EXACTAS del Excel original CAJA DIARIA 11-08-2025.xlsx
+export const mockCuentasBancarias = [
+  { nombre: 'EFECTIVO', saldo: 468910.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'CIUDAD', saldo: 77482.00, pendienteAcreditacion: 150000.00, dolares: 0 },
+  { nombre: 'CREDICOOP', saldo: 324000.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'CREDICOOP MATIAS', saldo: 240000.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'FRANCES VALENTINA', saldo: 0.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'FRANCES SIL', saldo: 0.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'FRANCES EDUARDO', saldo: 6673.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'BCO RIO SIL', saldo: -600000.00, pendienteAcreditacion: 0, dolares: 0 },
+  { nombre: 'BCO PCIA EDU', saldo: 2378900.00, pendienteAcreditacion: 0, dolares: 0 }
+];
+
 // Resúmenes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockResumenes: { [fecha: string]: ResumenCaja } = {
-  '2025-08-15': {
-    fecha: '2025-08-15',
-    saldoInicial: 3645965.00,
+  '2025-10-01': {
+    fecha: '2025-10-01',
+    saldoInicial: 3495965.00, // Total exacto del Excel: 3.495.965,00
     totalIngresos: 5641288.20, // Suma exacta de los 8 ingresos del Excel
     totalEgresos: 1854774.90, // Suma exacta de los 5 egresos del Excel
-    saldoFinal: 7432478.30, // Saldo inicial + ingresos - egresos
+    saldoFinal: 7282478.30, // Saldo inicial + ingresos - egresos
     movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15'),
     cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15').length
   }
 };
 
 // Resumen por defecto (datos del Excel)
-export const mockResumen: ResumenCaja = mockResumenes['2025-08-15'];
+export const mockResumen: ResumenCaja = mockResumenes['2025-10-01'];
 
 // Datos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const datosPorMes = {
-  '2025-08': {
-    mes: '2025-08',
-    mesNombre: 'Agosto 2025',
-    fechas: ['2025-08-15'],
+  '2025-10': {
+    mes: '2025-10',
+    mesNombre: 'Octubre 2025',
+    fechas: ['2025-10-01'],
     totalIngresos: 5641288.20, // Total exacto del Excel
     totalEgresos: 1854774.90, // Total exacto del Excel
     totalMovimientos: 13, // 8 ingresos + 5 egresos del Excel
-    resumenes: mockResumenes
+    resumenes: mockResumenes,
+    cuentasBancarias: mockCuentasBancarias
   }
 };
 
 // Lista de meses disponibles (datos del Excel)
 export const mesesDisponibles = [
-  { value: '2025-08', label: 'Agosto 2025' }
+  { value: '2025-10', label: 'Octubre 2025' }
 ];
 
 // Función para filtrar movimientos
@@ -438,6 +452,22 @@ export const getResumenPorMes = (mes: string) => {
 // Función para obtener resumen por fecha
 export const getResumenPorFecha = (fecha: string) => {
   return mockResumenes[fecha] || null;
+};
+
+// Función para obtener cuentas bancarias
+export const getCuentasBancarias = () => {
+  return mockCuentasBancarias;
+};
+
+// Función para obtener total de disponibilidad
+export const getTotalDisponibilidad = () => {
+  const totalSaldo = mockCuentasBancarias.reduce((sum, cuenta) => sum + cuenta.saldo, 0);
+  const totalPendiente = mockCuentasBancarias.reduce((sum, cuenta) => sum + cuenta.pendienteAcreditacion, 0);
+  return {
+    totalSaldo,
+    totalPendiente,
+    totalGeneral: totalSaldo + totalPendiente
+  };
 };
 
 // Función para simular delay de API
