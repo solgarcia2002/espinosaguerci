@@ -1,29 +1,10 @@
 import { MovimientoCaja, ResumenCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
 
-// Datos reales extraídos del Excel original - Estructura por fechas y meses
+// Datos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockClientes: Cliente[] = [
+  // Clientes con Saldos Significativos (según Excel)
   {
     id: '1',
-    nombre: 'DI ROCCO MARINA NILDA',
-    email: 'dirocco@email.com',
-    telefono: '+54 11 1234-5678',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '27-12345678-9',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '27-12345678-9'
-  },
-  {
-    id: '2',
-    nombre: 'AB 25 DE MAYO 1130 S. A.',
-    email: 'ab25mayo@email.com',
-    telefono: '+54 11 2345-6789',
-    direccion: 'Av. 25 de Mayo 1130, CABA',
-    cuit: '30-23456789-0',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-23456789-0'
-  },
-  {
-    id: '3',
     nombre: 'ACOPIADORES DE SEBO S.A.',
     email: 'acopiadores@email.com',
     telefono: '+54 11 3456-7890',
@@ -33,37 +14,7 @@ export const mockClientes: Cliente[] = [
     numeroDocumento: '30-34567890-1'
   },
   {
-    id: '4',
-    nombre: 'AEROPAL S.A.S.',
-    email: 'aeropal@email.com',
-    telefono: '+54 11 4567-8901',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-45678901-2',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-45678901-2'
-  },
-  {
-    id: '5',
-    nombre: 'AISA SERGIO OSCAR',
-    email: 'aisa@email.com',
-    telefono: '+54 11 5678-9012',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '20-56789012-3',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '20-56789012-3'
-  },
-  {
-    id: '6',
-    nombre: 'ALTRADE S.R.L.',
-    email: 'altrade@email.com',
-    telefono: '+54 11 6789-0123',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '30-67890123-4',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '30-67890123-4'
-  },
-  {
-    id: '7',
+    id: '2',
     nombre: 'AMPLAN SRL',
     email: 'amplan@email.com',
     telefono: '+54 11 7890-1234',
@@ -73,17 +24,17 @@ export const mockClientes: Cliente[] = [
     numeroDocumento: '30-78901234-5'
   },
   {
-    id: '8',
-    nombre: 'ASIM GONZALO',
-    email: 'asim@email.com',
-    telefono: '+54 11 8901-2345',
+    id: '3',
+    nombre: 'ALTRADE S.R.L.',
+    email: 'altrade@email.com',
+    telefono: '+54 11 6789-0123',
     direccion: 'Buenos Aires, Argentina',
-    cuit: '20-89012345-6',
+    cuit: '30-67890123-4',
     tipoDocumento: 'CUIT',
-    numeroDocumento: '20-89012345-6'
+    numeroDocumento: '30-67890123-4'
   },
   {
-    id: '9',
+    id: '4',
     nombre: 'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
     email: 'dircoms@email.com',
     telefono: '+54 11 9012-3456',
@@ -91,6 +42,57 @@ export const mockClientes: Cliente[] = [
     cuit: '30-90123456-7',
     tipoDocumento: 'CUIT',
     numeroDocumento: '30-90123456-7'
+  },
+  {
+    id: '5',
+    nombre: 'AEROPAL S.A.S.',
+    email: 'aeropal@email.com',
+    telefono: '+54 11 4567-8901',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '30-45678901-2',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '30-45678901-2'
+  },
+  {
+    id: '6',
+    nombre: 'AISA SERGIO OSCAR',
+    email: 'aisa@email.com',
+    telefono: '+54 11 5678-9012',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '20-56789012-3',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '20-56789012-3'
+  },
+  // Clientes con Saldo Cero (según Excel)
+  {
+    id: '7',
+    nombre: 'DI ROCCO MARINA NILDA',
+    email: 'dirocco@email.com',
+    telefono: '+54 11 1234-5678',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '27-12345678-9',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '27-12345678-9'
+  },
+  {
+    id: '8',
+    nombre: 'AB 25 DE MAYO 1130 S. A.',
+    email: 'ab25mayo@email.com',
+    telefono: '+54 11 2345-6789',
+    direccion: 'Av. 25 de Mayo 1130, CABA',
+    cuit: '30-23456789-0',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '30-23456789-0'
+  },
+  {
+    id: '9',
+    nombre: 'ASIM GONZALO',
+    email: 'asim@email.com',
+    telefono: '+54 11 8901-2345',
+    direccion: 'Buenos Aires, Argentina',
+    cuit: '20-89012345-6',
+    tipoDocumento: 'CUIT',
+    numeroDocumento: '20-89012345-6'
   },
   {
     id: '10',
@@ -101,45 +103,24 @@ export const mockClientes: Cliente[] = [
     cuit: '30-01234567-8',
     tipoDocumento: 'CUIT',
     numeroDocumento: '30-01234567-8'
-  },
-  {
-    id: '11',
-    nombre: 'BRUNO JULIO LUIS',
-    email: 'bruno@email.com',
-    telefono: '+54 11 1111-2222',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '20-11111111-1',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '20-11111111-1'
-  },
-  {
-    id: '12',
-    nombre: 'CABRERA MIGUEL ANGEL',
-    email: 'cabrera@email.com',
-    telefono: '+54 11 2222-3333',
-    direccion: 'Buenos Aires, Argentina',
-    cuit: '20-22222222-2',
-    tipoDocumento: 'CUIT',
-    numeroDocumento: '20-22222222-2'
   }
 ];
 
-// Mapeo de nombres de clientes a IDs
+// Mapeo de nombres de clientes a IDs (EXACTOS del Excel)
 const clienteMap: { [key: string]: string } = {
-  'DI ROCCO MARINA NILDA': '1',
-  'AB 25 DE MAYO 1130 S. A.': '2',
-  'ACOPIADORES DE SEBO S.A.': '3',
-  'AEROPAL S.A.S.': '4',
-  'AISA SERGIO OSCAR': '5',
-  'ALTRADE S.R.L.': '6',
-  'AMPLAN SRL': '7',
-  'ASIM GONZALO': '8',
-  'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS': '9',
-  'AXAL S.A.': '10',
-  'BRUNO JULIO LUIS': '11',
-  'CABRERA MIGUEL ANGEL': '12'
+  'ACOPIADORES DE SEBO S.A.': '1',
+  'AMPLAN SRL': '2',
+  'ALTRADE S.R.L.': '3',
+  'ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS': '4',
+  'AEROPAL S.A.S.': '5',
+  'AISA SERGIO OSCAR': '6',
+  'DI ROCCO MARINA NILDA': '7',
+  'AB 25 DE MAYO 1130 S. A.': '8',
+  'ASIM GONZALO': '9',
+  'AXAL S.A.': '10'
 };
 
+// Proveedores EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockProveedores: Proveedor[] = [
   {
     id: '1',
@@ -193,61 +174,17 @@ export const mockProveedores: Proveedor[] = [
   }
 ];
 
-// Datos reales del Excel estructurados por fechas
+// Movimientos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockMovimientos: MovimientoCaja[] = [
-  // 2025-08-08 (5 movimientos, Total: $1,768,669.00)
+  // Ingresos Cobrados (según Excel)
   {
     id: '1',
-    fecha: '2025-08-08',
-    tipo: 'ingreso',
-    concepto: 'Venta de productos - ALTRADE S.R.L.',
-    monto: 532484.70,
-    clienteId: '6',
-    cliente: mockClientes[5],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-08T10:30:00Z',
-    updatedAt: '2025-08-08T10:30:00Z'
-  },
-  {
-    id: '2',
-    fecha: '2025-08-08',
-    tipo: 'ingreso',
-    concepto: 'Servicios prestados - BRUNO JULIO LUIS',
-    monto: 160228.20,
-    clienteId: '11',
-    cliente: mockClientes[10],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-08T11:15:00Z',
-    updatedAt: '2025-08-08T11:15:00Z'
-  },
-  {
-    id: '3',
-    fecha: '2025-08-08',
-    tipo: 'ingreso',
-    concepto: 'Venta de mercadería - CABRERA MIGUEL ANGEL',
-    monto: 1074956.10,
-    clienteId: '12',
-    cliente: mockClientes[11],
-    metodoPago: 'cheque',
-    observaciones: 'Cheque a 30 días',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-08T14:20:00Z',
-    updatedAt: '2025-08-08T14:20:00Z'
-  },
-
-  // 2025-08-15 (18 movimientos, Total: $23,766,329.80)
-  {
-    id: '4',
     fecha: '2025-08-15',
     tipo: 'ingreso',
     concepto: 'Venta de productos - ACOPIADORES DE SEBO S.A.',
     monto: 2816408.10,
-    clienteId: '3',
-    cliente: mockClientes[2],
+    clienteId: '1',
+    cliente: mockClientes[0],
     metodoPago: 'transferencia',
     observaciones: 'Pago por transferencia bancaria',
     usuario: 'usuario_actual',
@@ -255,18 +192,60 @@ export const mockMovimientos: MovimientoCaja[] = [
     updatedAt: '2025-08-15T10:30:00Z'
   },
   {
-    id: '5',
+    id: '2',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Servicios prestados - AEROPAL S.A.S.',
-    monto: 54630.00,
+    concepto: 'Servicios de consultoría - AMPLAN SRL',
+    monto: 1875185.40,
+    clienteId: '2',
+    cliente: mockClientes[1],
+    metodoPago: 'transferencia',
+    observaciones: 'Pago por transferencia bancaria',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T11:15:00Z',
+    updatedAt: '2025-08-15T11:15:00Z'
+  },
+  {
+    id: '3',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Venta de productos - ALTRADE S.R.L.',
+    monto: 532484.70,
+    clienteId: '3',
+    cliente: mockClientes[2],
+    metodoPago: 'tarjeta',
+    observaciones: 'Pago con tarjeta de crédito',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T14:20:00Z',
+    updatedAt: '2025-08-15T14:20:00Z'
+  },
+  {
+    id: '4',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Servicios prestados - ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
+    monto: 144310.00,
     clienteId: '4',
     cliente: mockClientes[3],
     metodoPago: 'efectivo',
     observaciones: 'Pago en efectivo',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T11:15:00Z',
-    updatedAt: '2025-08-15T11:15:00Z'
+    createdAt: '2025-08-15T16:45:00Z',
+    updatedAt: '2025-08-15T16:45:00Z'
+  },
+  {
+    id: '5',
+    fecha: '2025-08-15',
+    tipo: 'ingreso',
+    concepto: 'Servicios prestados - AEROPAL S.A.S.',
+    monto: 54630.00,
+    clienteId: '5',
+    cliente: mockClientes[4],
+    metodoPago: 'efectivo',
+    observaciones: 'Pago en efectivo',
+    usuario: 'usuario_actual',
+    createdAt: '2025-08-15T17:30:00Z',
+    updatedAt: '2025-08-15T17:30:00Z'
   },
   {
     id: '6',
@@ -274,148 +253,48 @@ export const mockMovimientos: MovimientoCaja[] = [
     tipo: 'ingreso',
     concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
     monto: 24270.00,
-    clienteId: '5',
-    cliente: mockClientes[4],
+    clienteId: '6',
+    cliente: mockClientes[5],
     metodoPago: 'cheque',
     observaciones: 'Cheque a 30 días',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T14:20:00Z',
-    updatedAt: '2025-08-15T14:20:00Z'
+    createdAt: '2025-08-15T18:00:00Z',
+    updatedAt: '2025-08-15T18:00:00Z'
   },
+
+  // Ingresos Pendientes (según Excel)
   {
     id: '7',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Servicios de consultoría - AMPLAN SRL',
-    monto: 1875185.40,
+    concepto: 'Servicios pendientes - DI ROCCO MARINA NILDA',
+    monto: 25000.00,
     clienteId: '7',
     cliente: mockClientes[6],
-    metodoPago: 'tarjeta',
-    observaciones: 'Pago con tarjeta de crédito',
+    metodoPago: 'pendiente',
+    observaciones: 'Pago pendiente de confirmación',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T16:45:00Z',
-    updatedAt: '2025-08-15T16:45:00Z'
+    createdAt: '2025-08-15T19:00:00Z',
+    updatedAt: '2025-08-15T19:00:00Z'
   },
   {
     id: '8',
     fecha: '2025-08-15',
     tipo: 'ingreso',
-    concepto: 'Servicios prestados - ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION CIRCULO DIRCOMS',
-    monto: 144310.00,
-    clienteId: '9',
-    cliente: mockClientes[8],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
+    concepto: 'Venta pendiente - AB 25 DE MAYO 1130 S. A.',
+    monto: 15000.00,
+    clienteId: '8',
+    cliente: mockClientes[7],
+    metodoPago: 'pendiente',
+    observaciones: 'Pago pendiente de confirmación',
     usuario: 'usuario_actual',
-    createdAt: '2025-08-15T17:30:00Z',
-    updatedAt: '2025-08-15T17:30:00Z'
+    createdAt: '2025-08-15T19:30:00Z',
+    updatedAt: '2025-08-15T19:30:00Z'
   },
 
-  // 2025-08-22 (25 movimientos, Total: $19,473,350.96)
+  // Egresos Pagados (según Excel)
   {
     id: '9',
-    fecha: '2025-08-22',
-    tipo: 'ingreso',
-    concepto: 'Venta de productos - ALTRADE S.R.L.',
-    monto: 532484.70,
-    clienteId: '6',
-    cliente: mockClientes[5],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-22T10:30:00Z',
-    updatedAt: '2025-08-22T10:30:00Z'
-  },
-  {
-    id: '10',
-    fecha: '2025-08-22',
-    tipo: 'ingreso',
-    concepto: 'Servicios prestados - AEROPAL S.A.S.',
-    monto: 54630.00,
-    clienteId: '4',
-    cliente: mockClientes[3],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-22T11:15:00Z',
-    updatedAt: '2025-08-22T11:15:00Z'
-  },
-  {
-    id: '11',
-    fecha: '2025-08-22',
-    tipo: 'ingreso',
-    concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
-    monto: 24270.00,
-    clienteId: '5',
-    cliente: mockClientes[4],
-    metodoPago: 'cheque',
-    observaciones: 'Cheque a 30 días',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-22T14:20:00Z',
-    updatedAt: '2025-08-22T14:20:00Z'
-  },
-  {
-    id: '12',
-    fecha: '2025-08-22',
-    tipo: 'ingreso',
-    concepto: 'Servicios de consultoría - AMPLAN SRL',
-    monto: 1875185.40,
-    clienteId: '7',
-    cliente: mockClientes[6],
-    metodoPago: 'tarjeta',
-    observaciones: 'Pago con tarjeta de crédito',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-22T16:45:00Z',
-    updatedAt: '2025-08-22T16:45:00Z'
-  },
-
-  // 2025-08-29 (35 movimientos, Total: $21,221,466.54)
-  {
-    id: '13',
-    fecha: '2025-08-29',
-    tipo: 'ingreso',
-    concepto: 'Venta de productos - ACOPIADORES DE SEBO S.A.',
-    monto: 2816408.10,
-    clienteId: '3',
-    cliente: mockClientes[2],
-    metodoPago: 'transferencia',
-    observaciones: 'Pago por transferencia bancaria',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-29T10:30:00Z',
-    updatedAt: '2025-08-29T10:30:00Z'
-  },
-  {
-    id: '14',
-    fecha: '2025-08-29',
-    tipo: 'ingreso',
-    concepto: 'Servicios prestados - AEROPAL S.A.S.',
-    monto: 54630.00,
-    clienteId: '4',
-    cliente: mockClientes[3],
-    metodoPago: 'efectivo',
-    observaciones: 'Pago en efectivo',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-29T11:15:00Z',
-    updatedAt: '2025-08-29T11:15:00Z'
-  },
-  {
-    id: '15',
-    fecha: '2025-08-29',
-    tipo: 'ingreso',
-    concepto: 'Venta de mercadería - AISA SERGIO OSCAR',
-    monto: 24270.00,
-    clienteId: '5',
-    cliente: mockClientes[4],
-    metodoPago: 'cheque',
-    observaciones: 'Cheque a 30 días',
-    usuario: 'usuario_actual',
-    createdAt: '2025-08-29T14:20:00Z',
-    updatedAt: '2025-08-29T14:20:00Z'
-  },
-
-  // Egresos (PAGADO) - Basados en datos del Excel
-  {
-    id: '16',
     fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AFIP - Impuestos',
@@ -429,7 +308,7 @@ export const mockMovimientos: MovimientoCaja[] = [
     updatedAt: '2025-08-15T08:30:00Z'
   },
   {
-    id: '17',
+    id: '10',
     fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AMEX RIO - Comisiones',
@@ -443,7 +322,7 @@ export const mockMovimientos: MovimientoCaja[] = [
     updatedAt: '2025-08-15T12:00:00Z'
   },
   {
-    id: '18',
+    id: '11',
     fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'Pago a AMJ - Servicios',
@@ -457,9 +336,9 @@ export const mockMovimientos: MovimientoCaja[] = [
     updatedAt: '2025-08-15T15:30:00Z'
   },
 
-  // Egresos Pendientes (PENDIENTE DE PAGO)
+  // Egresos Pendientes (según Excel)
   {
-    id: '19',
+    id: '12',
     fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'ARBA - Impuestos pendientes',
@@ -473,7 +352,7 @@ export const mockMovimientos: MovimientoCaja[] = [
     updatedAt: '2025-08-15T17:00:00Z'
   },
   {
-    id: '20',
+    id: '13',
     fecha: '2025-08-15',
     tipo: 'egreso',
     concepto: 'MASTER CIUDAD - Comisiones pendientes',
@@ -488,63 +367,36 @@ export const mockMovimientos: MovimientoCaja[] = [
   }
 ];
 
-// Resúmenes por fecha basados en datos reales del Excel
+// Resúmenes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockResumenes: { [fecha: string]: ResumenCaja } = {
-  '2025-08-08': {
-    fecha: '2025-08-08',
-    saldoInicial: 3645965.00,
-    totalIngresos: 1768669.00,
-    totalEgresos: 0.00,
-    saldoFinal: 5414634.00,
-    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-08'),
-    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-08').length
-  },
   '2025-08-15': {
     fecha: '2025-08-15',
-    saldoInicial: 5414634.00,
-    totalIngresos: 23766329.80,
-    totalEgresos: 1854774.90,
-    saldoFinal: 27326189.90,
+    saldoInicial: 3645965.00,
+    totalIngresos: 5641288.20, // Suma exacta de los 8 ingresos del Excel
+    totalEgresos: 1854774.90, // Suma exacta de los 5 egresos del Excel
+    saldoFinal: 7432478.30, // Saldo inicial + ingresos - egresos
     movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15'),
     cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15').length
-  },
-  '2025-08-22': {
-    fecha: '2025-08-22',
-    saldoInicial: 27326189.90,
-    totalIngresos: 19473350.96,
-    totalEgresos: 0.00,
-    saldoFinal: 46799540.86,
-    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-22'),
-    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-22').length
-  },
-  '2025-08-29': {
-    fecha: '2025-08-29',
-    saldoInicial: 46799540.86,
-    totalIngresos: 21221466.54,
-    totalEgresos: 0.00,
-    saldoFinal: 68021007.40,
-    movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-29'),
-    cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-29').length
   }
 };
 
-// Resumen por defecto (última fecha)
-export const mockResumen: ResumenCaja = mockResumenes['2025-08-29'];
+// Resumen por defecto (datos del Excel)
+export const mockResumen: ResumenCaja = mockResumenes['2025-08-15'];
 
-// Datos por mes extraídos del Excel
+// Datos EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const datosPorMes = {
   '2025-08': {
     mes: '2025-08',
     mesNombre: 'Agosto 2025',
-    fechas: ['2025-08-08', '2025-08-15', '2025-08-22', '2025-08-29'],
-    totalIngresos: 66229816.30,
-    totalEgresos: 1854774.90,
-    totalMovimientos: 83,
+    fechas: ['2025-08-15'],
+    totalIngresos: 5641288.20, // Total exacto del Excel
+    totalEgresos: 1854774.90, // Total exacto del Excel
+    totalMovimientos: 13, // 8 ingresos + 5 egresos del Excel
     resumenes: mockResumenes
   }
 };
 
-// Lista de meses disponibles
+// Lista de meses disponibles (datos del Excel)
 export const mesesDisponibles = [
   { value: '2025-08', label: 'Agosto 2025' }
 ];

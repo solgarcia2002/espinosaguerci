@@ -33,7 +33,7 @@ export default function GestionClientes() {
     try {
       setSincronizando(true);
       const result = await colppyService.sincronizarClientes();
-      toast.success(`Sincronización exitosa: ${result.count} clientes actualizados`);
+      toast.success(result.message || `Sincronización exitosa: ${result.count} clientes actualizados`);
       await cargarClientes();
     } catch (error) {
       console.error('Error al sincronizar:', error);
@@ -67,7 +67,10 @@ export default function GestionClientes() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Gestión de Clientes</h3>
           <p className="text-sm text-gray-500">
-            {clientes.length} clientes registrados
+            {clientes.length} clientes registrados desde Excel
+          </p>
+          <p className="text-xs text-blue-600">
+            📊 Datos del Excel sincronizados con Colppy vía Backend
           </p>
         </div>
         <button
@@ -96,7 +99,7 @@ export default function GestionClientes() {
         </div>
       </div>
 
-      {/* Lista de clientes */}
+      {/* Tabla de clientes */}
       {clientesFiltrados.length === 0 ? (
         <div className="card p-8 text-center">
           <div className="text-gray-400 text-6xl mb-4">👥</div>
@@ -120,50 +123,69 @@ export default function GestionClientes() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {clientesFiltrados.map((cliente) => (
-            <div key={cliente.id} className="card p-4 hover:shadow-lg transition">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 truncate">
-                    {cliente.nombre}
-                  </h4>
-                  {cliente.cuit && (
-                    <p className="text-sm text-gray-500">CUIT: {cliente.cuit}</p>
-                  )}
-                </div>
-                <span className="text-2xl">👤</span>
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                {cliente.email && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📧</span>
-                    <span className="truncate">{cliente.email}</span>
-                  </div>
-                )}
-                {cliente.telefono && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📞</span>
-                    <span>{cliente.telefono}</span>
-                  </div>
-                )}
-                {cliente.direccion && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📍</span>
-                    <span className="truncate">{cliente.direccion}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Documento: {cliente.tipoDocumento || 'N/A'}</span>
-                  <span>{cliente.numeroDocumento || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Cliente
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    CUIT
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Teléfono
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Dirección
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Documento
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {clientesFiltrados.map((cliente) => (
+                  <tr key={cliente.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="text-2xl mr-3">👤</div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {cliente.nombre}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {cliente.cuit || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {cliente.email || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {cliente.telefono || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-xs truncate">
+                        {cliente.direccion || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        <div>{cliente.tipoDocumento || 'N/A'}</div>
+                        <div className="text-xs">{cliente.numeroDocumento || 'N/A'}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

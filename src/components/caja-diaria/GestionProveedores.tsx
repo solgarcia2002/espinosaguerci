@@ -33,7 +33,7 @@ export default function GestionProveedores() {
     try {
       setSincronizando(true);
       const result = await colppyService.sincronizarProveedores();
-      toast.success(`Sincronización exitosa: ${result.count} proveedores actualizados`);
+      toast.success(result.message || `Sincronización exitosa: ${result.count} proveedores actualizados`);
       await cargarProveedores();
     } catch (error) {
       console.error('Error al sincronizar:', error);
@@ -67,7 +67,10 @@ export default function GestionProveedores() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Gestión de Proveedores</h3>
           <p className="text-sm text-gray-500">
-            {proveedores.length} proveedores registrados
+            {proveedores.length} proveedores registrados desde Excel
+          </p>
+          <p className="text-xs text-blue-600">
+            📊 Datos del Excel sincronizados con Colppy vía Backend
           </p>
         </div>
         <button
@@ -96,7 +99,7 @@ export default function GestionProveedores() {
         </div>
       </div>
 
-      {/* Lista de proveedores */}
+      {/* Tabla de proveedores */}
       {proveedoresFiltrados.length === 0 ? (
         <div className="card p-8 text-center">
           <div className="text-gray-400 text-6xl mb-4">🏢</div>
@@ -120,50 +123,69 @@ export default function GestionProveedores() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {proveedoresFiltrados.map((proveedor) => (
-            <div key={proveedor.id} className="card p-4 hover:shadow-lg transition">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 truncate">
-                    {proveedor.nombre}
-                  </h4>
-                  {proveedor.cuit && (
-                    <p className="text-sm text-gray-500">CUIT: {proveedor.cuit}</p>
-                  )}
-                </div>
-                <span className="text-2xl">🏢</span>
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                {proveedor.email && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📧</span>
-                    <span className="truncate">{proveedor.email}</span>
-                  </div>
-                )}
-                {proveedor.telefono && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📞</span>
-                    <span>{proveedor.telefono}</span>
-                  </div>
-                )}
-                {proveedor.direccion && (
-                  <div className="flex items-center text-gray-600">
-                    <span className="mr-2">📍</span>
-                    <span className="truncate">{proveedor.direccion}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Documento: {proveedor.tipoDocumento || 'N/A'}</span>
-                  <span>{proveedor.numeroDocumento || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Proveedor
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    CUIT
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Teléfono
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Dirección
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Documento
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {proveedoresFiltrados.map((proveedor) => (
+                  <tr key={proveedor.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="text-2xl mr-3">🏢</div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {proveedor.nombre}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {proveedor.cuit || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {proveedor.email || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {proveedor.telefono || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      <div className="max-w-xs truncate">
+                        {proveedor.direccion || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div>
+                        <div>{proveedor.tipoDocumento || 'N/A'}</div>
+                        <div className="text-xs">{proveedor.numeroDocumento || 'N/A'}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
