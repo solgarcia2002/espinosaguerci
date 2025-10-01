@@ -67,12 +67,12 @@ export default function GestionClientes() {
       {/* Header con acciones */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Gestión de Clientes</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Gestión de Facturas de Clientes</h3>
           <p className="text-sm text-gray-500">
-            {clientes.length} clientes registrados desde Excel
+            {clientes.length} facturas registradas desde Excel
           </p>
           <p className="text-xs text-blue-600">
-            📊 Datos del Excel sincronizados con Colppy vía Backend
+            📄 Facturas del Excel sincronizadas con Colppy vía Backend
           </p>
         </div>
         <button
@@ -90,7 +90,7 @@ export default function GestionClientes() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar clientes por nombre, email o CUIT..."
+            placeholder="Buscar por cliente, tipo, referencia, fecha o vencimiento..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="input pl-10"
