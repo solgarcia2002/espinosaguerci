@@ -29,7 +29,7 @@ export default function EstadisticasCaja({ movimientos }: EstadisticasCajaProps)
   const topClientes = ingresos
     .filter(m => m.cliente)
     .reduce((acc, m) => {
-      const nombre = m.cliente!.nombre;
+      const nombre = m.cliente!.cliente;
       acc[nombre] = (acc[nombre] || 0) + m.monto;
       return acc;
     }, {} as Record<string, number>);
@@ -37,7 +37,7 @@ export default function EstadisticasCaja({ movimientos }: EstadisticasCajaProps)
   const topProveedores = egresos
     .filter(m => m.proveedor)
     .reduce((acc, m) => {
-      const nombre = m.proveedor!.nombre;
+      const nombre = m.proveedor!.proveedor;
       acc[nombre] = (acc[nombre] || 0) + m.monto;
       return acc;
     }, {} as Record<string, number>);

@@ -675,3 +675,13 @@ export const getAjustes = () => mockAjustes;
 export const getTarjetas = () => mockTarjetas;
 export const getCobranzasDiferencias = () => mockCobranzasDiferencias;
 export const getPagosProveedoresPlanes = () => mockPagosProveedoresPlanes;
+
+// Función para obtener resumen por mes
+export const getResumenPorMes = (mes: string) => {
+  return datosPorMes[mes] || null;
+};
+
+// Función para simular delay de API
+export const simulateApiDelay = (ms: number = 1000) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
