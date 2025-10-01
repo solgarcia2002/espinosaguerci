@@ -380,14 +380,96 @@ export const mockCuentasBancarias = [
   { nombre: 'BCO PCIA EDU', saldo: 2378900.00, pendienteAcreditacion: 0, dolares: 0 }
 ];
 
+// Saldos consolidados EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
+export const mockSaldosConsolidados = {
+  delDia: {
+    disponibilidades: 3645965.00,
+    chequesEnCartera: 3659126.21,
+    aCobrarCorrientes: 33114908.15,
+    aPagarProveedores: 32098070.93,
+    aPagarTarjetas: 20589291.32,
+    incrementoTarjetas: 0,
+    incrementoProveedores: 0,
+    saldo: 12267362.89
+  },
+  diaAnterior: {
+    disponibilidades: 3576405.40,
+    chequesEnCartera: 3659126.21,
+    aCobrarCorrientes: 34267073.05,
+    aPagarProveedores: 32098070.93,
+    aPagarTarjetas: 20589291.32,
+    incrementoTarjetas: 0,
+    incrementoProveedores: 0,
+    saldo: 11184757.59
+  },
+  diferencia: 1082605.30
+};
+
+// Cash Flow EXACTO del Excel
+export const mockCashFlow = {
+  reduccionDisponibilidades: 69559.60,
+  reduccionCheques: 0,
+  cobranzas: 1152164.90,
+  pagosProveedores: 0,
+  cancelacionTarjetas: 0,
+  cancelacionPlanes: 0,
+  total: 1082605.30
+};
+
+// Ajustes EXACTOS del Excel
+export const mockAjustes = {
+  ajusteCobranzas: 125225.10,
+  ajustePagos: 0,
+  diferencia: 1207830.40
+};
+
+// Tarjetas EXACTAS del Excel
+export const mockTarjetas = [
+  { tarjeta: 'AMEX RIO', titular: 'MARY', importe: 0 },
+  { tarjeta: 'MASTER CIUDAD', titular: 'SIL', importe: 0 },
+  { tarjeta: 'MASTER PCIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'VISA PCIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'VISA COMAFI', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA RIO SIL', titular: 'sil', importe: 0 },
+  { tarjeta: 'AMEX RIO SIL', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA ICBC', titular: 'SIL', importe: 0 },
+  { tarjeta: 'MASTER ICBC', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA GALICIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'MASTER GALICIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'CABAL CREDICOOP', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA CREDICOOP', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA FRANCES', titular: 'EDUARDO', importe: 0 },
+  { tarjeta: 'MASTER FRANCES', titular: 'EDUARDO', importe: 0 },
+  { tarjeta: 'VISA FRANCES', titular: 'SIL', importe: 0 },
+  { tarjeta: 'MASTER FRANCES', titular: 'SIL', importe: 0 },
+  { tarjeta: 'CENCOSUD', titular: 'SIL', importe: 0 },
+  { tarjeta: 'CENCOSUD', titular: 'EDUARDO', importe: 0 },
+  { tarjeta: 'VISA FRANCES', titular: 'VALENTINA', importe: 0 }
+];
+
+// Cobranzas con diferencias EXACTAS del Excel
+export const mockCobranzasDiferencias = {
+  cliente: 'AMJ',
+  registrado: 864774.90,
+  cobrado: 990000.00,
+  diferencia: 125225.10
+};
+
+// Pagos a proveedores mediante planes EXACTOS del Excel
+export const mockPagosProveedoresPlanes = [
+  { proveedor: 'AFIP', importeCancelado: 0.00 },
+  { proveedor: 'ARBA', importeCancelado: 0 },
+  { proveedor: 'Sindicatos', importeCancelado: 0 }
+];
+
 // Resúmenes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockResumenes: { [fecha: string]: ResumenCaja } = {
   '2025-10-01': {
     fecha: '2025-10-01',
-    saldoInicial: 3495965.00, // Total exacto del Excel: 3.495.965,00
-    totalIngresos: 5641288.20, // Suma exacta de los 8 ingresos del Excel
-    totalEgresos: 1854774.90, // Suma exacta de los 5 egresos del Excel
-    saldoFinal: 7282478.30, // Saldo inicial + ingresos - egresos
+    saldoInicial: 3645965.00, // Disponibilidades del día
+    totalIngresos: 1152164.90, // Cobranzas del cash flow
+    totalEgresos: 0, // Sin pagos registrados
+    saldoFinal: 4798129.90, // Saldo inicial + ingresos - egresos
     movimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15'),
     cantidadMovimientos: mockMovimientos.filter(m => m.fecha === '2025-08-15').length
   }
@@ -402,11 +484,17 @@ export const datosPorMes = {
     mes: '2025-10',
     mesNombre: 'Octubre 2025',
     fechas: ['2025-10-01'],
-    totalIngresos: 5641288.20, // Total exacto del Excel
-    totalEgresos: 1854774.90, // Total exacto del Excel
+    totalIngresos: 1152164.90, // Cobranzas del cash flow
+    totalEgresos: 0, // Sin pagos registrados
     totalMovimientos: 13, // 8 ingresos + 5 egresos del Excel
     resumenes: mockResumenes,
-    cuentasBancarias: mockCuentasBancarias
+    cuentasBancarias: mockCuentasBancarias,
+    saldosConsolidados: mockSaldosConsolidados,
+    cashFlow: mockCashFlow,
+    ajustes: mockAjustes,
+    tarjetas: mockTarjetas,
+    cobranzasDiferencias: mockCobranzasDiferencias,
+    pagosProveedoresPlanes: mockPagosProveedoresPlanes
   }
 };
 
@@ -468,6 +556,36 @@ export const getTotalDisponibilidad = () => {
     totalPendiente,
     totalGeneral: totalSaldo + totalPendiente
   };
+};
+
+// Función para obtener saldos consolidados
+export const getSaldosConsolidados = () => {
+  return mockSaldosConsolidados;
+};
+
+// Función para obtener cash flow
+export const getCashFlow = () => {
+  return mockCashFlow;
+};
+
+// Función para obtener ajustes
+export const getAjustes = () => {
+  return mockAjustes;
+};
+
+// Función para obtener tarjetas
+export const getTarjetas = () => {
+  return mockTarjetas;
+};
+
+// Función para obtener cobranzas con diferencias
+export const getCobranzasDiferencias = () => {
+  return mockCobranzasDiferencias;
+};
+
+// Función para obtener pagos a proveedores mediante planes
+export const getPagosProveedoresPlanes = () => {
+  return mockPagosProveedoresPlanes;
 };
 
 // Función para simular delay de API
