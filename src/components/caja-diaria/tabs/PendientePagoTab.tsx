@@ -85,7 +85,7 @@ export default function PendientePagoTab() {
 
   // Agrupar por proveedor
   const porProveedor = movimientos.reduce((acc, m) => {
-    const proveedorNombre = m.proveedor?.nombre || 'Sin proveedor';
+    const proveedorNombre = m.proveedor?.proveedor || 'Sin proveedor';
     if (!acc[proveedorNombre]) {
       acc[proveedorNombre] = { total: 0, cantidad: 0, movimientos: [] };
     }
@@ -249,7 +249,7 @@ export default function PendientePagoTab() {
                       {new Date(movimiento.fecha).toLocaleDateString('es-AR')}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.proveedor?.nombre || '-'}
+                      {movimiento.proveedor?.proveedor || '-'}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
                       {movimiento.concepto}

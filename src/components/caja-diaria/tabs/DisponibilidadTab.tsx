@@ -172,7 +172,7 @@ export default function DisponibilidadTab() {
                       {movimiento.concepto}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-600">
-                      {movimiento.cliente?.nombre || movimiento.proveedor?.nombre || '-'}
+                      {movimiento.cliente?.cliente || movimiento.proveedor?.proveedor || '-'}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-600 capitalize">
                       {movimiento.metodoPago}

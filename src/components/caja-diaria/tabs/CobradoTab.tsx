@@ -256,7 +256,7 @@ export default function CobradoTab() {
                       {new Date(movimiento.fecha).toLocaleDateString('es-AR')}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.cliente?.nombre || '-'}
+                      {movimiento.cliente?.cliente || '-'}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
                       {movimiento.concepto}

@@ -85,7 +85,7 @@ export default function PendienteCobroTab() {
 
   // Agrupar por cliente
   const porCliente = movimientos.reduce((acc, m) => {
-    const clienteNombre = m.cliente?.nombre || 'Sin cliente';
+    const clienteNombre = m.cliente?.cliente || 'Sin cliente';
     if (!acc[clienteNombre]) {
       acc[clienteNombre] = { total: 0, cantidad: 0, movimientos: [] };
     }
@@ -249,7 +249,7 @@ export default function PendienteCobroTab() {
                       {new Date(movimiento.fecha).toLocaleDateString('es-AR')}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.cliente?.nombre || '-'}
+                      {movimiento.cliente?.cliente || '-'}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-900">
                       {movimiento.concepto}

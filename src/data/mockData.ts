@@ -685,3 +685,21 @@ export const getResumenPorMes = (mes: string) => {
 export const simulateApiDelay = (ms: number = 1000) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
+
+
+// Función para obtener resumen por fecha
+export const getResumenPorFecha = (fecha: string) => {
+  return mockResumenes[fecha] || null;
+};
+
+// Función para filtrar movimientos (alias de filtrarMovimientos)
+export const filterMovimientos = filtrarMovimientos;
+
+// Función para obtener movimientos por mes
+export const getMovimientosPorMes = (mes: string) => {
+  return mockMovimientos.filter(movimiento => {
+    const fechaMovimiento = new Date(movimiento.fecha);
+    const mesMovimiento = `${fechaMovimiento.getFullYear()}-${String(fechaMovimiento.getMonth() + 1).padStart(2, '0')}`;
+    return mesMovimiento === mes;
+  });
+};

@@ -245,7 +245,7 @@ export default function MovimientoForm({ movimiento, onSuccess, onCancel }: Movi
                   <option value="">Seleccionar cliente</option>
                   {clientes.map((cliente) => (
                     <option key={cliente.id} value={cliente.id}>
-                      {cliente.nombre}
+                      {cliente.cliente}
                     </option>
                   ))}
                 </select>
@@ -271,7 +271,7 @@ export default function MovimientoForm({ movimiento, onSuccess, onCancel }: Movi
                   <option value="">Seleccionar proveedor</option>
                   {proveedores.map((proveedor) => (
                     <option key={proveedor.id} value={proveedor.id}>
-                      {proveedor.nombre}
+                      {proveedor.proveedor}
                     </option>
                   ))}
                 </select>
