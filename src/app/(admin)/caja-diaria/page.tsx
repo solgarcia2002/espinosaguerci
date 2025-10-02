@@ -102,7 +102,7 @@ export default function CajaDiariaPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
           <p className="text-gray-600 mt-1">
-            Gestiona los movimientos de caja y mantén el control de tus finanzas diarias
+            Gestiona los movimientos de caja diaria
           </p>
         </div>
 

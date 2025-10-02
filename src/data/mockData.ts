@@ -569,36 +569,63 @@ export const mockCuentasBancarias = [
 // Saldos consolidados EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockSaldosConsolidados = {
   delDia: {
-    disponibilidades: 1782573.00,
-    cheques: 0.00,
-    aCobrar: 0.00,
-    aPagar: 0.00,
-    total: 1782573.00
+    disponibilidades: 3645965.00,
+    cheques: 3659126.21,
+    aCobrar: 33114908.15,
+    aPagar: 32098070.93,
+    aPagarTarjetas: 20589291.32,
+    incrementoTarjetas: 0.00,
+    incrementoProveedores: 0.00,
+    saldo: 12267362.89
   },
   diaAnterior: {
-    disponibilidades: 1782573.00,
-    cheques: 0.00,
-    aCobrar: 0.00,
-    aPagar: 0.00,
-    total: 1782573.00
-  }
+    disponibilidades: 3576405.40,
+    cheques: 3659126.21,
+    aCobrar: 34267073.05,
+    aPagar: 32098070.93,
+    aPagarTarjetas: 20589291.32,
+    incrementoTarjetas: 0.00,
+    incrementoProveedores: 0.00,
+    saldo: 11184757.59
+  },
+  diferencia: 1082605.30
 };
 
 // Cash Flow EXACTO del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockCashFlow = {
-  reduccionDisponibilidades: 0.00,
-  cobranzas: 0.00,
-  total: 0.00
+  reduccionDisponibilidades: 69559.60,
+  reduccionCheques: 0.00,
+  cobranzas: 1152164.90,
+  pagosProveedores: 0.00,
+  cancelacionTarjetas: 0.00,
+  cancelacionPlanes: 0.00,
+  total: 1082605.30
 };
 
 // Ajustes EXACTOS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockAjustes = {
-  ajustesCobranzas: 0.00,
-  totalDiferencias: 0.00
+  ajustesCobranzas: 125225.10,
+  ajustesPagos: 0.00,
+  diferencia: 1207830.40
 };
 
 // Tarjetas EXACTAS del Excel original CAJA DIARIA 11-08-2025.xlsx
 export const mockTarjetas = [
+  { tarjeta: 'AMEX RIO', titular: 'MARY', importe: 0 },
+  { tarjeta: 'MASTER CIUDAD', titular: 'SIL', importe: 0 },
+  { tarjeta: 'MASTER PCIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'VISA PCIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'VISA COMAFI', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA RIO SIL', titular: 'sil', importe: 0 },
+  { tarjeta: 'AMEX RIO SIL', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA ICBC', titular: 'SIL', importe: 0 },
+  { tarjeta: 'MASTER ICBC', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA GALICIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'MASTER GALICIA', titular: 'EDU', importe: 0 },
+  { tarjeta: 'CABAL CREDICOOP', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA CREDICOOP', titular: 'SIL', importe: 0 },
+  { tarjeta: 'VISA FRANCES', titular: 'EDUARDO', importe: 0 },
+  { tarjeta: 'MASTER FRANCES', titular: 'EDUARDO', importe: 0 },
   { tarjeta: 'VISA FRANCES', titular: 'SIL', importe: 0 },
   { tarjeta: 'MASTER FRANCES', titular: 'SIL', importe: 0 },
   { tarjeta: 'CENCOSUD', titular: 'SIL', importe: 0 },
@@ -648,10 +675,38 @@ export const datosPorMes: { [key: string]: any } = {
   }
 };
 
-// Lista de meses disponibles (datos del Excel)
-export const mesesDisponibles = [
-  { value: '2025-10', label: 'Octubre 2025' }
-];
+// Función para generar meses disponibles automáticamente (2 años hacia atrás)
+const generarMesesDisponibles = () => {
+  const meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  
+  const fechaActual = new Date();
+  const mesesDisponibles = [];
+  
+  // Generar 24 meses hacia atrás (2 años)
+  for (let i = 0; i < 24; i++) {
+    const fecha = new Date(fechaActual);
+    fecha.setMonth(fecha.getMonth() - i);
+    fecha.setDate(1); // Primer día del mes
+    
+    const año = fecha.getFullYear();
+    const mes = fecha.getMonth() + 1;
+    const mesFormateado = String(mes).padStart(2, '0');
+    const nombreMes = meses[mes - 1];
+    
+    mesesDisponibles.push({
+      value: `${año}-${mesFormateado}`,
+      label: `${nombreMes} ${año}`
+    });
+  }
+  
+  return mesesDisponibles;
+};
+
+// Lista de meses disponibles (generada automáticamente)
+export const mesesDisponibles = generarMesesDisponibles();
 
 // Función para filtrar movimientos
 export const filtrarMovimientos = (movimientos: MovimientoCaja[], filtros: any) => {
