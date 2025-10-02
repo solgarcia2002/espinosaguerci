@@ -78,7 +78,7 @@ export default function GestionProveedores() {
         <button
           onClick={sincronizarConColppy}
           disabled={sincronizando}
-          className="btn-primary flex items-center space-x-2 disabled:opacity-50 w-auto px-2.5 py-2.5"
+          className="btn-primary flex items-center space-x-2 disabled:opacity-50 w-auto p-4"
         >
           <span>🔄</span>
           <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
