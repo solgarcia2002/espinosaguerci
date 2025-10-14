@@ -14,7 +14,7 @@ export class CajaDiariaService {
       if (filtros?.metodoPago) params.metodoPago = filtros.metodoPago;
 
       const response = await apiClient<{ success: boolean; data: MovimientoCaja[] }>(
-        'api/caja-diaria/movimientos',
+        'caja-diaria/movimientos',
         { method: 'GET' },
         params
       );
@@ -32,7 +32,7 @@ export class CajaDiariaService {
       if (fecha) params.fecha = fecha;
 
       const response = await apiClient<{ success: boolean; data: ResumenCaja }>(
-        'api/caja-diaria/movimientos/resumen/diario',
+        'caja-diaria/movimientos/resumen/diario',
         { method: 'GET' },
         params
       );
@@ -59,7 +59,7 @@ export class CajaDiariaService {
       if (fechaHasta) params.fechaFin = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: Cliente[] }>(
-        'api/caja-diaria/clientes',
+        'caja-diaria/clientes',
         { method: 'GET' },
         params
       );
@@ -78,7 +78,7 @@ export class CajaDiariaService {
       if (fechaHasta) params.fechaFin = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: Proveedor[] }>(
-        'api/caja-diaria/proveedores',
+        'caja-diaria/proveedores',
         { method: 'GET' },
         params
       );
@@ -93,7 +93,7 @@ export class CajaDiariaService {
   async crearMovimiento(movimiento: Omit<MovimientoCaja, 'id' | 'createdAt' | 'updatedAt'>): Promise<MovimientoCaja> {
     try {
       const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
-        'api/caja-diaria/movimientos',
+        'caja-diaria/movimientos',
         { 
           method: 'POST',
           body: JSON.stringify(movimiento)
@@ -110,7 +110,7 @@ export class CajaDiariaService {
   async actualizarMovimiento(id: string, movimiento: Partial<MovimientoCaja>): Promise<MovimientoCaja> {
     try {
       const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
-        `api/caja-diaria/movimientos/${id}`,
+        `caja-diaria/movimientos/${id}`,
         { 
           method: 'PUT',
           body: JSON.stringify(movimiento)
@@ -127,7 +127,7 @@ export class CajaDiariaService {
   async eliminarMovimiento(id: string): Promise<void> {
     try {
       await apiClient<{ success: boolean }>(
-        `api/caja-diaria/movimientos/${id}`,
+        `caja-diaria/movimientos/${id}`,
         { method: 'DELETE' }
       );
     } catch (error) {
@@ -142,7 +142,7 @@ export class CajaDiariaService {
       if (filtros?.fechaDesde) params.fechaInicio = filtros.fechaDesde;
       if (filtros?.fechaHasta) params.fechaFin = filtros.fechaHasta;
 
-      const response = await fetch(`/api/caja-diaria/export/movimientos/excel?${new URLSearchParams(params)}`);
+      const response = await fetch(`caja-diaria/export/movimientos/excel?${new URLSearchParams(params)}`);
       
       if (!response.ok) {
         throw new Error('Error al exportar Excel');

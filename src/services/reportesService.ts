@@ -217,7 +217,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteClientesResponse }>(
-        'api/reportes/clientes',
+        'reportes/clientes',
         { method: 'GET' },
         params
       );
@@ -236,7 +236,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteProveedoresResponse }>(
-        'api/reportes/proveedores',
+        'reportes/proveedores',
         { method: 'GET' },
         params
       );
@@ -251,7 +251,7 @@ export class ReportesService {
   async obtenerReportePendienteCobro(): Promise<ReportePendienteCobroResponse> {
     try {
       const response = await apiClient<{ success: boolean; data: ReportePendienteCobroResponse }>(
-        'api/reportes/pendiente-cobro',
+        'reportes/pendiente-cobro',
         { method: 'GET' }
       );
 
@@ -265,7 +265,7 @@ export class ReportesService {
   async obtenerReportePendientePago(): Promise<ReportePendientePagoResponse> {
     try {
       const response = await apiClient<{ success: boolean; data: ReportePendientePagoResponse }>(
-        'api/reportes/pendiente-pago',
+        'reportes/pendiente-pago',
         { method: 'GET' }
       );
 
@@ -283,7 +283,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteCobradoResponse }>(
-        'api/reportes/cobrado',
+        'reportes/cobrado',
         { method: 'GET' },
         params
       );
@@ -302,7 +302,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReportePagadoResponse }>(
-        'api/reportes/pagado',
+        'reportes/pagado',
         { method: 'GET' },
         params
       );
@@ -320,7 +320,7 @@ export class ReportesService {
       if (fecha) params.fecha = fecha;
 
       const response = await apiClient<{ success: boolean; data: ReporteDisponibilidadResponse }>(
-        'api/reportes/disponibilidad',
+        'reportes/disponibilidad',
         { method: 'GET' },
         params
       );
@@ -338,7 +338,7 @@ export class ReportesService {
       if (fecha) params.fecha = fecha;
 
       const response = await apiClient<{ success: boolean; data: ReporteDashboardResponse }>(
-        'api/reportes/dashboard',
+        'reportes/dashboard',
         { method: 'GET' },
         params
       );
