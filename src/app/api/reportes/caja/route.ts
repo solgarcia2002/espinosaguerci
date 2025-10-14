@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMovimientosPorMes, getResumenPorMes } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,9 +15,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Obtener movimientos y resumen para la fecha especificada
-    const movimientos = getMovimientosPorMes(fecha);
-    const resumen = getResumenPorMes(fecha);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const movimientos: any[] = [];
+    const resumen = {
+      totalIngresos: 0,
+      totalEgresos: 0,
+      saldoNeto: 0,
+      cantidadMovimientos: 0,
+      ingresosPendientes: 0,
+      egresosPendientes: 0,
+      saldoInicial: 0,
+      saldoFinal: 0
+    };
 
     // Calcular estadísticas adicionales
     const estadisticas = {

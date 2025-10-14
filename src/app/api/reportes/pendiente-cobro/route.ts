@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockClientes } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
-    // Filtrar solo clientes con pendiente de cobro (pendiente > 0)
-    const clientesPendientes = mockClientes.filter(cliente => cliente.pendiente > 0);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const clientesPendientes: any[] = [];
 
     // Agrupar por cliente para obtener totales
     const clientesAgrupados = clientesPendientes.reduce((acc, cliente) => {

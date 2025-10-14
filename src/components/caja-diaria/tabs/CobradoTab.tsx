@@ -55,6 +55,7 @@ export default function CobradoTab() {
 
   const handleExportar = async () => {
     try {
+      const filtros = { fechaDesde, fechaHasta };
       const blob = await cajaDiariaService.exportarExcel(filtros);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

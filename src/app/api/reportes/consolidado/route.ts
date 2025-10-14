@@ -1,13 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  getSaldosConsolidados, 
-  getCashFlow, 
-  getAjustes, 
-  getCuentasBancarias,
-  getTarjetas,
-  getCobranzasDiferencias,
-  getPagosProveedoresPlanes
-} from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,16 +15,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Obtener datos consolidados para la fecha especificada
-    const saldosConsolidados = getSaldosConsolidados(fecha);
-    const cashFlow = getCashFlow(fecha);
-    const ajustes = getAjustes(fecha);
-    const cuentasBancarias = getCuentasBancarias(fecha);
-    const tarjetas = getTarjetas(fecha);
-    const cobranzasDiferencias = getCobranzasDiferencias(fecha);
-    const pagosProveedoresPlanes = getPagosProveedoresPlanes(fecha);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const saldosConsolidados = {
+      delDia: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diaAnterior: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diferencia: 0
+    };
+    const cashFlow = { reduccionDisponibilidades: 0, reduccionCheques: 0, cobranzas: 0, pagosProveedores: 0, cancelacionTarjetas: 0, cancelacionPlanes: 0, total: 0 };
+    const ajustes = { ajustesCobranzas: 0, ajustesPagos: 0, diferencia: 0 };
+    const cuentasBancarias: any[] = [];
+    const tarjetas: any[] = [];
+    const cobranzasDiferencias: any[] = [];
+    const pagosProveedoresPlanes: any[] = [];
+    
+    // Calcular totales (todos en 0 por ahora)
+    const totalFacturado = 0;
+    const totalCobrado = 0;
+    const totalPagado = 0;
+    const totalPendienteCobro = 0;
+    const totalPendientePago = 0;
 
-    // Calcular totales generales
+    // Calcular totales generales con datos reales
     const totales = {
       saldoDelDia: saldosConsolidados.delDia,
       saldoDiaAnterior: saldosConsolidados.diaAnterior,
@@ -41,13 +44,25 @@ export async function GET(request: NextRequest) {
       totalCashFlow: cashFlow.total,
       totalAjustes: ajustes.diferencia,
       totalCuentasBancarias: cuentasBancarias.reduce((sum, cuenta) => sum + cuenta.saldo, 0),
-      totalTarjetas: tarjetas.reduce((sum, tarjeta) => sum + tarjeta.importe, 0)
+      totalTarjetas: tarjetas.reduce((sum, tarjeta) => sum + tarjeta.importe, 0),
+      totalFacturado,
+      totalCobrado,
+      totalPagado,
+      totalPendienteCobro,
+      totalPendientePago,
+      saldoNeto: totalCobrado - totalPagado
     };
 
     return NextResponse.json({
       success: true,
       data: {
         fecha,
+        totalFacturado,
+        totalCobrado,
+        totalPagado,
+        saldoNeto: totalCobrado - totalPagado,
+        totalPendienteCobro,
+        totalPendientePago,
         saldosConsolidados,
         cashFlow,
         ajustes,
@@ -55,7 +70,21 @@ export async function GET(request: NextRequest) {
         tarjetas,
         cobranzasDiferencias,
         pagosProveedoresPlanes,
-        totales
+        totales,
+        resumenPorTipo: {
+          clientes: {
+            totalFacturado,
+            totalCobrado,
+            pendiente: totalPendienteCobro,
+            cantidadFacturas: 0
+          },
+          proveedores: {
+            totalFacturado: 0,
+            totalPagado,
+            pendiente: totalPendientePago,
+            cantidadFacturas: 0
+          }
+        }
       },
       message: 'Reporte consolidado generado exitosamente'
     });

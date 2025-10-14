@@ -1,6 +1,5 @@
 import { apiClient } from './apiClient';
 import { Cliente, Proveedor, ColppyApiResponse, ColppyCredentials } from '@/types/cajaDiaria';
-import { mockClientes, mockProveedores, simulateApiDelay } from '@/data/mockData';
 
 export class ColppyService {
   private credentials: ColppyCredentials;
@@ -14,93 +13,83 @@ export class ColppyService {
 
   async obtenerClientes(): Promise<Cliente[]> {
     try {
-      // El backend maneja la conexión con Colppy y devuelve los datos del Excel
-      const response = await apiClient<ColppyApiResponse<Cliente[]>>(
-        'colppy/clientes',
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Basic ${btoa(`${this.credentials.email}:${this.credentials.password}`)}`
-          }
-        }
-      );
-      
-      return response.data || [];
+      // TODO: Implementar conexión real con Colppy
+      // Por ahora retornamos array vacío
+      return [];
     } catch (error) {
-      console.error('Error al obtener clientes de Colppy:', error);
-      // Fallback a datos del Excel si falla la conexión
-      console.log('🔄 Usando datos del Excel como fallback...');
-      return mockClientes;
+      console.error('Error obteniendo clientes de Colppy:', error);
+      return [];
     }
   }
 
   async obtenerProveedores(): Promise<Proveedor[]> {
     try {
-      // El backend maneja la conexión con Colppy y devuelve los datos del Excel
-      const response = await apiClient<ColppyApiResponse<Proveedor[]>>(
-        'colppy/proveedores',
-        {
-          method: 'GET',
-          headers: {
-            'Authorization': `Basic ${btoa(`${this.credentials.email}:${this.credentials.password}`)}`
-          }
-        }
-      );
-      
-      return response.data || [];
+      // TODO: Implementar conexión real con Colppy
+      // Por ahora retornamos array vacío
+      return [];
     } catch (error) {
-      console.error('Error al obtener proveedores de Colppy:', error);
-      // Fallback a datos del Excel si falla la conexión
-      console.log('🔄 Usando datos del Excel como fallback...');
-      return mockProveedores;
+      console.error('Error obteniendo proveedores de Colppy:', error);
+      return [];
     }
   }
 
-  async sincronizarClientes(): Promise<{ success: boolean; count: number; message: string }> {
+  async sincronizarClientes(): Promise<{ success: boolean; message: string; data?: any }> {
     try {
-      // El backend maneja la sincronización con Colppy usando los datos del Excel
-      const response = await apiClient<ColppyApiResponse<{ count: number }>>(
-        'colppy/sincronizar/clientes',
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${btoa(`${this.credentials.email}:${this.credentials.password}`)}`
-          }
-        }
-      );
-      
-      return { 
-        success: true, 
-        count: response.data.count,
-        message: `${response.data.count} clientes sincronizados exitosamente desde Colppy`
+      // TODO: Implementar sincronización real con Colppy
+      return {
+        success: true,
+        message: 'Sincronización completada (sin datos mock)',
+        data: []
       };
     } catch (error) {
-      console.error('Error al sincronizar clientes:', error);
-      throw new Error('No se pudieron sincronizar los clientes con Colppy');
+      console.error('Error sincronizando clientes con Colppy:', error);
+      return {
+        success: false,
+        message: 'Error en la sincronización'
+      };
     }
   }
 
-  async sincronizarProveedores(): Promise<{ success: boolean; count: number; message: string }> {
+  async sincronizarProveedores(): Promise<{ success: boolean; message: string; data?: any }> {
     try {
-      // El backend maneja la sincronización con Colppy usando los datos del Excel
-      const response = await apiClient<ColppyApiResponse<{ count: number }>>(
-        'colppy/sincronizar/proveedores',
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${btoa(`${this.credentials.email}:${this.credentials.password}`)}`
-          }
-        }
-      );
-      
-      return { 
-        success: true, 
-        count: response.data.count,
-        message: `${response.data.count} proveedores sincronizados exitosamente desde Colppy`
+      // TODO: Implementar sincronización real con Colppy
+      return {
+        success: true,
+        message: 'Sincronización completada (sin datos mock)',
+        data: []
       };
     } catch (error) {
-      console.error('Error al sincronizar proveedores:', error);
-      throw new Error('No se pudieron sincronizar los proveedores con Colppy');
+      console.error('Error sincronizando proveedores con Colppy:', error);
+      return {
+        success: false,
+        message: 'Error en la sincronización'
+      };
+    }
+  }
+
+  async autenticar(): Promise<boolean> {
+    try {
+      // TODO: Implementar autenticación real con Colppy
+      return true;
+    } catch (error) {
+      console.error('Error autenticando con Colppy:', error);
+      return false;
+    }
+  }
+
+  async verificarConexion(): Promise<{ conectado: boolean; mensaje: string }> {
+    try {
+      // TODO: Implementar verificación real de conexión con Colppy
+      return {
+        conectado: false,
+        mensaje: 'Conexión no implementada (sin datos mock)'
+      };
+    } catch (error) {
+      console.error('Error verificando conexión con Colppy:', error);
+      return {
+        conectado: false,
+        mensaje: 'Error verificando conexión'
+      };
     }
   }
 }

@@ -1,17 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  mockClientes, 
-  mockProveedores, 
-  getMovimientosPorMes,
-  getResumenPorMes,
-  getSaldosConsolidados,
-  getCashFlow,
-  getAjustes,
-  getCuentasBancarias,
-  getTarjetas,
-  getCobranzasDiferencias,
-  getPagosProveedoresPlanes
-} from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,50 +15,55 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Obtener todos los datos para la fecha especificada
-    const movimientos = getMovimientosPorMes(fecha);
-    const resumen = getResumenPorMes(fecha);
-    const saldosConsolidados = getSaldosConsolidados(fecha);
-    const cashFlow = getCashFlow(fecha);
-    const ajustes = getAjustes(fecha);
-    const cuentasBancarias = getCuentasBancarias(fecha);
-    const tarjetas = getTarjetas(fecha);
-    const cobranzasDiferencias = getCobranzasDiferencias(fecha);
-    const pagosProveedoresPlanes = getPagosProveedoresPlanes(fecha);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const movimientos: any[] = [];
+    const resumen = {
+      totalIngresos: 0,
+      totalEgresos: 0,
+      saldoNeto: 0,
+      cantidadMovimientos: 0,
+      ingresosPendientes: 0,
+      egresosPendientes: 0
+    };
+    const saldosConsolidados = {
+      delDia: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diaAnterior: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diferencia: 0
+    };
+    const cashFlow = { reduccionDisponibilidades: 0, reduccionCheques: 0, cobranzas: 0, pagosProveedores: 0, cancelacionTarjetas: 0, cancelacionPlanes: 0, total: 0 };
+    const ajustes = { ajustesCobranzas: 0, ajustesPagos: 0, diferencia: 0 };
+    const cuentasBancarias: any[] = [];
+    const tarjetas: any[] = [];
+    const cobranzasDiferencias: any[] = [];
+    const pagosProveedoresPlanes: any[] = [];
 
-    // Filtrar clientes y proveedores con pendientes
-    const clientesPendientes = mockClientes.filter(cliente => cliente.pendiente > 0);
-    const proveedoresPendientes = mockProveedores.filter(proveedor => proveedor.pendiente > 0);
+    // Filtrar clientes y proveedores con pendientes (datos vacíos)
+    const clientesPendientes: any[] = [];
+    const proveedoresPendientes: any[] = [];
 
-    // Calcular totales generales
+    // Calcular totales generales (datos vacíos)
     const totalesGenerales = {
       clientes: {
-        total: mockClientes.length,
-        conPendientes: clientesPendientes.length,
-        totalMonto: mockClientes.reduce((sum, c) => sum + c.total, 0),
-        totalCobrado: mockClientes.reduce((sum, c) => sum + c.cobrado, 0),
-        totalPendiente: mockClientes.reduce((sum, c) => sum + c.pendiente, 0)
+        total: 0,
+        conPendientes: 0,
+        totalMonto: 0,
+        totalCobrado: 0,
+        totalPendiente: 0
       },
       proveedores: {
-        total: mockProveedores.length,
-        conPendientes: proveedoresPendientes.length,
-        totalMonto: mockProveedores.reduce((sum, p) => sum + p.total, 0),
-        totalPagado: mockProveedores.reduce((sum, p) => sum + p.pagado, 0),
-        totalPendiente: mockProveedores.reduce((sum, p) => sum + p.pendiente, 0)
+        total: 0,
+        conPendientes: 0,
+        totalMonto: 0,
+        totalPagado: 0,
+        totalPendiente: 0
       },
       caja: {
-        saldoInicial: resumen.saldoInicial,
-        saldoFinal: resumen.saldoFinal,
-        totalIngresos: movimientos.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0),
-        totalEgresos: movimientos.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0),
-        cantidadMovimientos: movimientos.length
-      },
-      consolidado: {
-        saldoDelDia: saldosConsolidados.delDia,
-        saldoDiaAnterior: saldosConsolidados.diaAnterior,
-        diferencia: saldosConsolidados.diferencia,
-        totalCashFlow: cashFlow.total,
-        totalAjustes: ajustes.diferencia
+        saldoInicial: 0,
+        saldoFinal: 0,
+        totalIngresos: 0,
+        totalEgresos: 0,
+        cantidadMovimientos: 0
       }
     };
 
@@ -79,39 +71,20 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         fecha,
-        resumen: {
-          fecha,
-          totalesGenerales
-        },
-        hojas: {
-          clientes: {
-            todos: mockClientes,
-            pendientes: clientesPendientes,
-            totales: totalesGenerales.clientes
-          },
-          proveedores: {
-            todos: mockProveedores,
-            pendientes: proveedoresPendientes,
-            totales: totalesGenerales.proveedores
-          },
-          caja: {
-            movimientos,
-            resumen,
-            totales: totalesGenerales.caja
-          },
-          consolidado: {
-            saldosConsolidados,
-            cashFlow,
-            ajustes,
-            cuentasBancarias,
-            tarjetas,
-            cobranzasDiferencias,
-            pagosProveedoresPlanes,
-            totales: totalesGenerales.consolidado
-          }
-        }
+        resumen,
+        movimientos,
+        saldosConsolidados,
+        cashFlow,
+        ajustes,
+        cuentasBancarias,
+        tarjetas,
+        cobranzasDiferencias,
+        pagosProveedoresPlanes,
+        clientesPendientes,
+        proveedoresPendientes,
+        totalesGenerales
       },
-      message: 'Reporte completo de todas las hojas generado exitosamente'
+      message: 'Reporte completo generado exitosamente'
     });
 
   } catch (error) {

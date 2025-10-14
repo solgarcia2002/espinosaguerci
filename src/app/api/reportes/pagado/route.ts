@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProveedores } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,29 +6,9 @@ export async function GET(request: NextRequest) {
     const fechaDesde = searchParams.get('fechaDesde');
     const fechaHasta = searchParams.get('fechaHasta');
 
-    // Filtrar solo proveedores pagados (pagado > 0)
-    let proveedoresPagados = mockProveedores.filter(proveedor => proveedor.pagado > 0);
-
-    // Aplicar filtros de fecha si se proporcionan
-    if (fechaDesde || fechaHasta) {
-      proveedoresPagados = proveedoresPagados.filter(proveedor => {
-        const fechaProveedor = new Date(proveedor.fecha);
-        
-        if (fechaDesde && fechaHasta) {
-          const desde = new Date(fechaDesde);
-          const hasta = new Date(fechaHasta);
-          return fechaProveedor >= desde && fechaProveedor <= hasta;
-        } else if (fechaDesde) {
-          const desde = new Date(fechaDesde);
-          return fechaProveedor >= desde;
-        } else if (fechaHasta) {
-          const hasta = new Date(fechaHasta);
-          return fechaProveedor <= hasta;
-        }
-        
-        return true;
-      });
-    }
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const proveedoresPagados: any[] = [];
 
     // Agrupar por proveedor
     const proveedoresAgrupados = proveedoresPagados.reduce((acc, proveedor) => {

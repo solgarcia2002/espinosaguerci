@@ -93,7 +93,7 @@ export default function MovimientoForm({ movimiento, onSuccess, onCancel }: Movi
         colppyService.sincronizarProveedores()
       ]);
       
-      toast.success(`Sincronización exitosa: ${clientesResult.count} clientes, ${proveedoresResult.count} proveedores`);
+      toast.success('Sincronización exitosa');
       await cargarDatos();
     } catch (error) {
       console.error('Error al sincronizar:', error);

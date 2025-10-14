@@ -36,7 +36,7 @@ export default function GestionClientes() {
     try {
       setSincronizando(true);
       const result = await colppyService.sincronizarClientes();
-      toast.success(result.message || `Sincronización exitosa: ${result.count} clientes actualizados`);
+      toast.success(result.message || 'Sincronización exitosa');
       await cargarReporteClientes();
     } catch (error) {
       console.error('Error al sincronizar:', error);

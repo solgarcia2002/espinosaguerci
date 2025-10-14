@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCuentasBancarias, getTotalDisponibilidad } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const fecha = searchParams.get('fecha') || new Date().toISOString().split('T')[0];
 
-    // Obtener cuentas bancarias y disponibilidad total
-    const cuentasBancarias = getCuentasBancarias(fecha);
-    const totalDisponibilidad = getTotalDisponibilidad(fecha);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const cuentasBancarias: any[] = [];
+    const totalDisponibilidad = 0;
 
     // Calcular estadísticas detalladas
     const estadisticas = {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProveedores } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
-    // Filtrar solo proveedores con pendiente de pago (pendiente > 0)
-    const proveedoresPendientes = mockProveedores.filter(proveedor => proveedor.pendiente > 0);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const proveedoresPendientes: any[] = [];
 
     // Agrupar por proveedor para obtener totales
     const proveedoresAgrupados = proveedoresPendientes.reduce((acc, proveedor) => {

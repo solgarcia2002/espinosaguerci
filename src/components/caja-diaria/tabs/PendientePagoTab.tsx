@@ -53,6 +53,7 @@ export default function PendientePagoTab() {
 
   const handleExportar = async () => {
     try {
+      const filtros = {};
       const blob = await cajaDiariaService.exportarExcel(filtros);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

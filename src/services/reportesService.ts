@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient';
+import { Cliente, Proveedor, MovimientoCaja } from '@/types/cajaDiaria';
 
 // Interfaces para las respuestas de los reportes
 export interface ReporteClientesResponse {
@@ -7,7 +8,7 @@ export interface ReporteClientesResponse {
   totalPendiente: number;
   cantidadFacturas: number;
   porcentajeCobrado: number;
-  facturas: any[];
+  facturas: Cliente[];
   resumenPorEstado: {
     cobrado: { cantidad: number; monto: number; porcentaje: number };
     pendiente: { cantidad: number; monto: number; porcentaje: number };
@@ -29,7 +30,7 @@ export interface ReporteProveedoresResponse {
   totalPendiente: number;
   cantidadFacturas: number;
   porcentajePagado: number;
-  facturas: any[];
+  facturas: Proveedor[];
   resumenPorEstado: {
     pagado: { cantidad: number; monto: number; porcentaje: number };
     pendiente: { cantidad: number; monto: number; porcentaje: number };
@@ -52,7 +53,7 @@ export interface ReportePendienteCobroResponse {
     cliente: string;
     totalPendiente: number;
     porFecha: Record<string, number>;
-    facturas: any[];
+    facturas: Cliente[];
   }>;
   porRangoVencimiento: {
     vencidas: { cantidad: number; monto: number; clientes: string[] };
@@ -69,7 +70,7 @@ export interface ReportePendientePagoResponse {
     proveedor: string;
     totalPendiente: number;
     porFecha: Record<string, number>;
-    facturas: any[];
+    facturas: Cliente[];
   }>;
   porRangoVencimiento: {
     vencidas: { cantidad: number; monto: number; proveedores: string[] };
@@ -91,7 +92,7 @@ export interface ReporteCobradoResponse {
     totalFacturado: number;
     cantidadFacturas: number;
     porFecha: Record<string, number>;
-    facturas: any[];
+    facturas: Cliente[];
   }>;
   resumenPorMes: Record<string, {
     cantidadFacturas: number;
@@ -116,7 +117,7 @@ export interface ReportePagadoResponse {
     totalFacturado: number;
     cantidadFacturas: number;
     porFecha: Record<string, number>;
-    facturas: any[];
+    facturas: Cliente[];
   }>;
   resumenPorMes: Record<string, {
     cantidadFacturas: number;
@@ -139,14 +140,24 @@ export interface ReporteDisponibilidadResponse {
     totalDolares: number;
     totalPendienteAcreditacion: number;
   };
-  cuentasBancarias: any[];
+  cuentasBancarias: Array<{
+    nombre: string;
+    saldo: number;
+    pendienteAcreditacion: number;
+    dolares: number;
+  }>;
   porTipo: Array<{
     tipo: string;
     cantidad: number;
     totalSaldo: number;
     totalDolares: number;
     totalPendiente: number;
-    cuentas: any[];
+    cuentas: Array<{
+      nombre: string;
+      saldo: number;
+      pendienteAcreditacion: number;
+      dolares: number;
+    }>;
   }>;
   resumenLiquidez: {
     disponibleInmediato: number;
@@ -187,7 +198,7 @@ export interface ReporteDashboardResponse {
     totalIngresos: number;
     totalEgresos: number;
     saldoNeto: number;
-    movimientos: any[];
+    movimientos: MovimientoCaja[];
   };
   resumen: {
     totalClientes: number;
@@ -206,7 +217,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteClientesResponse }>(
-        'reportes/clientes',
+        'api/reportes/clientes',
         { method: 'GET' },
         params
       );
@@ -225,7 +236,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteProveedoresResponse }>(
-        'reportes/proveedores',
+        'api/reportes/proveedores',
         { method: 'GET' },
         params
       );
@@ -240,7 +251,7 @@ export class ReportesService {
   async obtenerReportePendienteCobro(): Promise<ReportePendienteCobroResponse> {
     try {
       const response = await apiClient<{ success: boolean; data: ReportePendienteCobroResponse }>(
-        'reportes/pendiente-cobro',
+        'api/reportes/pendiente-cobro',
         { method: 'GET' }
       );
 
@@ -254,7 +265,7 @@ export class ReportesService {
   async obtenerReportePendientePago(): Promise<ReportePendientePagoResponse> {
     try {
       const response = await apiClient<{ success: boolean; data: ReportePendientePagoResponse }>(
-        'reportes/pendiente-pago',
+        'api/reportes/pendiente-pago',
         { method: 'GET' }
       );
 
@@ -272,7 +283,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReporteCobradoResponse }>(
-        'reportes/cobrado',
+        'api/reportes/cobrado',
         { method: 'GET' },
         params
       );
@@ -291,7 +302,7 @@ export class ReportesService {
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
       const response = await apiClient<{ success: boolean; data: ReportePagadoResponse }>(
-        'reportes/pagado',
+        'api/reportes/pagado',
         { method: 'GET' },
         params
       );
@@ -309,7 +320,7 @@ export class ReportesService {
       if (fecha) params.fecha = fecha;
 
       const response = await apiClient<{ success: boolean; data: ReporteDisponibilidadResponse }>(
-        'reportes/disponibilidad',
+        'api/reportes/disponibilidad',
         { method: 'GET' },
         params
       );
@@ -327,7 +338,7 @@ export class ReportesService {
       if (fecha) params.fecha = fecha;
 
       const response = await apiClient<{ success: boolean; data: ReporteDashboardResponse }>(
-        'reportes/dashboard',
+        'api/reportes/dashboard',
         { method: 'GET' },
         params
       );
@@ -339,10 +350,27 @@ export class ReportesService {
     }
   }
 
-  async obtenerReporteConsolidado(fecha: string): Promise<any> {
+  async obtenerReporteConsolidado(fecha: string): Promise<{
+    fecha: string;
+    totalFacturado: number;
+    totalCobrado: number;
+    totalPagado: number;
+    saldoNeto: number;
+    totalPendienteCobro: number;
+    totalPendientePago: number;
+    saldosConsolidados: any;
+    cashFlow: any;
+    ajustes: any;
+    cuentasBancarias: any[];
+    tarjetas: any[];
+    cobranzasDiferencias: any[];
+    pagosProveedoresPlanes: any[];
+    totales: any;
+    resumenPorTipo: any;
+  }> {
     try {
       const response = await apiClient<{ success: boolean; data: any }>(
-        'reportes/consolidado',
+        'api/reportes/consolidado',
         { method: 'GET' },
         { fecha }
       );
@@ -357,7 +385,7 @@ export class ReportesService {
   async obtenerReporteCaja(fecha: string): Promise<any> {
     try {
       const response = await apiClient<{ success: boolean; data: any }>(
-        'reportes/caja',
+        'api/reportes/caja',
         { method: 'GET' },
         { fecha }
       );
@@ -372,7 +400,7 @@ export class ReportesService {
   async obtenerReporteTodos(fecha: string): Promise<any> {
     try {
       const response = await apiClient<{ success: boolean; data: any }>(
-        'reportes/todos',
+        'api/reportes/todos',
         { method: 'GET' },
         { fecha }
       );

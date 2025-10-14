@@ -54,8 +54,8 @@ export const mockClientes: Cliente[] = [
     referencia: '0001-00004224',
     vencimiento: '22-08-2025',
     total: 54630.00,
-    cobrado: 0.00,
-    pendiente: 54630.00
+    cobrado: 54630.00,
+    pendiente: 0.00
   },
   {
     id: '6',
@@ -65,8 +65,8 @@ export const mockClientes: Cliente[] = [
     referencia: '0001-00004221',
     vencimiento: '29-08-2025',
     total: 24270.00,
-    cobrado: 0.00,
-    pendiente: 24270.00
+    cobrado: 24270.00,
+    pendiente: 0.00
   },
   {
     id: '7',
@@ -76,8 +76,8 @@ export const mockClientes: Cliente[] = [
     referencia: '0001-00004226',
     vencimiento: '15-08-2025',
     total: 183859.50,
-    cobrado: 0.00,
-    pendiente: 183859.50
+    cobrado: 183859.50,
+    pendiente: 0.00
   },
   {
     id: '8',
@@ -722,14 +722,14 @@ export const filtrarMovimientos = (movimientos: MovimientoCaja[], filtros: any) 
 };
 
 // Funciones para obtener datos específicos
-export const getCuentasBancarias = () => mockCuentasBancarias;
-export const getTotalDisponibilidad = () => mockCuentasBancarias.reduce((total, cuenta) => total + cuenta.saldo, 0);
-export const getSaldosConsolidados = () => mockSaldosConsolidados;
-export const getCashFlow = () => mockCashFlow;
-export const getAjustes = () => mockAjustes;
-export const getTarjetas = () => mockTarjetas;
-export const getCobranzasDiferencias = () => mockCobranzasDiferencias;
-export const getPagosProveedoresPlanes = () => mockPagosProveedoresPlanes;
+export const getCuentasBancarias = (fecha?: string) => mockCuentasBancarias;
+export const getTotalDisponibilidad = (fecha?: string) => mockCuentasBancarias.reduce((total, cuenta) => total + cuenta.saldo, 0);
+export const getSaldosConsolidados = (fecha?: string) => mockSaldosConsolidados;
+export const getCashFlow = (fecha?: string) => mockCashFlow;
+export const getAjustes = (fecha?: string) => mockAjustes;
+export const getTarjetas = (fecha?: string) => mockTarjetas;
+export const getCobranzasDiferencias = (fecha?: string) => mockCobranzasDiferencias;
+export const getPagosProveedoresPlanes = (fecha?: string) => mockPagosProveedoresPlanes;
 
 // Función para obtener resumen por mes
 export const getResumenPorMes = (mes: string) => {

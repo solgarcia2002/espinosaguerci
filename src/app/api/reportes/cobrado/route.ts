@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockClientes } from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,29 +6,9 @@ export async function GET(request: NextRequest) {
     const fechaDesde = searchParams.get('fechaDesde');
     const fechaHasta = searchParams.get('fechaHasta');
 
-    // Filtrar solo clientes cobrados (cobrado > 0)
-    let clientesCobrados = mockClientes.filter(cliente => cliente.cobrado > 0);
-
-    // Aplicar filtros de fecha si se proporcionan
-    if (fechaDesde || fechaHasta) {
-      clientesCobrados = clientesCobrados.filter(cliente => {
-        const fechaCliente = new Date(cliente.fecha);
-        
-        if (fechaDesde && fechaHasta) {
-          const desde = new Date(fechaDesde);
-          const hasta = new Date(fechaHasta);
-          return fechaCliente >= desde && fechaCliente <= hasta;
-        } else if (fechaDesde) {
-          const desde = new Date(fechaDesde);
-          return fechaCliente >= desde;
-        } else if (fechaHasta) {
-          const hasta = new Date(fechaHasta);
-          return fechaCliente <= hasta;
-        }
-        
-        return true;
-      });
-    }
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const clientesCobrados: any[] = [];
 
     // Agrupar por cliente
     const clientesAgrupados = clientesCobrados.reduce((acc, cliente) => {

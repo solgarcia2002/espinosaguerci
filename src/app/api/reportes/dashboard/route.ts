@@ -1,45 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  mockClientes, 
-  mockProveedores, 
-  getSaldosConsolidados,
-  getCuentasBancarias,
-  getTotalDisponibilidad,
-  getMovimientosPorMes
-} from '@/data/mockData';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const fecha = searchParams.get('fecha') || new Date().toISOString().split('T')[0];
 
-    // Calcular totales de clientes y proveedores
-    const totalFacturadoClientes = mockClientes.reduce((sum, cliente) => sum + cliente.total, 0);
-    const totalCobradoClientes = mockClientes.reduce((sum, cliente) => sum + cliente.cobrado, 0);
-    const totalPendienteClientes = mockClientes.reduce((sum, cliente) => sum + cliente.pendiente, 0);
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const totalFacturadoClientes = 0;
+    const totalCobradoClientes = 0;
+    const totalPendienteClientes = 0;
     
-    const totalFacturadoProveedores = mockProveedores.reduce((sum, proveedor) => sum + proveedor.total, 0);
-    const totalPagadoProveedores = mockProveedores.reduce((sum, proveedor) => sum + proveedor.pagado, 0);
-    const totalPendienteProveedores = mockProveedores.reduce((sum, proveedor) => sum + proveedor.pendiente, 0);
+    const totalFacturadoProveedores = 0;
+    const totalPagadoProveedores = 0;
+    const totalPendienteProveedores = 0;
 
-    // Obtener saldos consolidados y disponibilidades
-    const saldosConsolidados = getSaldosConsolidados(fecha);
-    const cuentasBancarias = getCuentasBancarias(fecha);
-    const totalDisponibilidad = getTotalDisponibilidad(fecha);
+    const saldosConsolidados = {
+      delDia: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diaAnterior: { disponibilidades: 0, cheques: 0, aCobrar: 0, aPagar: 0, aPagarTarjetas: 0, incrementoTarjetas: 0, incrementoProveedores: 0, saldo: 0 },
+      diferencia: 0
+    };
+    const cuentasBancarias: any[] = [];
+    const totalDisponibilidad = 0;
 
-    // Calcular cheques en cartera (simulado)
+    // Calcular cheques en cartera (datos vacíos)
     const chequesEnCartera = {
-      delDia: 3659126.21,
-      diaAnterior: 3500000.00,
-      diferencia: 159126.21
+      delDia: 0,
+      diaAnterior: 0,
+      diferencia: 0
     };
 
     // Estructura de saldos
     const saldos = {
       disponibilidades: {
         delDia: totalDisponibilidad,
-        diaAnterior: saldosConsolidados.diaAnterior,
-        diferencia: totalDisponibilidad - saldosConsolidados.diaAnterior
+        diaAnterior: saldosConsolidados.diaAnterior.disponibilidades,
+        diferencia: totalDisponibilidad - saldosConsolidados.diaAnterior.disponibilidades
       },
       chequesEnCartera,
       aCobrar: {
@@ -99,13 +95,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Obtener movimientos del día
-    const movimientosDelDia = getMovimientosPorMes(fecha);
-    const movimientosHoy = movimientosDelDia.filter(m => {
-      const fechaMovimiento = new Date(m.fecha);
-      const fechaConsulta = new Date(fecha);
-      return fechaMovimiento.toDateString() === fechaConsulta.toDateString();
-    });
+    // Obtener movimientos del día (datos vacíos)
+    const movimientosDelDia: any[] = [];
+    const movimientosHoy: any[] = [];
 
     const movimientosDelDiaResumen = {
       totalMovimientos: movimientosHoy.length,
@@ -125,10 +117,10 @@ export async function GET(request: NextRequest) {
         alertas,
         movimientosDelDia: movimientosDelDiaResumen,
         resumen: {
-          totalClientes: mockClientes.length,
-          totalProveedores: mockProveedores.length,
-          clientesConPendientes: mockClientes.filter(c => c.pendiente > 0).length,
-          proveedoresConPendientes: mockProveedores.filter(p => p.pendiente > 0).length,
+          totalClientes: 0,
+          totalProveedores: 0,
+          clientesConPendientes: 0,
+          proveedoresConPendientes: 0,
           cuentasBancarias: cuentasBancarias.length
         }
       },

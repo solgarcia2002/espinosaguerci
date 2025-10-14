@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockProveedores } from '@/data/mockData';
+import { Proveedor } from '@/types/cajaDiaria';
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,28 +7,9 @@ export async function GET(request: NextRequest) {
     const fechaDesde = searchParams.get('fechaDesde');
     const fechaHasta = searchParams.get('fechaHasta');
 
-    // Filtrar proveedores por rango de fechas si se proporcionan
-    let proveedoresFiltrados = mockProveedores;
-
-    if (fechaDesde || fechaHasta) {
-      proveedoresFiltrados = mockProveedores.filter(proveedor => {
-        const fechaProveedor = new Date(proveedor.fecha);
-        
-        if (fechaDesde && fechaHasta) {
-          const desde = new Date(fechaDesde);
-          const hasta = new Date(fechaHasta);
-          return fechaProveedor >= desde && fechaProveedor <= hasta;
-        } else if (fechaDesde) {
-          const desde = new Date(fechaDesde);
-          return fechaProveedor >= desde;
-        } else if (fechaHasta) {
-          const hasta = new Date(fechaHasta);
-          return fechaProveedor <= hasta;
-        }
-        
-        return true;
-      });
-    }
+    // TODO: Implementar conexión real con base de datos
+    // Por ahora retornamos datos vacíos
+    const proveedoresFiltrados: any[] = [];
 
     // Calcular totales detallados
     const totalFacturado = proveedoresFiltrados.reduce((sum, proveedor) => sum + proveedor.total, 0);

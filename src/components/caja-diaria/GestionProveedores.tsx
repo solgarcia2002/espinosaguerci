@@ -36,7 +36,7 @@ export default function GestionProveedores() {
     try {
       setSincronizando(true);
       const result = await colppyService.sincronizarProveedores();
-      toast.success(result.message || `Sincronización exitosa: ${result.count} proveedores actualizados`);
+      toast.success(result.message || 'Sincronización exitosa');
       await cargarReporteProveedores();
     } catch (error) {
       console.error('Error al sincronizar:', error);

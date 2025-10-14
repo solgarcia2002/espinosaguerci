@@ -1,225 +1,167 @@
 import { apiClient } from './apiClient';
 import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
-import { 
-  mockMovimientos, 
-  mockResumen, 
-  mockResumenes,
-  mockClientes, 
-  mockProveedores, 
-  filterMovimientos, 
-  getMovimientosPorMes,
-  getResumenPorMes,
-  getResumenPorFecha,
-  simulateApiDelay 
-} from '@/data/mockData';
 import { reportesService } from './reportesService';
 
 export class CajaDiariaService {
   async obtenerMovimientos(filtros?: FiltrosCaja): Promise<MovimientoCaja[]> {
     try {
-      // Simular delay de API
-      await simulateApiDelay(300);
-      
-      // Usar datos mockeados temporalmente
-      const movimientosFiltrados = filterMovimientos(mockMovimientos, filtros || {});
-      
-      return movimientosFiltrados;
-      
-      /* Código original para cuando esté el backend:
       const params: Record<string, string> = {};
-      
-      if (filtros?.fechaDesde) params.fechaDesde = filtros.fechaDesde;
-      if (filtros?.fechaHasta) params.fechaHasta = filtros.fechaHasta;
+      if (filtros?.fechaDesde) params.fechaInicio = filtros.fechaDesde;
+      if (filtros?.fechaHasta) params.fechaFin = filtros.fechaHasta;
       if (filtros?.tipo && filtros.tipo !== 'todos') params.tipo = filtros.tipo;
       if (filtros?.clienteId) params.clienteId = filtros.clienteId;
       if (filtros?.proveedorId) params.proveedorId = filtros.proveedorId;
       if (filtros?.metodoPago) params.metodoPago = filtros.metodoPago;
 
-      const response = await apiClient<MovimientoCaja[]>(
-        'caja-diaria/movimientos',
-        {
-          method: 'GET'
-        },
+      const response = await apiClient<{ success: boolean; data: MovimientoCaja[] }>(
+        'api/caja-diaria/movimientos',
+        { method: 'GET' },
         params
       );
-      
-      return response || [];
-      */
+
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener movimientos:', error);
-      throw new Error('No se pudieron obtener los movimientos de caja');
+      console.error('Error obteniendo movimientos:', error);
+      return [];
     }
   }
 
-  async crearMovimiento(movimiento: Omit<MovimientoCaja, 'id' | 'createdAt' | 'updatedAt'>): Promise<MovimientoCaja> {
+  async obtenerResumen(fecha?: string): Promise<ResumenCaja> {
     try {
-      // Simular delay de API
-      await simulateApiDelay(500);
-      
-      // Crear nuevo movimiento con datos mockeados
-      const nuevoMovimiento: MovimientoCaja = {
-        ...movimiento,
-        id: `mock_${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        cliente: movimiento.clienteId ? mockClientes.find(c => c.id === movimiento.clienteId) : undefined,
-        proveedor: movimiento.proveedorId ? mockProveedores.find(p => p.id === movimiento.proveedorId) : undefined
+      const params: Record<string, string> = {};
+      if (fecha) params.fecha = fecha;
+
+      const response = await apiClient<{ success: boolean; data: ResumenCaja }>(
+        'api/caja-diaria/movimientos/resumen/diario',
+        { method: 'GET' },
+        params
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error obteniendo resumen:', error);
+      return {
+        fecha: fecha || new Date().toISOString().split('T')[0],
+        saldoInicial: 0,
+        totalIngresos: 0,
+        totalEgresos: 0,
+        saldoFinal: 0,
+        movimientos: [],
+        cantidadMovimientos: 0
       };
-      
-      // Agregar a la lista mockeada (solo en memoria)
-      mockMovimientos.push(nuevoMovimiento);
-      
-      return nuevoMovimiento;
-      
-      /* Código original para cuando esté el backend:
-      const response = await apiClient<MovimientoCaja>(
-        'caja-diaria/movimientos',
-        {
-          method: 'POST',
-          body: JSON.stringify(movimiento)
-        }
-      );
-      
-      return response;
-      */
-    } catch (error) {
-      console.error('Error al crear movimiento:', error);
-      throw new Error('No se pudo crear el movimiento');
-    }
-  }
-
-  async actualizarMovimiento(id: string, movimiento: Partial<MovimientoCaja>): Promise<MovimientoCaja> {
-    try {
-      const response = await apiClient<MovimientoCaja>(
-        `caja-diaria/movimientos/${id}`,
-        {
-          method: 'PUT',
-          body: JSON.stringify(movimiento)
-        }
-      );
-      
-      return response;
-    } catch (error) {
-      console.error('Error al actualizar movimiento:', error);
-      throw new Error('No se pudo actualizar el movimiento');
-    }
-  }
-
-  async eliminarMovimiento(id: string): Promise<void> {
-    try {
-      await apiClient(
-        `caja-diaria/movimientos/${id}`,
-        {
-          method: 'DELETE'
-        }
-      );
-    } catch (error) {
-      console.error('Error al eliminar movimiento:', error);
-      throw new Error('No se pudo eliminar el movimiento');
-    }
-  }
-
-  async obtenerResumenDiario(fecha: string): Promise<ResumenCaja> {
-    try {
-      // Simular delay de API
-      await simulateApiDelay(400);
-      
-      // Usar datos mockeados con resúmenes por fecha
-      const resumen = getResumenPorFecha(fecha);
-      if (resumen) {
-        return resumen;
-      }
-      
-      // Si no existe resumen para esa fecha, crear uno dinámico
-      const movimientosDelDia = mockMovimientos.filter(m => m.fecha === fecha);
-      const totalIngresos = movimientosDelDia.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
-      const totalEgresos = movimientosDelDia.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + m.monto, 0);
-      
-      const resumenDinamico: ResumenCaja = {
-        fecha,
-        saldoInicial: 100000.00, // Mock
-        totalIngresos,
-        totalEgresos,
-        saldoFinal: 100000.00 + totalIngresos - totalEgresos,
-        movimientos: movimientosDelDia,
-        cantidadMovimientos: movimientosDelDia.length
-      };
-      
-      return resumenDinamico;
-      
-      /* Código original para cuando esté el backend:
-      const response = await apiClient<ResumenCaja>(
-        'caja-diaria/resumen',
-        {
-          method: 'GET'
-        },
-        { fecha }
-      );
-      
-      return response;
-      */
-    } catch (error) {
-      console.error('Error al obtener resumen diario:', error);
-      throw new Error('No se pudo obtener el resumen diario');
-    }
-  }
-
-  async obtenerResumenPorMes(mes: string): Promise<any> {
-    try {
-      // Simular delay de API
-      await simulateApiDelay(400);
-      
-      // Usar datos mockeados con resúmenes por mes
-      return getResumenPorMes(mes);
-      
-      /* Código original para cuando esté el backend:
-      const response = await apiClient<any>(
-        'caja-diaria/resumen-mes',
-        {
-          method: 'GET'
-        },
-        { mes }
-      );
-      
-      return response;
-      */
-    } catch (error) {
-      console.error('Error al obtener resumen por mes:', error);
-      throw new Error('No se pudo obtener el resumen por mes');
     }
   }
 
   async obtenerClientes(fechaDesde?: string, fechaHasta?: string): Promise<Cliente[]> {
     try {
-      // Usar endpoint de reportes de clientes
-      const reporte = await reportesService.obtenerReporteClientes(fechaDesde, fechaHasta);
-      return reporte.facturas;
+      const params: Record<string, string> = {};
+      if (fechaDesde) params.fechaInicio = fechaDesde;
+      if (fechaHasta) params.fechaFin = fechaHasta;
+
+      const response = await apiClient<{ success: boolean; data: Cliente[] }>(
+        'api/caja-diaria/clientes',
+        { method: 'GET' },
+        params
+      );
+
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener clientes:', error);
-      // Fallback a datos mockeados
-      return mockClientes;
+      console.error('Error obteniendo clientes:', error);
+      return [];
     }
   }
 
   async obtenerProveedores(fechaDesde?: string, fechaHasta?: string): Promise<Proveedor[]> {
     try {
-      // Usar endpoint de reportes de proveedores
-      const reporte = await reportesService.obtenerReporteProveedores(fechaDesde, fechaHasta);
-      return reporte.facturas;
+      const params: Record<string, string> = {};
+      if (fechaDesde) params.fechaInicio = fechaDesde;
+      if (fechaHasta) params.fechaFin = fechaHasta;
+
+      const response = await apiClient<{ success: boolean; data: Proveedor[] }>(
+        'api/caja-diaria/proveedores',
+        { method: 'GET' },
+        params
+      );
+
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener proveedores:', error);
-      // Fallback a datos mockeados
-      return mockProveedores;
+      console.error('Error obteniendo proveedores:', error);
+      return [];
     }
   }
 
-  // Métodos para reportes específicos
+  async crearMovimiento(movimiento: Omit<MovimientoCaja, 'id' | 'createdAt' | 'updatedAt'>): Promise<MovimientoCaja> {
+    try {
+      const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
+        'api/caja-diaria/movimientos',
+        { 
+          method: 'POST',
+          body: JSON.stringify(movimiento)
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error creando movimiento:', error);
+      throw error;
+    }
+  }
+
+  async actualizarMovimiento(id: string, movimiento: Partial<MovimientoCaja>): Promise<MovimientoCaja> {
+    try {
+      const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
+        `api/caja-diaria/movimientos/${id}`,
+        { 
+          method: 'PUT',
+          body: JSON.stringify(movimiento)
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error actualizando movimiento:', error);
+      throw error;
+    }
+  }
+
+  async eliminarMovimiento(id: string): Promise<void> {
+    try {
+      await apiClient<{ success: boolean }>(
+        `api/caja-diaria/movimientos/${id}`,
+        { method: 'DELETE' }
+      );
+    } catch (error) {
+      console.error('Error eliminando movimiento:', error);
+      throw error;
+    }
+  }
+
+  async exportarExcel(filtros?: any): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (filtros?.fechaDesde) params.fechaInicio = filtros.fechaDesde;
+      if (filtros?.fechaHasta) params.fechaFin = filtros.fechaHasta;
+
+      const response = await fetch(`/api/caja-diaria/export/movimientos/excel?${new URLSearchParams(params)}`);
+      
+      if (!response.ok) {
+        throw new Error('Error al exportar Excel');
+      }
+
+      return await response.blob();
+    } catch (error) {
+      console.error('Error exportando Excel:', error);
+      throw error;
+    }
+  }
+
+  // Métodos que usan reportesService
   async obtenerReporteDisponibilidad(fecha?: string) {
     try {
       return await reportesService.obtenerReporteDisponibilidad(fecha);
     } catch (error) {
-      console.error('Error al obtener reporte de disponibilidad:', error);
-      throw new Error('No se pudo obtener el reporte de disponibilidad');
+      console.error('Error obteniendo reporte de disponibilidad:', error);
+      return null;
     }
   }
 
@@ -227,8 +169,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReporteCobrado(fechaDesde, fechaHasta);
     } catch (error) {
-      console.error('Error al obtener reporte de cobrado:', error);
-      throw new Error('No se pudo obtener el reporte de cobrado');
+      console.error('Error obteniendo reporte de cobrado:', error);
+      return null;
     }
   }
 
@@ -236,8 +178,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReportePagado(fechaDesde, fechaHasta);
     } catch (error) {
-      console.error('Error al obtener reporte de pagado:', error);
-      throw new Error('No se pudo obtener el reporte de pagado');
+      console.error('Error obteniendo reporte de pagado:', error);
+      return null;
     }
   }
 
@@ -245,8 +187,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReportePendienteCobro();
     } catch (error) {
-      console.error('Error al obtener reporte de pendiente de cobro:', error);
-      throw new Error('No se pudo obtener el reporte de pendiente de cobro');
+      console.error('Error obteniendo reporte de pendiente de cobro:', error);
+      return null;
     }
   }
 
@@ -254,8 +196,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReportePendientePago();
     } catch (error) {
-      console.error('Error al obtener reporte de pendiente de pago:', error);
-      throw new Error('No se pudo obtener el reporte de pendiente de pago');
+      console.error('Error obteniendo reporte de pendiente de pago:', error);
+      return null;
     }
   }
 
@@ -263,8 +205,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReporteConsolidado(fecha);
     } catch (error) {
-      console.error('Error al obtener reporte consolidado:', error);
-      throw new Error('No se pudo obtener el reporte consolidado');
+      console.error('Error obteniendo reporte consolidado:', error);
+      return null;
     }
   }
 
@@ -272,36 +214,8 @@ export class CajaDiariaService {
     try {
       return await reportesService.obtenerReporteDashboard(fecha);
     } catch (error) {
-      console.error('Error al obtener reporte de dashboard:', error);
-      throw new Error('No se pudo obtener el reporte de dashboard');
-    }
-  }
-
-  async exportarExcel(filtros?: FiltrosCaja): Promise<Blob> {
-    try {
-      const params: Record<string, string> = {};
-      
-      if (filtros?.fechaDesde) params.fechaDesde = filtros.fechaDesde;
-      if (filtros?.fechaHasta) params.fechaHasta = filtros.fechaHasta;
-      if (filtros?.tipo && filtros.tipo !== 'todos') params.tipo = filtros.tipo;
-
-      const queryString = new URLSearchParams(params).toString();
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/caja-diaria/exportar?${queryString}`;
-      
-      const response = await fetch(url, {
-        headers: {
-          'tenant-id': process.env.TENANT || "043ef5db-f30e-48c7-81d8-d3893b9496bb"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al exportar el archivo');
-      }
-
-      return response.blob();
-    } catch (error) {
-      console.error('Error al exportar Excel:', error);
-      throw new Error('No se pudo exportar el archivo Excel');
+      console.error('Error obteniendo reporte de dashboard:', error);
+      return null;
     }
   }
 }

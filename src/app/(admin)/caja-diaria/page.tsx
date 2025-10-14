@@ -45,7 +45,7 @@ export default function CajaDiariaPage() {
 
       // Cargar resumen del día actual si no hay filtros de fecha
       if (!filtros.fechaDesde && !filtros.fechaHasta) {
-        const resumenData = await cajaDiariaService.obtenerResumenDiario(fechaActual);
+        const resumenData = await cajaDiariaService.obtenerResumen(fechaActual);
         setResumen(resumenData);
       } else {
         setResumen(null);
