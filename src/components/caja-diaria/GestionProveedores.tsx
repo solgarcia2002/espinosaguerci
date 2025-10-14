@@ -3,27 +3,30 @@
 import { useState, useEffect } from 'react';
 import { Proveedor } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { reportesService, ReporteProveedoresResponse } from '@/services/reportesService';
 import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
 
 export default function GestionProveedores() {
-  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [reporteProveedores, setReporteProveedores] = useState<ReporteProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
 
   useEffect(() => {
-    cargarProveedores();
-  }, []);
+    cargarReporteProveedores();
+  }, [fechaDesde, fechaHasta]);
 
-  const cargarProveedores = async () => {
+  const cargarReporteProveedores = async () => {
     try {
       setLoading(true);
-      const proveedoresData = await cajaDiariaService.obtenerProveedores();
-      setProveedores(proveedoresData);
+      const reporteData = await reportesService.obtenerReporteProveedores(fechaDesde, fechaHasta);
+      setReporteProveedores(reporteData);
     } catch (error) {
-      console.error('Error al cargar proveedores:', error);
-      toast.error('Error al cargar los proveedores');
+      console.error('Error al cargar reporte de proveedores:', error);
+      toast.error('Error al cargar el reporte de proveedores');
     } finally {
       setLoading(false);
     }
@@ -34,7 +37,7 @@ export default function GestionProveedores() {
       setSincronizando(true);
       const result = await colppyService.sincronizarProveedores();
       toast.success(result.message || `Sincronización exitosa: ${result.count} proveedores actualizados`);
-      await cargarProveedores();
+      await cargarReporteProveedores();
     } catch (error) {
       console.error('Error al sincronizar:', error);
       toast.error('Error al sincronizar con Colppy');
@@ -43,13 +46,13 @@ export default function GestionProveedores() {
     }
   };
 
-  const proveedoresFiltrados = proveedores.filter(proveedor =>
+  const proveedoresFiltrados = reporteProveedores?.facturas.filter(proveedor =>
     proveedor.proveedor.toLowerCase().includes(busqueda.toLowerCase()) ||
     proveedor.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
     proveedor.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
     proveedor.fecha.includes(busqueda) ||
     proveedor.vencimiento.includes(busqueda)
-  );
+  ) || [];
 
   if (loading) {
     return (
@@ -69,11 +72,19 @@ export default function GestionProveedores() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Gestión de Facturas de Proveedores</h3>
           <p className="text-sm text-gray-500">
-            {proveedores.length} facturas registradas desde Excel
+            {reporteProveedores?.cantidadFacturas || 0} facturas registradas desde Excel
           </p>
           <p className="text-xs text-blue-600">
             📄 Facturas del Excel sincronizadas con Colppy vía Backend
           </p>
+          {reporteProveedores && (
+            <div className="mt-2 text-xs text-gray-500">
+              <span className="font-medium">Total Facturado:</span> ${reporteProveedores.totalFacturado.toLocaleString()} | 
+              <span className="font-medium ml-2">Total Pagado:</span> ${reporteProveedores.totalPagado.toLocaleString()} | 
+              <span className="font-medium ml-2">Total Pendiente:</span> ${reporteProveedores.totalPendiente.toLocaleString()} | 
+              <span className="font-medium ml-2">% Pagado:</span> {reporteProveedores.porcentajePagado}%
+            </div>
+          )}
         </div>
         <button
           onClick={sincronizarConColppy}
@@ -83,6 +94,45 @@ export default function GestionProveedores() {
           <span>🔄</span>
           <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
         </button>
+      </div>
+
+      {/* Filtros de fecha */}
+      <div className="card p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Desde
+            </label>
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Hasta
+            </label>
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setFechaDesde('');
+                setFechaHasta('');
+              }}
+              className="btn-secondary w-full"
+            >
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Búsqueda */}

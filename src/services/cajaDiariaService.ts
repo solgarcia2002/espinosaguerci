@@ -12,6 +12,7 @@ import {
   getResumenPorFecha,
   simulateApiDelay 
 } from '@/data/mockData';
+import { reportesService } from './reportesService';
 
 export class CajaDiariaService {
   async obtenerMovimientos(filtros?: FiltrosCaja): Promise<MovimientoCaja[]> {
@@ -188,51 +189,91 @@ export class CajaDiariaService {
     }
   }
 
-  async obtenerClientes(): Promise<Cliente[]> {
+  async obtenerClientes(fechaDesde?: string, fechaHasta?: string): Promise<Cliente[]> {
     try {
-      // Simular delay de API
-      await simulateApiDelay(200);
-      
-      // Usar datos mockeados temporalmente
-      return mockClientes;
-      
-      /* Código original para cuando esté el backend:
-      const response = await apiClient<Cliente[]>(
-        'caja-diaria/clientes',
-        {
-          method: 'GET'
-        }
-      );
-      
-      return response || [];
-      */
+      // Usar endpoint de reportes de clientes
+      const reporte = await reportesService.obtenerReporteClientes(fechaDesde, fechaHasta);
+      return reporte.facturas;
     } catch (error) {
       console.error('Error al obtener clientes:', error);
-      throw new Error('No se pudieron obtener los clientes');
+      // Fallback a datos mockeados
+      return mockClientes;
     }
   }
 
-  async obtenerProveedores(): Promise<Proveedor[]> {
+  async obtenerProveedores(fechaDesde?: string, fechaHasta?: string): Promise<Proveedor[]> {
     try {
-      // Simular delay de API
-      await simulateApiDelay(200);
-      
-      // Usar datos mockeados temporalmente
-      return mockProveedores;
-      
-      /* Código original para cuando esté el backend:
-      const response = await apiClient<Proveedor[]>(
-        'caja-diaria/proveedores',
-        {
-          method: 'GET'
-        }
-      );
-      
-      return response || [];
-      */
+      // Usar endpoint de reportes de proveedores
+      const reporte = await reportesService.obtenerReporteProveedores(fechaDesde, fechaHasta);
+      return reporte.facturas;
     } catch (error) {
       console.error('Error al obtener proveedores:', error);
-      throw new Error('No se pudieron obtener los proveedores');
+      // Fallback a datos mockeados
+      return mockProveedores;
+    }
+  }
+
+  // Métodos para reportes específicos
+  async obtenerReporteDisponibilidad(fecha?: string) {
+    try {
+      return await reportesService.obtenerReporteDisponibilidad(fecha);
+    } catch (error) {
+      console.error('Error al obtener reporte de disponibilidad:', error);
+      throw new Error('No se pudo obtener el reporte de disponibilidad');
+    }
+  }
+
+  async obtenerReporteCobrado(fechaDesde?: string, fechaHasta?: string) {
+    try {
+      return await reportesService.obtenerReporteCobrado(fechaDesde, fechaHasta);
+    } catch (error) {
+      console.error('Error al obtener reporte de cobrado:', error);
+      throw new Error('No se pudo obtener el reporte de cobrado');
+    }
+  }
+
+  async obtenerReportePagado(fechaDesde?: string, fechaHasta?: string) {
+    try {
+      return await reportesService.obtenerReportePagado(fechaDesde, fechaHasta);
+    } catch (error) {
+      console.error('Error al obtener reporte de pagado:', error);
+      throw new Error('No se pudo obtener el reporte de pagado');
+    }
+  }
+
+  async obtenerReportePendienteCobro() {
+    try {
+      return await reportesService.obtenerReportePendienteCobro();
+    } catch (error) {
+      console.error('Error al obtener reporte de pendiente de cobro:', error);
+      throw new Error('No se pudo obtener el reporte de pendiente de cobro');
+    }
+  }
+
+  async obtenerReportePendientePago() {
+    try {
+      return await reportesService.obtenerReportePendientePago();
+    } catch (error) {
+      console.error('Error al obtener reporte de pendiente de pago:', error);
+      throw new Error('No se pudo obtener el reporte de pendiente de pago');
+    }
+  }
+
+  async obtenerReporteConsolidado(fecha: string) {
+    try {
+      return await reportesService.obtenerReporteConsolidado(fecha);
+    } catch (error) {
+      console.error('Error al obtener reporte consolidado:', error);
+      throw new Error('No se pudo obtener el reporte consolidado');
+    }
+  }
+
+  async obtenerReporteDashboard(fecha?: string) {
+    try {
+      return await reportesService.obtenerReporteDashboard(fecha);
+    } catch (error) {
+      console.error('Error al obtener reporte de dashboard:', error);
+      throw new Error('No se pudo obtener el reporte de dashboard');
     }
   }
 

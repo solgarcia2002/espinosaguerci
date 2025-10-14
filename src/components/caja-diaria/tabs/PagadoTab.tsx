@@ -9,25 +9,24 @@ import FiltrosCaja from '../FiltrosCaja';
 import MovimientoForm from '../MovimientoForm';
 
 export default function PagadoTab() {
-  const [movimientos, setMovimientos] = useState<MovimientoCaja[]>([]);
+  const [reportePagado, setReportePagado] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [filtros, setFiltros] = useState<FiltrosCajaType>({
-    tipo: 'egreso' // Solo egresos (pagos)
-  });
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [movimientoEditando, setMovimientoEditando] = useState<MovimientoCaja | undefined>();
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
 
   useEffect(() => {
-    cargarMovimientos();
-  }, [filtros]);
+    cargarReportePagado();
+  }, [fechaDesde, fechaHasta]);
 
-  const cargarMovimientos = async () => {
+  const cargarReportePagado = async () => {
     try {
       setLoading(true);
-      const movimientosData = await cajaDiariaService.obtenerMovimientos(filtros);
-      setMovimientos(movimientosData);
+      const reporteData = await cajaDiariaService.obtenerReportePagado(fechaDesde, fechaHasta);
+      setReportePagado(reporteData);
     } catch (error) {
-      console.error('Error al cargar movimientos pagados:', error);
+      console.error('Error al cargar reporte de pagado:', error);
     } finally {
       setLoading(false);
     }
@@ -46,16 +45,12 @@ export default function PagadoTab() {
   const handleFormularioSuccess = () => {
     setMostrarFormulario(false);
     setMovimientoEditando(undefined);
-    cargarMovimientos();
+    cargarReportePagado();
   };
 
   const handleFormularioCancel = () => {
     setMostrarFormulario(false);
     setMovimientoEditando(undefined);
-  };
-
-  const handleFiltrosChange = (nuevosFiltros: FiltrosCajaType) => {
-    setFiltros({ ...nuevosFiltros, tipo: 'egreso' });
   };
 
   const handleExportar = async () => {
@@ -74,168 +69,149 @@ export default function PagadoTab() {
     }
   };
 
-  const handleLimpiarFiltros = () => {
-    setFiltros({ tipo: 'egreso' });
-  };
-
-  // Calcular totales
-  const totalPagado = movimientos.reduce((sum, m) => sum + m.monto, 0);
-  const cantidadPagos = movimientos.length;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando reporte de pagado...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      {/* Resumen en formato de grilla */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {/* Header de la grilla */}
-        <div className="bg-gray-50 border-b border-gray-200">
-          <div className="grid grid-cols-4 gap-0">
-            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200">
-              Concepto
-            </div>
-            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
-              Total Pagado
-            </div>
-            <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
-              Cantidad
-            </div>
-            <div className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">
-              Promedio
-            </div>
+    <div className="space-y-6">
+      {/* Filtros de fecha */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Desde
+            </label>
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="input"
+            />
           </div>
-        </div>
-
-        {/* Datos de la grilla */}
-        <div className="divide-y divide-gray-200">
-          <div className="grid grid-cols-4 gap-0 hover:bg-gray-50">
-            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
-              Pagos Realizados
-            </div>
-            <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono font-semibold">
-              {formatCurrency(totalPagado)}
-            </div>
-            <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-right font-mono">
-              {cantidadPagos}
-            </div>
-            <div className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-              {cantidadPagos > 0 ? formatCurrency(totalPagado / cantidadPagos) : '$0.00'}
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Hasta
+            </label>
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setFechaDesde('');
+                setFechaHasta('');
+              }}
+              className="btn-secondary w-full"
+            >
+              Limpiar Filtros
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Filtros */}
-      <FiltrosCaja
-        filtros={filtros}
-        onFiltrosChange={handleFiltrosChange}
-        onExportar={handleExportar}
-        onLimpiar={handleLimpiarFiltros}
-      />
-
-      {/* Tabla de movimientos en formato de grilla */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-gray-700">
-              Movimientos Pagados ({cantidadPagos})
-            </h3>
-            <button
-              onClick={handleNuevoMovimiento}
-              className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 flex items-center space-x-1"
-            >
-              <span>➕</span>
-              <span>Nuevo Pago</span>
-            </button>
+      {/* Estadísticas principales */}
+      {reportePagado && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-medium text-gray-500">Total Pagado</div>
+            <div className="text-2xl font-bold text-red-600">
+              {formatCurrency(reportePagado.totalPagado)}
+            </div>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-medium text-gray-500">Total Facturado</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {formatCurrency(reportePagado.totalFacturado)}
+            </div>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-medium text-gray-500">Cantidad Facturas</div>
+            <div className="text-2xl font-bold text-purple-600">
+              {reportePagado.cantidadFacturas}
+            </div>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-sm font-medium text-gray-500">% Pagado</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {reportePagado.porcentajePagado}%
+            </div>
           </div>
         </div>
-        
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      )}
+
+      {/* Tabla de proveedores con pagos */}
+      {reportePagado && (
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+            <h3 className="text-lg font-semibold text-gray-900">Proveedores con Pagos</h3>
           </div>
-        ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Proveedor
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Concepto
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Pagado
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Método de Pago
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Facturado
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Observaciones
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Facturas
                   </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Monto
-                  </th>
-                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {movimientos.map((movimiento) => (
-                  <tr key={movimiento.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 text-sm text-gray-900 font-mono">
-                      {new Date(movimiento.fecha).toLocaleDateString('es-AR')}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.proveedor?.proveedor || '-'}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.concepto}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600 capitalize">
-                      {movimiento.metodoPago}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600">
-                      {movimiento.observaciones || '-'}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-red-600 text-right font-mono font-semibold">
-                      -{formatCurrency(movimiento.monto)}
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={() => handleEditarMovimiento(movimiento)}
-                        className="text-blue-600 hover:text-blue-800 text-xs px-1 py-0.5 rounded hover:bg-blue-50"
-                      >
-                        Editar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="bg-white divide-y divide-gray-200">
+                {reportePagado.proveedores
+                  .sort((a: any, b: any) => b.totalPagado - a.totalPagado)
+                  .map((proveedor: any, index: number) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {proveedor.proveedor}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-red-600 text-right font-mono font-semibold">
+                        {formatCurrency(proveedor.totalPagado)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-blue-600 text-right font-mono">
+                        {formatCurrency(proveedor.totalFacturado)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                        {proveedor.cantidadFacturas}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => {
+                            // Aquí podrías abrir un modal con los detalles del proveedor
+                            console.log('Ver detalles de:', proveedor.proveedor);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded hover:bg-blue-50"
+                        >
+                          Ver Detalles
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
-        )}
-        
-        {movimientos.length === 0 && !loading && (
-          <div className="p-8 text-center">
-            <div className="text-gray-400 text-4xl mb-4">✅</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No hay pagos registrados
-            </h3>
-            <p className="text-gray-500 text-sm">
-              Los pagos realizados aparecerán aquí.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Formulario de movimiento */}
-      {mostrarFormulario && (
-        <MovimientoForm
-          movimiento={movimientoEditando}
-          onSuccess={handleFormularioSuccess}
-          onCancel={handleFormularioCancel}
-        />
+        </div>
       )}
     </div>
   );

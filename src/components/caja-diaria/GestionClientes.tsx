@@ -3,27 +3,30 @@
 import { useState, useEffect } from 'react';
 import { Cliente } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { reportesService, ReporteClientesResponse } from '@/services/reportesService';
 import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
 
 export default function GestionClientes() {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [reporteClientes, setReporteClientes] = useState<ReporteClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
 
   useEffect(() => {
-    cargarClientes();
-  }, []);
+    cargarReporteClientes();
+  }, [fechaDesde, fechaHasta]);
 
-  const cargarClientes = async () => {
+  const cargarReporteClientes = async () => {
     try {
       setLoading(true);
-      const clientesData = await cajaDiariaService.obtenerClientes();
-      setClientes(clientesData);
+      const reporteData = await reportesService.obtenerReporteClientes(fechaDesde, fechaHasta);
+      setReporteClientes(reporteData);
     } catch (error) {
-      console.error('Error al cargar clientes:', error);
-      toast.error('Error al cargar los clientes');
+      console.error('Error al cargar reporte de clientes:', error);
+      toast.error('Error al cargar el reporte de clientes');
     } finally {
       setLoading(false);
     }
@@ -34,7 +37,7 @@ export default function GestionClientes() {
       setSincronizando(true);
       const result = await colppyService.sincronizarClientes();
       toast.success(result.message || `Sincronización exitosa: ${result.count} clientes actualizados`);
-      await cargarClientes();
+      await cargarReporteClientes();
     } catch (error) {
       console.error('Error al sincronizar:', error);
       toast.error('Error al sincronizar con Colppy');
@@ -43,13 +46,13 @@ export default function GestionClientes() {
     }
   };
 
-  const clientesFiltrados = clientes.filter(cliente =>
+  const clientesFiltrados = reporteClientes?.facturas.filter(cliente =>
     cliente.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
     cliente.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
     cliente.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
     cliente.fecha.includes(busqueda) ||
     cliente.vencimiento.includes(busqueda)
-  );
+  ) || [];
 
   if (loading) {
     return (
@@ -69,11 +72,19 @@ export default function GestionClientes() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Gestión de Facturas de Clientes</h3>
           <p className="text-sm text-gray-500">
-            {clientes.length} facturas registradas desde Excel
+            {reporteClientes?.cantidadFacturas || 0} facturas registradas desde Excel
           </p>
           <p className="text-xs text-blue-600">
             📄 Facturas del Excel sincronizadas con Colppy vía Backend
           </p>
+          {reporteClientes && (
+            <div className="mt-2 text-xs text-gray-500">
+              <span className="font-medium">Total Facturado:</span> ${reporteClientes.totalFacturado.toLocaleString()} | 
+              <span className="font-medium ml-2">Total Cobrado:</span> ${reporteClientes.totalCobrado.toLocaleString()} | 
+              <span className="font-medium ml-2">Total Pendiente:</span> ${reporteClientes.totalPendiente.toLocaleString()} | 
+              <span className="font-medium ml-2">% Cobrado:</span> {reporteClientes.porcentajeCobrado}%
+            </div>
+          )}
         </div>
         <button
           onClick={sincronizarConColppy}
@@ -83,6 +94,45 @@ export default function GestionClientes() {
           <span>🔄</span>
           <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
         </button>
+      </div>
+
+      {/* Filtros de fecha */}
+      <div className="card p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Desde
+            </label>
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fecha Hasta
+            </label>
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="input"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setFechaDesde('');
+                setFechaHasta('');
+              }}
+              className="btn-secondary w-full"
+            >
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Búsqueda */}

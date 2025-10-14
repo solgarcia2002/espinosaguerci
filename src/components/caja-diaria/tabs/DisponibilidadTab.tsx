@@ -6,7 +6,7 @@ import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { formatCurrency } from '@/lib/utils';
 
 export default function DisponibilidadTab() {
-  const [resumen, setResumen] = useState<ResumenCaja | null>(null);
+  const [reporteDisponibilidad, setReporteDisponibilidad] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
 
@@ -17,8 +17,8 @@ export default function DisponibilidadTab() {
   const cargarDisponibilidad = async () => {
     try {
       setLoading(true);
-      const resumenData = await cajaDiariaService.obtenerResumenDiario(fecha);
-      setResumen(resumenData);
+      const reporteData = await cajaDiariaService.obtenerReporteDisponibilidad(fecha);
+      setReporteDisponibilidad(reporteData);
     } catch (error) {
       console.error('Error al cargar disponibilidad:', error);
     } finally {
@@ -59,49 +59,78 @@ export default function DisponibilidadTab() {
       </div>
 
       {/* Resumen en formato de grilla */}
-      {resumen ? (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          {/* Header de la grilla */}
-          <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-5 gap-0">
-              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200">
-                Concepto
+      {reporteDisponibilidad ? (
+        <div className="space-y-6">
+          {/* Estadísticas principales */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-500">Total Disponibilidad</div>
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(reporteDisponibilidad.totalDisponibilidad)}
               </div>
-              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
-                Saldo Inicial
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-500">Total Pesos</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {formatCurrency(reporteDisponibilidad.estadisticas.totalPesos)}
               </div>
-              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
-                Ingresos
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-500">Total Dólares</div>
+              <div className="text-2xl font-bold text-purple-600">
+                {formatCurrency(reporteDisponibilidad.estadisticas.totalDolares)}
               </div>
-              <div className="px-4 py-3 text-sm font-semibold text-gray-700 border-r border-gray-200 text-right">
-                Egresos
-              </div>
-              <div className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">
-                Saldo Final
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-500">Pendiente Acreditación</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {formatCurrency(reporteDisponibilidad.estadisticas.totalPendienteAcreditacion)}
               </div>
             </div>
           </div>
 
-          {/* Datos de la grilla */}
-          <div className="divide-y divide-gray-200">
-            <div className="grid grid-cols-5 gap-0 hover:bg-gray-50">
-              <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
-                Disponibilidad de Caja
-              </div>
-              <div className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200 text-right font-mono">
-                {formatCurrency(resumen.saldoInicial)}
-              </div>
-              <div className="px-4 py-3 text-sm text-green-600 border-r border-gray-200 text-right font-mono">
-                {formatCurrency(resumen.totalIngresos)}
-              </div>
-              <div className="px-4 py-3 text-sm text-red-600 border-r border-gray-200 text-right font-mono">
-                {formatCurrency(resumen.totalEgresos)}
-              </div>
-              <div className={`px-4 py-3 text-sm text-right font-mono font-semibold ${
-                resumen.saldoFinal >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {formatCurrency(resumen.saldoFinal)}
-              </div>
+          {/* Cuentas bancarias */}
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+              <h3 className="text-lg font-semibold text-gray-900">Cuentas Bancarias</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cuenta
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Saldo
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dólares
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Pendiente
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {reporteDisponibilidad.cuentasBancarias.map((cuenta: any, index: number) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {cuenta.nombre}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right">
+                        {formatCurrency(cuenta.saldo)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right">
+                        {formatCurrency(cuenta.dolares)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right">
+                        {formatCurrency(cuenta.pendienteAcreditacion)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -117,87 +146,6 @@ export default function DisponibilidadTab() {
         </div>
       )}
 
-      {/* Tabla de movimientos del día */}
-      {resumen && resumen.movimientos.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-            <h3 className="text-sm font-semibold text-gray-700">
-              Movimientos del Día ({resumen.movimientos.length})
-            </h3>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Hora
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Concepto
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente/Proveedor
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Método
-                  </th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Monto
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {resumen.movimientos.slice(0, 20).map((movimiento) => (
-                  <tr key={movimiento.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 text-sm text-gray-900 font-mono">
-                      {new Date(movimiento.createdAt).toLocaleTimeString('es-AR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </td>
-                    <td className="px-4 py-2">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        movimiento.tipo === 'ingreso' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {movimiento.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-900">
-                      {movimiento.concepto}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600">
-                      {movimiento.cliente?.cliente || movimiento.proveedor?.proveedor || '-'}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600 capitalize">
-                      {movimiento.metodoPago}
-                    </td>
-                    <td className={`px-4 py-2 text-sm text-right font-mono ${
-                      movimiento.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {movimiento.tipo === 'ingreso' ? '+' : '-'}
-                      {formatCurrency(movimiento.monto)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {resumen.movimientos.length > 20 && (
-            <div className="bg-gray-50 px-4 py-2 text-center">
-              <p className="text-sm text-gray-500">
-                Mostrando 20 de {resumen.movimientos.length} movimientos
-              </p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
