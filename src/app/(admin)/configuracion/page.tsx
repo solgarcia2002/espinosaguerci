@@ -1,6 +1,7 @@
 'use client';
 
 import Layout from "@/components/Layout";
+import ColppyCredentialsForm from "@/components/ColppyCredentialsForm";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -80,12 +81,17 @@ export default function Configuracion() {
   return (
     <Layout>
       <div className="container mx-auto px-6 py-8">
-        <div className="card p-6 space-y-6">
+        <div className="space-y-8">
+          
+          {/* Sección de Credenciales de Colppy */}
+          <ColppyCredentialsForm />
 
-          <h1 className="text-2xl font-bold text-brand-negro">Configuración</h1>
-          <p className="text-brand-gris-700">
-            Cargá un archivo Excel con los datos de tus clientes. El archivo será procesado por el backend.
-          </p>
+          {/* Sección de Carga de Excel */}
+          <div className="card p-6 space-y-6">
+            <h1 className="text-2xl font-bold text-brand-negro">Configuración de Clientes</h1>
+            <p className="text-brand-gris-700">
+              Cargá un archivo Excel con los datos de tus clientes. El archivo será procesado por el backend.
+            </p>
 
           {/* Tabla de ejemplo */}
           <div className="overflow-x-auto">
@@ -203,6 +209,7 @@ export default function Configuracion() {
             </div>
           )}
 
+          </div>
         </div>
       </div>
     </Layout>
