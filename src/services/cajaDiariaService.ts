@@ -82,10 +82,112 @@ export class CajaDiariaService {
         { method: 'GET' },
         params
       );
-
+      
       return response.data;
     } catch (error) {
       console.error('Error obteniendo proveedores:', error);
+      return [];
+    }
+  }
+
+  async obtenerProveedorPorId(id: string): Promise<Proveedor | null> {
+    try {
+      const response = await apiClient<{ success: boolean; data: Proveedor }>(
+        `caja-diaria/proveedores/${id}`,
+        { method: 'GET' }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error obteniendo proveedor:', error);
+      return null;
+    }
+  }
+
+  async crearProveedor(proveedor: Omit<Proveedor, 'id'>): Promise<Proveedor> {
+    try {
+      const response = await apiClient<{ success: boolean; data: Proveedor }>(
+        'caja-diaria/proveedores',
+        { 
+          method: 'POST',
+          body: JSON.stringify(proveedor)
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error creando proveedor:', error);
+      throw error;
+    }
+  }
+
+  async actualizarProveedor(id: string, proveedor: Partial<Proveedor>): Promise<Proveedor> {
+    try {
+      const response = await apiClient<{ success: boolean; data: Proveedor }>(
+        `caja-diaria/proveedores/${id}`,
+        { 
+          method: 'PUT',
+          body: JSON.stringify(proveedor)
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error actualizando proveedor:', error);
+      throw error;
+    }
+  }
+
+  async eliminarProveedor(id: string): Promise<void> {
+    try {
+      await apiClient<{ success: boolean }>(
+        `caja-diaria/proveedores/${id}`,
+        { method: 'DELETE' }
+      );
+    } catch (error) {
+      console.error('Error eliminando proveedor:', error);
+      throw error;
+    }
+  }
+
+  async buscarProveedorPorCuit(cuit: string): Promise<Proveedor | null> {
+    try {
+      const response = await apiClient<{ success: boolean; data: Proveedor | null }>(
+        `caja-diaria/proveedores/buscar/cuit/${cuit}`,
+        { method: 'GET' }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error buscando proveedor por CUIT:', error);
+      return null;
+    }
+  }
+
+  async buscarProveedorPorEmail(email: string): Promise<Proveedor | null> {
+    try {
+      const response = await apiClient<{ success: boolean; data: Proveedor | null }>(
+        `caja-diaria/proveedores/buscar/email/${email}`,
+        { method: 'GET' }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error buscando proveedor por email:', error);
+      return null;
+    }
+  }
+
+  async obtenerMovimientosProveedor(id: string): Promise<MovimientoCaja[]> {
+    try {
+      const response = await apiClient<{ success: boolean; data: MovimientoCaja[] }>(
+        `caja-diaria/proveedores/${id}/movimientos`,
+        { method: 'GET' }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error obteniendo movimientos del proveedor:', error);
       return [];
     }
   }
@@ -94,12 +196,12 @@ export class CajaDiariaService {
     try {
       const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
         'caja-diaria/movimientos',
-        { 
+        {
           method: 'POST',
           body: JSON.stringify(movimiento)
         }
       );
-
+      
       return response.data;
     } catch (error) {
       console.error('Error creando movimiento:', error);
@@ -111,12 +213,12 @@ export class CajaDiariaService {
     try {
       const response = await apiClient<{ success: boolean; data: MovimientoCaja }>(
         `caja-diaria/movimientos/${id}`,
-        { 
+        {
           method: 'PUT',
           body: JSON.stringify(movimiento)
         }
       );
-
+      
       return response.data;
     } catch (error) {
       console.error('Error actualizando movimiento:', error);
