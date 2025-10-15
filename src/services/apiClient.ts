@@ -1,7 +1,9 @@
 import { MovimientoCaja, ResumenCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
 
 const getTenantId = (): string => {
-  return process.env.TENANT || "d9d1c7f9-8909-4d43-a32b-278174459446";
+  const tenantId = process.env.TENANT || "d9d1c7f9-8909-4d43-a32b-278174459446";
+  console.log('🏢 Tenant ID configurado:', tenantId);
+  return tenantId;
 };
 
 export const getAuthToken = (): string | null => {
@@ -53,9 +55,13 @@ export async function apiClient<T>(
     console.warn('⚠️ No se encontró token JWT en localStorage - llamada sin autenticación');
   }
 
+  // Log del tenant-id
+  const tenantId = getTenantId();
+  console.log('🏢 Tenant ID incluido en header:', tenantId);
+
   const headers: Record<string, string> = {
     ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    "tenant-id": getTenantId(),
+    "tenant-id": tenantId,
     "Authorization": `Bearer ${token || ''}`,
     ...((options.headers as Record<string, string>) ?? {}),
   };
@@ -65,6 +71,7 @@ export async function apiClient<T>(
     method: options.method, 
     params,
     hasToken: !!token,
+    tenantId: headers['tenant-id'],
     headers: {
       'Content-Type': headers['Content-Type'],
       'tenant-id': headers['tenant-id'],
