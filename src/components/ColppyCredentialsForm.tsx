@@ -168,7 +168,7 @@ export default function ColppyCredentialsForm({ onCredentialsSaved }: ColppyCred
           <button
             type="submit"
             disabled={loading || !credentials.email || !credentials.password}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 max-w-fit px-2"
           >
             {loading ? (
               <>
@@ -187,7 +187,7 @@ export default function ColppyCredentialsForm({ onCredentialsSaved }: ColppyCred
             type="button"
             onClick={handleTestConnection}
             disabled={testing || !credentials.email || !credentials.password}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center max-w-fit"
+            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed flex items-center max-w-fit px-2"
           >
             {testing ? (
               <>
