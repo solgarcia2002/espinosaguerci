@@ -244,6 +244,13 @@ export class ReportesService {
     limit: number = 10
   ): Promise<ReporteProveedoresResponse> {
     try {
+      console.log('📡 ReportesService - obtenerReporteProveedores llamado con:', {
+        fechaDesde,
+        fechaHasta,
+        page,
+        limit
+      });
+      
       const params: Record<string, string> = {
         page: page.toString(),
         limit: limit.toString()
@@ -251,11 +258,15 @@ export class ReportesService {
       if (fechaDesde) params.fechaDesde = fechaDesde;
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
+      console.log('📡 ReportesService - Parámetros enviados a apiClient:', params);
+
       const response = await apiClient<{ success: boolean; data: ReporteProveedoresResponse }>(
         'reportes/proveedores',
         { method: 'GET' },
         params
       );
+      
+      console.log('📡 ReportesService - Respuesta recibida:', response);
 
       return response.data;
     } catch (error) {

@@ -238,6 +238,7 @@ const handleLocalEndpoint = async <T>(
   body?: any,
   params?: Record<string, string | number | number[]>
 ): Promise<T> => {
+  console.log('🏠 handleLocalEndpoint llamado con:', { endpoint, method, body, params });
   // Endpoints de movimientos
   if (endpoint.startsWith('caja-diaria/movimientos')) {
     if (endpoint === 'caja-diaria/movimientos' && method === 'GET') {
@@ -586,10 +587,14 @@ const handleLocalEndpoint = async <T>(
     }
 
     if (endpoint === 'reportes/proveedores') {
+      console.log('🔍 API Client - reportes/proveedores llamado con params:', params);
+      
       // Parámetros de paginación
       const page = parseInt(params?.page as string) || 1;
       const limit = parseInt(params?.limit as string) || 10;
       const offset = (page - 1) * limit;
+      
+      console.log('📊 Paginación:', { page, limit, offset });
       
       // Filtros de fecha
       const fechaDesde = params?.fechaDesde as string;
@@ -684,6 +689,12 @@ const handleLocalEndpoint = async <T>(
         }
       };
 
+      console.log('✅ API Client - reportes/proveedores respuesta generada:', {
+        totalFacturas: reporteProveedores.cantidadFacturas,
+        facturasEnPagina: reporteProveedores.facturas.length,
+        paginacion: reporteProveedores.paginacion
+      });
+
       return {
         success: true,
         data: reporteProveedores,
@@ -745,8 +756,11 @@ export async function apiClient<T>(
   options: RequestInit = {},
   params?: Record<string, string | number | number[]>
 ): Promise<T> {
+  console.log('🌐 apiClient llamado con endpoint:', endpoint, 'params:', params);
+  
   // Si es un endpoint local, manejarlo localmente
   if (endpoint.startsWith('caja-diaria/') || endpoint.startsWith('reportes/')) {
+    console.log('🏠 Endpoint local detectado, llamando handleLocalEndpoint');
     return handleLocalEndpoint<T>(endpoint, options.method || 'GET', options.body, params);
   }
 

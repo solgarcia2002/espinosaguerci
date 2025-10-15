@@ -8,6 +8,8 @@ import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
 
 export default function GestionProveedores() {
+  console.log('🎯 GestionProveedores - Componente renderizado');
+  
   const [reporteProveedores, setReporteProveedores] = useState<ReporteProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
@@ -32,13 +34,25 @@ export default function GestionProveedores() {
   const defaultDates = getDefaultDates();
   const [fechaDesde, setFechaDesde] = useState(defaultDates.desde);
   const [fechaHasta, setFechaHasta] = useState(defaultDates.hasta);
+  
+  console.log('🎯 GestionProveedores - Fechas por defecto:', defaultDates);
 
   useEffect(() => {
+    console.log('🔄 useEffect ejecutado - cargando reporte de proveedores');
+    console.log('📅 Fechas:', { fechaDesde, fechaHasta });
+    console.log('📄 Paginación:', { paginaActual, itemsPorPagina });
     cargarReporteProveedores();
   }, [fechaDesde, fechaHasta, paginaActual, itemsPorPagina]);
 
   const cargarReporteProveedores = async () => {
     try {
+      console.log('🚀 GestionProveedores - cargarReporteProveedores llamado con:', {
+        fechaDesde,
+        fechaHasta,
+        paginaActual,
+        itemsPorPagina
+      });
+      
       setLoading(true);
       const reporteData = await reportesService.obtenerReporteProveedores(
         fechaDesde, 
@@ -46,9 +60,11 @@ export default function GestionProveedores() {
         paginaActual, 
         itemsPorPagina
       );
+      
+      console.log('✅ GestionProveedores - Datos recibidos:', reporteData);
       setReporteProveedores(reporteData);
     } catch (error) {
-      console.error('Error al cargar reporte de proveedores:', error);
+      console.error('❌ Error al cargar reporte de proveedores:', error);
       toast.error('Error al cargar el reporte de proveedores');
     } finally {
       setLoading(false);
