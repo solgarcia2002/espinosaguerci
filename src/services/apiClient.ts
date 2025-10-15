@@ -31,15 +31,34 @@ export async function apiClient<T>(
 
   const isFormData = options.body instanceof FormData;
 
+  // Obtener token JWT
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  
+  // Log del token para debugging
+  if (token) {
+    console.log('🔑 Token JWT encontrado, incluyendo en Authorization header');
+  } else {
+    console.warn('⚠️ No se encontró token JWT en localStorage - llamada sin autenticación');
+  }
+
   const headers: Record<string, string> = {
     ...(isFormData ? {} : { "Content-Type": "application/json" }),
     "tenant-id": getTenantId(),
-    "Authorization": `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') || '' : ''}`,
+    "Authorization": `Bearer ${token || ''}`,
     ...((options.headers as Record<string, string>) ?? {}),
   };
 
   const url = `${baseUrl}/${endpoint}${queryString}`;
-  console.log(`🌐 Llamando a API real: ${url}`, { method: options.method, params });
+  console.log(`🌐 Llamando a API real: ${url}`, { 
+    method: options.method, 
+    params,
+    hasToken: !!token,
+    headers: {
+      'Content-Type': headers['Content-Type'],
+      'tenant-id': headers['tenant-id'],
+      'Authorization': token ? `Bearer ${token.substring(0, 20)}...` : 'No token'
+    }
+  });
 
   const response = await fetch(url, {
     ...options,
