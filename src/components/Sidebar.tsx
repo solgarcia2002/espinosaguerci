@@ -9,7 +9,6 @@ const navItems = [
     title: "Gestión",
     links: [
       { label: "Caja Diaria", href: "/caja-diaria" },
-      { label: "Colppy Pago a Proveedores", href: "/pago-proveedores" },
     ],
   },
   {
