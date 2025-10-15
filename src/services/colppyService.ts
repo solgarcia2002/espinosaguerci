@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import { apiClient, getAuthToken } from './apiClient';
 import { Cliente, Proveedor, ColppyApiResponse, ColppyCredentials } from '@/types/cajaDiaria';
 
 export class ColppyService {
@@ -16,7 +16,7 @@ export class ColppyService {
       console.log('🔄 Obteniendo clientes desde Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {
@@ -43,7 +43,7 @@ export class ColppyService {
       console.log('🔄 Obteniendo proveedores desde Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {
@@ -70,7 +70,7 @@ export class ColppyService {
       console.log('🔄 Iniciando sincronización de clientes con Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {
@@ -104,7 +104,7 @@ export class ColppyService {
       console.log('🔄 Iniciando sincronización de proveedores con Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {
@@ -138,7 +138,7 @@ export class ColppyService {
       console.log('🔄 Autenticando con Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {
@@ -169,7 +169,7 @@ export class ColppyService {
       console.log('🔄 Verificando conexión con Colppy...');
       
       // Verificar que el token esté disponible
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token = getAuthToken();
       if (!token) {
         console.warn('⚠️ No se encontró token JWT en localStorage');
       } else {

@@ -4,6 +4,18 @@ const getTenantId = (): string => {
   return process.env.TENANT || "d9d1c7f9-8909-4d43-a32b-278174459446";
 };
 
+export const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  
+  // Intentar obtener el token de diferentes fuentes
+  const accessToken = localStorage.getItem('access_token');
+  const cognitoToken = localStorage.getItem('cognito_token');
+  const token = localStorage.getItem('token');
+  
+  // Priorizar access_token, luego cognito_token, luego token
+  return accessToken || cognitoToken || token;
+};
+
 // API real - Sin datos mock locales
 
 
@@ -32,7 +44,7 @@ export async function apiClient<T>(
   const isFormData = options.body instanceof FormData;
 
   // Obtener token JWT
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = getAuthToken();
   
   // Log del token para debugging
   if (token) {
