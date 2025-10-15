@@ -586,33 +586,101 @@ const handleLocalEndpoint = async <T>(
     }
 
     if (endpoint === 'reportes/proveedores') {
+      // Parámetros de paginación
+      const page = parseInt(params?.page as string) || 1;
+      const limit = parseInt(params?.limit as string) || 10;
+      const offset = (page - 1) * limit;
+      
+      // Filtros de fecha
+      const fechaDesde = params?.fechaDesde as string;
+      const fechaHasta = params?.fechaHasta as string;
+      
+      // Filtrar proveedores por fecha si se especifica
+      let proveedoresFiltrados = mockProveedores;
+      if (fechaDesde || fechaHasta) {
+        proveedoresFiltrados = mockProveedores.filter(proveedor => {
+          const fechaProveedor = new Date(proveedor.fecha.split('-').reverse().join('-'));
+          const desde = fechaDesde ? new Date(fechaDesde) : null;
+          const hasta = fechaHasta ? new Date(fechaHasta) : null;
+          
+          if (desde && fechaProveedor < desde) return false;
+          if (hasta && fechaProveedor > hasta) return false;
+          return true;
+        });
+      }
+      
+      // Paginación
+      const totalItems = proveedoresFiltrados.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const proveedoresPaginados = proveedoresFiltrados.slice(offset, offset + limit);
+      
+      // Calcular estadísticas de los proveedores filtrados
+      const totalFacturado = proveedoresFiltrados.reduce((sum, p) => sum + p.total, 0);
+      const totalPagado = proveedoresFiltrados.reduce((sum, p) => sum + p.pagado, 0);
+      const totalPendiente = proveedoresFiltrados.reduce((sum, p) => sum + p.pendiente, 0);
+      const porcentajePagado = totalFacturado > 0 ? (totalPagado / totalFacturado) * 100 : 0;
+      
       const reporteProveedores = {
-        totalFacturado: 51835596.07,
-        totalPagado: 20148172.26,
-        totalPendiente: 32098070.93,
-        cantidadFacturas: 103,
-        porcentajePagado: 38.9,
-        facturas: mockProveedores,
+        totalFacturado,
+        totalPagado,
+        totalPendiente,
+        cantidadFacturas: totalItems,
+        porcentajePagado: Math.round(porcentajePagado * 10) / 10,
+        facturas: proveedoresPaginados,
         resumenPorEstado: {
           pagado: { 
-            cantidad: 65, 
-            monto: 20148172.26, 
-            porcentaje: 38.9 
+            cantidad: proveedoresFiltrados.filter(p => p.pagado > 0).length, 
+            monto: totalPagado, 
+            porcentaje: Math.round(porcentajePagado * 10) / 10
           },
           pendiente: { 
-            cantidad: 38, 
-            monto: 32098070.93, 
-            porcentaje: 61.1 
+            cantidad: proveedoresFiltrados.filter(p => p.pendiente > 0).length, 
+            monto: totalPendiente, 
+            porcentaje: Math.round((100 - porcentajePagado) * 10) / 10
           }
         },
         antiguedadSaldos: {
-          vencidas: { cantidad: 15, monto: 8500000 },
-          porVencer: { cantidad: 23, monto: 23598070.93 },
+          vencidas: { 
+            cantidad: proveedoresFiltrados.filter(p => {
+              const vencimiento = new Date(p.vencimiento.split('-').reverse().join('-'));
+              return vencimiento < new Date() && p.pendiente > 0;
+            }).length, 
+            monto: proveedoresFiltrados
+              .filter(p => {
+                const vencimiento = new Date(p.vencimiento.split('-').reverse().join('-'));
+                return vencimiento < new Date() && p.pendiente > 0;
+              })
+              .reduce((sum, p) => sum + p.pendiente, 0)
+          },
+          porVencer: { 
+            cantidad: proveedoresFiltrados.filter(p => {
+              const vencimiento = new Date(p.vencimiento.split('-').reverse().join('-'));
+              const en7Dias = new Date();
+              en7Dias.setDate(en7Dias.getDate() + 7);
+              return vencimiento >= new Date() && vencimiento <= en7Dias && p.pendiente > 0;
+            }).length, 
+            monto: proveedoresFiltrados
+              .filter(p => {
+                const vencimiento = new Date(p.vencimiento.split('-').reverse().join('-'));
+                const en7Dias = new Date();
+                en7Dias.setDate(en7Dias.getDate() + 7);
+                return vencimiento >= new Date() && vencimiento <= en7Dias && p.pendiente > 0;
+              })
+              .reduce((sum, p) => sum + p.pendiente, 0)
+          },
           vigentes: { cantidad: 0, monto: 0 }
         },
+        paginacion: {
+          pagina: page,
+          limite: limit,
+          totalItems,
+          totalPaginas: totalPages,
+          tieneSiguiente: page < totalPages,
+          tieneAnterior: page > 1
+        },
         filtros: {
-          fechaDesde: params?.fechaDesde as string,
-          fechaHasta: params?.fechaHasta as string
+          fechaDesde,
+          fechaHasta
         }
       };
 

@@ -40,6 +40,14 @@ export interface ReporteProveedoresResponse {
     porVencer: { cantidad: number; monto: number };
     vigentes: { cantidad: number; monto: number };
   };
+  paginacion: {
+    pagina: number;
+    limite: number;
+    totalItems: number;
+    totalPaginas: number;
+    tieneSiguiente: boolean;
+    tieneAnterior: boolean;
+  };
   filtros: {
     fechaDesde?: string;
     fechaHasta?: string;
@@ -229,9 +237,17 @@ export class ReportesService {
     }
   }
 
-  async obtenerReporteProveedores(fechaDesde?: string, fechaHasta?: string): Promise<ReporteProveedoresResponse> {
+  async obtenerReporteProveedores(
+    fechaDesde?: string, 
+    fechaHasta?: string, 
+    page: number = 1, 
+    limit: number = 10
+  ): Promise<ReporteProveedoresResponse> {
     try {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = {
+        page: page.toString(),
+        limit: limit.toString()
+      };
       if (fechaDesde) params.fechaDesde = fechaDesde;
       if (fechaHasta) params.fechaHasta = fechaHasta;
 
