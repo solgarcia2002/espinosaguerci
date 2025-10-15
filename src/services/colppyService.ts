@@ -35,34 +35,52 @@ export class ColppyService {
 
   async sincronizarClientes(): Promise<{ success: boolean; message: string; data?: any }> {
     try {
-      // TODO: Implementar sincronización real con Colppy
-      return {
-        success: true,
-        message: 'Sincronización completada (sin datos mock)',
-        data: []
-      };
+      console.log('🔄 Iniciando sincronización de clientes con Colppy...');
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any }>(
+        'caja-diaria/colppy/sincronizar/clientes',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            email: this.credentials.email,
+            password: this.credentials.password
+          })
+        }
+      );
+
+      console.log('✅ Sincronización de clientes completada:', response);
+      return response;
     } catch (error) {
-      console.error('Error sincronizando clientes con Colppy:', error);
+      console.error('❌ Error sincronizando clientes con Colppy:', error);
       return {
         success: false,
-        message: 'Error en la sincronización'
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
       };
     }
   }
 
   async sincronizarProveedores(): Promise<{ success: boolean; message: string; data?: any }> {
     try {
-      // TODO: Implementar sincronización real con Colppy
-      return {
-        success: true,
-        message: 'Sincronización completada (sin datos mock)',
-        data: []
-      };
+      console.log('🔄 Iniciando sincronización de proveedores con Colppy...');
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any }>(
+        'caja-diaria/colppy/sincronizar/proveedores',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            email: this.credentials.email,
+            password: this.credentials.password
+          })
+        }
+      );
+
+      console.log('✅ Sincronización de proveedores completada:', response);
+      return response;
     } catch (error) {
-      console.error('Error sincronizando proveedores con Colppy:', error);
+      console.error('❌ Error sincronizando proveedores con Colppy:', error);
       return {
         success: false,
-        message: 'Error en la sincronización'
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
       };
     }
   }

@@ -8,8 +8,6 @@ import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
 
 export default function GestionProveedores() {
-  console.log('🎯 GestionProveedores - Componente renderizado');
-  
   const [reporteProveedores, setReporteProveedores] = useState<ReporteProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
