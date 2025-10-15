@@ -187,7 +187,7 @@ export default function ColppyCredentialsForm({ onCredentialsSaved }: ColppyCred
             type="button"
             onClick={handleTestConnection}
             disabled={testing || !credentials.email || !credentials.password}
-            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 w-auto p-4"
           >
             {testing ? (
               <>
