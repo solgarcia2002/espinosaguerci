@@ -343,7 +343,83 @@ const handleLocalEndpoint = async <T>(
 
   // Endpoints de reportes
   if (endpoint.startsWith('reportes/')) {
-    // Por ahora retornamos datos vacíos para todos los reportes
+    if (endpoint === 'reportes/disponibilidad') {
+      const reporteDisponibilidad = {
+        fecha: params?.fecha as string || new Date().toISOString().split('T')[0],
+        estadisticas: {
+          totalDisponibilidad: 7500000,
+          totalPesos: 5000000,
+          totalDolares: 2500000,
+          totalPendienteAcreditacion: 500000
+        },
+        cuentasBancarias: [
+          {
+            nombre: "Banco Nación - Caja de Ahorros",
+            saldo: 2500000,
+            pendienteAcreditacion: 200000,
+            dolares: 0
+          },
+          {
+            nombre: "Banco Santander - Cuenta Corriente",
+            saldo: 1500000,
+            pendienteAcreditacion: 150000,
+            dolares: 0
+          },
+          {
+            nombre: "Banco Galicia - Cuenta USD",
+            saldo: 0,
+            pendienteAcreditacion: 0,
+            dolares: 2500000
+          },
+          {
+            nombre: "Caja de Ahorros - Pesos",
+            saldo: 1000000,
+            pendienteAcreditacion: 150000,
+            dolares: 0
+          }
+        ],
+        porTipo: [
+          {
+            tipo: "Caja de Ahorros",
+            cantidad: 2,
+            totalSaldo: 3500000,
+            totalDolares: 0,
+            totalPendiente: 350000,
+            cuentas: []
+          },
+          {
+            tipo: "Cuenta Corriente",
+            cantidad: 1,
+            totalSaldo: 1500000,
+            totalDolares: 0,
+            totalPendiente: 150000,
+            cuentas: []
+          },
+          {
+            tipo: "Cuenta USD",
+            cantidad: 1,
+            totalSaldo: 0,
+            totalDolares: 2500000,
+            totalPendiente: 0,
+            cuentas: []
+          }
+        ],
+        resumenLiquidez: {
+          disponibleInmediato: 5000000,
+          disponibleBanco: 2000000,
+          pendienteAcreditacion: 500000,
+          totalLiquido: 7500000
+        }
+      };
+
+      return {
+        success: true,
+        data: reporteDisponibilidad,
+        message: 'Reporte de disponibilidad obtenido exitosamente'
+      } as T;
+    }
+
+    // Para otros reportes, retornamos datos vacíos
     return {
       success: true,
       data: {},
