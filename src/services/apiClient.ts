@@ -6,7 +6,118 @@ const getTenantId = (): string => {
 
 // Datos mock locales (temporal hasta conectar con BD real)
 const mockMovimientos: MovimientoCaja[] = [];
-const mockClientes: Cliente[] = [];
+const mockClientes: Cliente[] = [
+  {
+    id: "1",
+    cliente: "DI ROCCO MARINA NILDA",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0001-00004223",
+    vencimiento: "08-08-2025",
+    total: 28240.00,
+    cobrado: 28240.00,
+    pendiente: 0
+  },
+  {
+    id: "2",
+    cliente: "A M J S A",
+    tipo: "FAV-A",
+    fecha: "01-08-2025",
+    referencia: "0007-00000407",
+    vencimiento: "15-08-2025",
+    total: 864774.90,
+    cobrado: 990000.00,
+    pendiente: 0
+  },
+  {
+    id: "3",
+    cliente: "AB 25 DE MAYO 1130 S. A.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0006-00001155",
+    vencimiento: "08-08-2025",
+    total: 786560.50,
+    cobrado: 786560.50,
+    pendiente: 0
+  },
+  {
+    id: "4",
+    cliente: "AISA SERGIO OSCAR",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0001-00004221",
+    vencimiento: "29-08-2025",
+    total: 24270.00,
+    cobrado: 24270.00,
+    pendiente: 0
+  },
+  {
+    id: "5",
+    cliente: "ALFARO PEDRO GERARDO",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0001-00004226",
+    vencimiento: "15-08-2025",
+    total: 183859.50,
+    cobrado: 183859.50,
+    pendiente: 0
+  },
+  {
+    id: "6",
+    cliente: "ALTRADE S.R.L.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0006-00001156",
+    vencimiento: "08-08-2025",
+    total: 532484.70,
+    cobrado: 532484.70,
+    pendiente: 0
+  },
+  {
+    id: "7",
+    cliente: "ASIM GONZALO",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000360",
+    vencimiento: "08-08-2025",
+    total: 88063.80,
+    cobrado: 88063.80,
+    pendiente: 0
+  },
+  {
+    id: "8",
+    cliente: "ASOCIACION CIVIL CIRCULO DE DIRECTIVOS DE COMUNICACION",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0008-00000210",
+    vencimiento: "29-08-2025",
+    total: 144310.00,
+    cobrado: 0,
+    pendiente: 144310.00
+  },
+  {
+    id: "9",
+    cliente: "ASOCIACION CULTURAL ALEMANA MORENO",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0008-00000211",
+    vencimiento: "22-08-2025",
+    total: 545000.00,
+    cobrado: 0,
+    pendiente: 545000.00
+  },
+  {
+    id: "10",
+    cliente: "ASR FORMOSA S.A.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0001-00004227",
+    vencimiento: "29-08-2025",
+    total: 328360.00,
+    cobrado: 0,
+    pendiente: 328360.00
+  }
+];
 const mockProveedores: Proveedor[] = [
   {
     id: "1",
@@ -61,6 +172,61 @@ const mockProveedores: Proveedor[] = [
     vencimiento: "08-08-2025",
     total: 2072040.30,
     pagado: 2072040.30,
+    pendiente: 0
+  },
+  {
+    id: "6",
+    proveedor: "BARGOLD SA",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000364",
+    vencimiento: "22-08-2025",
+    total: 828436.18,
+    pagado: 0,
+    pendiente: 828436.18
+  },
+  {
+    id: "7",
+    proveedor: "M.H.V S.A.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000367",
+    vencimiento: "22-08-2025",
+    total: 191143.70,
+    pagado: 0,
+    pendiente: 191143.70
+  },
+  {
+    id: "8",
+    proveedor: "J J SANCHEZ S A",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000366",
+    vencimiento: "08-08-2025",
+    total: 1501077.60,
+    pagado: 1501077.60,
+    pendiente: 0
+  },
+  {
+    id: "9",
+    proveedor: "AXAL S.A.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000361",
+    vencimiento: "08-08-2025",
+    total: 467991.70,
+    pagado: 467991.70,
+    pendiente: 0
+  },
+  {
+    id: "10",
+    proveedor: "AZINTER S.A.",
+    tipo: "FAV-X",
+    fecha: "01-08-2025",
+    referencia: "0005-00000363",
+    vencimiento: "08-08-2025",
+    total: 1004312.10,
+    pagado: 1004312.10,
     pendiente: 0
   }
 ];
@@ -416,6 +582,82 @@ const handleLocalEndpoint = async <T>(
         success: true,
         data: reporteDisponibilidad,
         message: 'Reporte de disponibilidad obtenido exitosamente'
+      } as T;
+    }
+
+    if (endpoint === 'reportes/proveedores') {
+      const reporteProveedores = {
+        totalFacturado: 51835596.07,
+        totalPagado: 20148172.26,
+        totalPendiente: 32098070.93,
+        cantidadFacturas: 103,
+        porcentajePagado: 38.9,
+        facturas: mockProveedores,
+        resumenPorEstado: {
+          pagado: { 
+            cantidad: 65, 
+            monto: 20148172.26, 
+            porcentaje: 38.9 
+          },
+          pendiente: { 
+            cantidad: 38, 
+            monto: 32098070.93, 
+            porcentaje: 61.1 
+          }
+        },
+        antiguedadSaldos: {
+          vencidas: { cantidad: 15, monto: 8500000 },
+          porVencer: { cantidad: 23, monto: 23598070.93 },
+          vigentes: { cantidad: 0, monto: 0 }
+        },
+        filtros: {
+          fechaDesde: params?.fechaDesde as string,
+          fechaHasta: params?.fechaHasta as string
+        }
+      };
+
+      return {
+        success: true,
+        data: reporteProveedores,
+        message: 'Reporte de proveedores obtenido exitosamente'
+      } as T;
+    }
+
+    if (endpoint === 'reportes/clientes') {
+      const reporteClientes = {
+        totalFacturado: 50635161.21,
+        totalCobrado: 19346253.80,
+        totalPendiente: 33114908.15,
+        cantidadFacturas: 124,
+        porcentajeCobrado: 38.2,
+        facturas: mockClientes,
+        resumenPorEstado: {
+          cobrado: { 
+            cantidad: 75, 
+            monto: 19346253.80, 
+            porcentaje: 38.2 
+          },
+          pendiente: { 
+            cantidad: 49, 
+            monto: 33114908.15, 
+            porcentaje: 61.8 
+          }
+        },
+        antiguedadSaldos: {
+          vencidas: { cantidad: 20, monto: 12000000 },
+          porVencer: { cantidad: 29, monto: 21114908.15 },
+          vigentes: { cantidad: 0, monto: 0 }
+        },
+        filtros: {
+          fechaDesde: params?.fechaDesde as string,
+          fechaHasta: params?.fechaHasta as string
+        }
+      };
+
+      return {
+        success: true,
+        data: reporteClientes,
+        message: 'Reporte de clientes obtenido exitosamente'
       } as T;
     }
 

@@ -46,7 +46,7 @@ export default function GestionClientes() {
     }
   };
 
-  const clientesFiltrados = reporteClientes?.facturas.filter(cliente =>
+  const clientesFiltrados = reporteClientes?.facturas?.filter(cliente =>
     cliente.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
     cliente.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
     cliente.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||

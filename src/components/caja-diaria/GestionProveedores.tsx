@@ -46,7 +46,7 @@ export default function GestionProveedores() {
     }
   };
 
-  const proveedoresFiltrados = reporteProveedores?.facturas.filter(proveedor =>
+  const proveedoresFiltrados = reporteProveedores?.facturas?.filter(proveedor =>
     proveedor.proveedor.toLowerCase().includes(busqueda.toLowerCase()) ||
     proveedor.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
     proveedor.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
