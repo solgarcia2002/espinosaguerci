@@ -44,6 +44,7 @@ export async function apiClient<T>(
     : "";
 
   const isFormData = options.body instanceof FormData;
+  const hasBody = options.body !== undefined && options.body !== null;
 
   // Obtener token JWT
   const token = getAuthToken();
@@ -60,29 +61,42 @@ export async function apiClient<T>(
   console.log('🏢 Tenant ID incluido en header:', tenantId);
 
   const headers: Record<string, string> = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     "tenant-id": tenantId,
     "Authorization": `Bearer ${token || ''}`,
     ...((options.headers as Record<string, string>) ?? {}),
   };
+
+  // Solo agregar Content-Type si hay body y no es FormData
+  if (hasBody && !isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   const url = `${baseUrl}/${endpoint}${queryString}`;
   console.log(`🌐 Llamando a API real: ${url}`, { 
     method: options.method, 
     params,
     hasToken: !!token,
+    hasBody,
     tenantId: headers['tenant-id'],
     headers: {
-      'Content-Type': headers['Content-Type'],
+      'Content-Type': headers['Content-Type'] || 'No Content-Type',
       'tenant-id': headers['tenant-id'],
       'Authorization': token ? `Bearer ${token.substring(0, 20)}...` : 'No token'
     }
   });
 
-  const response = await fetch(url, {
+  // Preparar opciones de fetch
+  const fetchOptions: RequestInit = {
     ...options,
     headers,
-  });
+  };
+
+  // Si no hay body, no incluirlo en la petición
+  if (!hasBody) {
+    delete fetchOptions.body;
+  }
+
+  const response = await fetch(url, fetchOptions);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);

@@ -1,15 +1,18 @@
 import { apiClient, getAuthToken } from './apiClient';
-import { Cliente, Proveedor, ColppyApiResponse, ColppyCredentials } from '@/types/cajaDiaria';
+import { Cliente, Proveedor, ColppyApiResponse } from '@/types/cajaDiaria';
+
+export interface SincronizarOptions {
+  email?: string;
+  password?: string;
+}
+
+export interface SincronizarFacturasOptions {
+  periodo: string; // Formato: "YYYY-MM"
+  email?: string;
+  password?: string;
+}
 
 export class ColppyService {
-  private credentials: ColppyCredentials;
-
-  constructor() {
-    this.credentials = {
-      email: 'matiespinosa05@gmail.com',
-      password: 'Mati.46939'
-    };
-  }
 
   async obtenerClientes(): Promise<Cliente[]> {
     try {
@@ -65,7 +68,7 @@ export class ColppyService {
     }
   }
 
-  async sincronizarClientes(): Promise<{ success: boolean; message: string; data?: any }> {
+  async sincronizarClientes(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
     try {
       console.log('🔄 Iniciando sincronización de clientes con Colppy...');
       
@@ -77,14 +80,16 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
+      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
+      const body: Record<string, string> = {};
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+      
       const response = await apiClient<{ success: boolean; message: string; data?: any }>(
         'caja-diaria/colppy/sincronizar/clientes',
         {
           method: 'POST',
-          body: JSON.stringify({
-            email: this.credentials.email,
-            password: this.credentials.password
-          })
+          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
         }
       );
 
@@ -99,7 +104,7 @@ export class ColppyService {
     }
   }
 
-  async sincronizarProveedores(): Promise<{ success: boolean; message: string; data?: any }> {
+  async sincronizarProveedores(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
     try {
       console.log('🔄 Iniciando sincronización de proveedores con Colppy...');
       
@@ -111,14 +116,16 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
+      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
+      const body: Record<string, string> = {};
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+      
       const response = await apiClient<{ success: boolean; message: string; data?: any }>(
         'caja-diaria/colppy/sincronizar/proveedores',
         {
           method: 'POST',
-          body: JSON.stringify({
-            email: this.credentials.email,
-            password: this.credentials.password
-          })
+          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
         }
       );
 
@@ -133,7 +140,113 @@ export class ColppyService {
     }
   }
 
-  async autenticar(): Promise<boolean> {
+  async sincronizarPagos(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      console.log('🔄 Iniciando sincronización de pagos con Colppy...');
+      
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+      
+      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
+      const body: Record<string, string> = {};
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any }>(
+        'caja-diaria/colppy/sincronizar/pagos',
+        {
+          method: 'POST',
+          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+        }
+      );
+
+      console.log('✅ Sincronización de pagos completada:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error sincronizando pagos con Colppy:', error);
+      return {
+        success: false,
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      };
+    }
+  }
+
+  async sincronizarFacturas(options: SincronizarFacturasOptions): Promise<{ success: boolean; message: string; data?: any; archivoS3?: string }> {
+    try {
+      console.log('🔄 Iniciando sincronización de facturas con Colppy...', { periodo: options.periodo });
+      
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+      
+      const body: Record<string, string> = {
+        periodo: options.periodo
+      };
+      if (options.email) body.email = options.email;
+      if (options.password) body.password = options.password;
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any; archivoS3?: string }>(
+        'caja-diaria/colppy/sincronizar/facturas',
+        {
+          method: 'POST',
+          body: JSON.stringify(body)
+        }
+      );
+
+      console.log('✅ Sincronización de facturas completada:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error sincronizando facturas con Colppy:', error);
+      return {
+        success: false,
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      };
+    }
+  }
+
+  async sincronizarTodos(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      console.log('🔄 Iniciando sincronización completa con Colppy...');
+      
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+      
+      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
+      const body: Record<string, string> = {};
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any }>(
+        'caja-diaria/colppy/sincronizar/todos',
+        {
+          method: 'POST',
+          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+        }
+      );
+
+      console.log('✅ Sincronización completa finalizada:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error en sincronización completa con Colppy:', error);
+      return {
+        success: false,
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      };
+    }
+  }
+
+  async autenticar(email?: string, password?: string): Promise<boolean> {
     try {
       console.log('🔄 Autenticando con Colppy...');
       
@@ -145,14 +258,16 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
+      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
+      const body: Record<string, string> = {};
+      if (email) body.email = email;
+      if (password) body.password = password;
+      
       const response = await apiClient<{ success: boolean; message: string }>(
         'caja-diaria/colppy/autenticar',
         {
           method: 'POST',
-          body: JSON.stringify({
-            email: this.credentials.email,
-            password: this.credentials.password
-          })
+          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
         }
       );
 
