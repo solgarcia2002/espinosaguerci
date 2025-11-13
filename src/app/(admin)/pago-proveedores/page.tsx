@@ -17,34 +17,30 @@ export default function PagoProveedoresPage() {
 
   const loadProcessInfo = async () => {
     try {
-      console.log('🔄 Cargando información del proceso de pagos a proveedores...');
+      console.log('🔄 Cargando información del proceso de pagos a proveedores desde el backend...');
       const info = await SupplierPaymentService.getProcessInfo();
-      console.log('✅ Información del proceso cargada:', info);
+      console.log('✅ Información del proceso cargada desde el backend:', info);
       setProcessInfo(info);
+      setError(null);
     } catch (err) {
       console.error('❌ Error cargando información del proceso:', err);
-      setError('Error al cargar información del proceso');
-      // Si el endpoint no existe, usar datos por defecto
-      setProcessInfo({
-        id: "supplier-payment-process-001",
-        name: "Sincronización de Pagos a Proveedores",
-        description: "Proceso automatizado que sincroniza los pagos realizados a proveedores desde Colppy hacia el sistema interno de gestión.",
-        isActive: true,
-        schedule: "0 8 * * 1-5",
-        nextExecution: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      });
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar información del proceso';
+      setError(errorMessage);
+      setProcessInfo(null);
     }
   };
 
   const loadExecutionHistory = async () => {
     try {
-      console.log('🔄 Cargando historial de ejecuciones...');
+      console.log('🔄 Cargando historial de ejecuciones desde el backend...');
       const history = await SupplierPaymentService.getExecutionHistory(20);
-      console.log('✅ Historial de ejecuciones cargado:', history);
+      console.log('✅ Historial de ejecuciones cargado desde el backend:', history);
       setExecutions(history);
+      setError(null);
     } catch (err) {
       console.error('❌ Error cargando historial de ejecuciones:', err);
-      setError('Error al cargar historial de ejecuciones');
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar historial de ejecuciones';
+      setError(errorMessage);
       setExecutions([]);
     }
   };
@@ -68,16 +64,16 @@ export default function PagoProveedoresPage() {
     
     setIsExecuting(true);
     try {
-      console.log('🔄 Ejecutando proceso de sincronización de pagos...');
+      console.log('🔄 Ejecutando proceso de sincronización de pagos desde el backend...');
       
-      // Opción 1: Usar el servicio de SupplierPaymentService (si el backend tiene el endpoint)
+      // Intentar usar el servicio del backend primero
       try {
         const response = await SupplierPaymentService.executeProcess({
           processId: processInfo.id,
           force: true
         });
         
-        console.log('✅ Proceso iniciado:', response);
+        console.log('✅ Proceso iniciado desde el backend:', response);
         toast.success(response.message || 'Proceso iniciado correctamente');
         
         // Recargar datos después de un breve delay
@@ -86,8 +82,8 @@ export default function PagoProveedoresPage() {
         }, 2000);
         
       } catch (serviceError) {
-        // Si el servicio no está disponible, usar directamente Colppy
-        console.log('⚠️ Servicio de proceso no disponible, usando Colppy directamente');
+        // Si el servicio del backend no está disponible, usar directamente Colppy
+        console.log('⚠️ Servicio de proceso no disponible en el backend, usando Colppy directamente');
         
         const result = await colppyService.sincronizarPagos();
         
@@ -103,7 +99,8 @@ export default function PagoProveedoresPage() {
       
     } catch (err) {
       console.error('❌ Error ejecutando proceso:', err);
-      toast.error('Error al ejecutar el proceso. Por favor, intente nuevamente.');
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      toast.error(`Error al ejecutar el proceso: ${errorMessage}`);
     } finally {
       setIsExecuting(false);
     }
