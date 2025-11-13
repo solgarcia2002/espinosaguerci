@@ -88,12 +88,15 @@ export default function MovimientoForm({ movimiento, onSuccess, onCancel }: Movi
   const sincronizarConColppy = async () => {
     try {
       setSincronizando(true);
-      const [clientesResult, proveedoresResult] = await Promise.all([
-        colppyService.sincronizarClientes(),
-        colppyService.sincronizarProveedores()
-      ]);
+      // Usar sincronización completa que incluye clientes, proveedores y pagos
+      const result = await colppyService.sincronizarTodos();
       
-      toast.success('Sincronización exitosa');
+      if (result.success) {
+        toast.success(result.message || 'Sincronización completa exitosa');
+      } else {
+        toast.error(result.message || 'Error en la sincronización');
+      }
+      
       await cargarDatos();
     } catch (error) {
       console.error('Error al sincronizar:', error);

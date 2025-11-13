@@ -5,103 +5,47 @@ import Layout from "../../../components/Layout";
 import ExecutionHistory from "../../../components/ExecutionHistory";
 import { SupplierPaymentService } from "../../../services/supplierPaymentService";
 import { SupplierPaymentProcess, ProcessExecution } from "../../../types/supplierPayment";
-
-// Mock data for UI visualization
-const mockProcessInfo: SupplierPaymentProcess = {
-  id: "supplier-payment-process-001",
-  name: "Sincronización de Pagos a Proveedores",
-  description: "Proceso automatizado que sincroniza los pagos realizados a proveedores desde Colppy hacia el sistema interno de gestión.",
-  isActive: true,
-  schedule: "0 8 * * 1-5", // Monday to Friday at 8 AM
-  nextExecution: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow at same time
-  lastExecution: {
-    id: "exec-20241208-001",
-    status: "success",
-    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 3 * 60 * 1000).toISOString(), // 3 minutes duration
-    message: "Proceso completado exitosamente. Se procesaron 45 pagos a proveedores.",
-    recordsProcessed: 45
-  }
-};
-
-const mockExecutions: ProcessExecution[] = [
-  {
-    id: "exec-20241208-001",
-    status: "success",
-    startTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 3 * 60 * 1000).toISOString(),
-    message: "Proceso completado exitosamente. Se procesaron 45 pagos a proveedores.",
-    recordsProcessed: 45
-  },
-  {
-    id: "exec-20241207-001",
-    status: "success",
-    startTime: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() - 26 * 60 * 60 * 1000 + 4 * 60 * 1000).toISOString(),
-    message: "Sincronización completada. Se procesaron 38 registros de pagos.",
-    recordsProcessed: 38
-  },
-  {
-    id: "exec-20241206-001",
-    status: "error",
-    startTime: new Date(Date.now() - 50 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() - 50 * 60 * 60 * 1000 + 1 * 60 * 1000).toISOString(),
-    message: "Error de conexión con Colppy. Timeout en la respuesta del servidor.",
-    recordsProcessed: 0
-  },
-  {
-    id: "exec-20241205-001",
-    status: "success",
-    startTime: new Date(Date.now() - 74 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() - 74 * 60 * 60 * 1000 + 5 * 60 * 1000).toISOString(),
-    message: "Proceso completado. Se sincronizaron 52 pagos a proveedores.",
-    recordsProcessed: 52
-  },
-  {
-    id: "exec-20241204-001",
-    status: "success",
-    startTime: new Date(Date.now() - 98 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() - 98 * 60 * 60 * 1000 + 2 * 60 * 1000).toISOString(),
-    message: "Sincronización exitosa. 29 registros procesados.",
-    recordsProcessed: 29
-  },
-  {
-    id: "exec-20241203-001",
-    status: "running",
-    startTime: new Date(Date.now() - 122 * 60 * 60 * 1000).toISOString(),
-    message: "Proceso en ejecución. Conectando con Colppy...",
-    recordsProcessed: 12
-  }
-];
+import { colppyService } from "../../../services/colppyService";
+import { toast } from 'sonner';
 
 export default function PagoProveedoresPage() {
-  const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(mockProcessInfo);
-  const [executions, setExecutions] = useState<ProcessExecution[]>(mockExecutions);
+  const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(null);
+  const [executions, setExecutions] = useState<ProcessExecution[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [loading, setLoading] = useState(false); // Changed to false to show mock data immediately
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadProcessInfo = async () => {
-    // Simulate API call with mock data
     try {
-      setTimeout(() => {
-        setProcessInfo(mockProcessInfo);
-      }, 500);
+      console.log('🔄 Cargando información del proceso de pagos a proveedores...');
+      const info = await SupplierPaymentService.getProcessInfo();
+      console.log('✅ Información del proceso cargada:', info);
+      setProcessInfo(info);
     } catch (err) {
-      console.error('Error loading process info:', err);
+      console.error('❌ Error cargando información del proceso:', err);
       setError('Error al cargar información del proceso');
+      // Si el endpoint no existe, usar datos por defecto
+      setProcessInfo({
+        id: "supplier-payment-process-001",
+        name: "Sincronización de Pagos a Proveedores",
+        description: "Proceso automatizado que sincroniza los pagos realizados a proveedores desde Colppy hacia el sistema interno de gestión.",
+        isActive: true,
+        schedule: "0 8 * * 1-5",
+        nextExecution: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
     }
   };
 
   const loadExecutionHistory = async () => {
-    // Simulate API call with mock data
     try {
-      setTimeout(() => {
-        setExecutions(mockExecutions);
-      }, 300);
+      console.log('🔄 Cargando historial de ejecuciones...');
+      const history = await SupplierPaymentService.getExecutionHistory(20);
+      console.log('✅ Historial de ejecuciones cargado:', history);
+      setExecutions(history);
     } catch (err) {
-      console.error('Error loading execution history:', err);
+      console.error('❌ Error cargando historial de ejecuciones:', err);
       setError('Error al cargar historial de ejecuciones');
+      setExecutions([]);
     }
   };
 
@@ -116,10 +60,7 @@ export default function PagoProveedoresPage() {
   };
 
   useEffect(() => {
-    // Using mock data directly, no need to load
-    setProcessInfo(mockProcessInfo);
-    setExecutions(mockExecutions);
-    setLoading(false);
+    loadData();
   }, []);
 
   const handleExecuteProcess = async () => {
@@ -127,51 +68,42 @@ export default function PagoProveedoresPage() {
     
     setIsExecuting(true);
     try {
-      // Simulate API call with mock response
-      const mockResponse = {
-        executionId: `exec-${new Date().toISOString().split('T')[0]}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-        status: 'started' as const,
-        message: 'Proceso de sincronización iniciado correctamente'
-      };
+      console.log('🔄 Ejecutando proceso de sincronización de pagos...');
       
-      // Show success message
-      alert(`Proceso iniciado exitosamente. ID de ejecución: ${mockResponse.executionId}`);
-      
-      // Add new execution to the beginning of the list
-      const newExecution: ProcessExecution = {
-        id: mockResponse.executionId,
-        status: 'running',
-        startTime: new Date().toISOString(),
-        message: 'Proceso en ejecución. Sincronizando con Colppy...',
-        recordsProcessed: 0
-      };
-      
-      setExecutions(prev => [newExecution, ...prev]);
-      
-      // Simulate process completion after 3 seconds
-      setTimeout(() => {
-        const completedExecution: ProcessExecution = {
-          ...newExecution,
-          status: 'success',
-          endTime: new Date().toISOString(),
-          message: `Proceso completado exitosamente. Se procesaron ${Math.floor(Math.random() * 50) + 20} pagos a proveedores.`,
-          recordsProcessed: Math.floor(Math.random() * 50) + 20
-        };
+      // Opción 1: Usar el servicio de SupplierPaymentService (si el backend tiene el endpoint)
+      try {
+        const response = await SupplierPaymentService.executeProcess({
+          processId: processInfo.id,
+          force: true
+        });
         
-        setExecutions(prev => prev.map(exec => 
-          exec.id === newExecution.id ? completedExecution : exec
-        ));
+        console.log('✅ Proceso iniciado:', response);
+        toast.success(response.message || 'Proceso iniciado correctamente');
         
-        // Update process info with new last execution
-        setProcessInfo(prev => prev ? {
-          ...prev,
-          lastExecution: completedExecution
-        } : prev);
-      }, 3000);
+        // Recargar datos después de un breve delay
+        setTimeout(() => {
+          loadData();
+        }, 2000);
+        
+      } catch (serviceError) {
+        // Si el servicio no está disponible, usar directamente Colppy
+        console.log('⚠️ Servicio de proceso no disponible, usando Colppy directamente');
+        
+        const result = await colppyService.sincronizarPagos();
+        
+        if (result.success) {
+          toast.success(result.message || 'Sincronización de pagos completada exitosamente');
+        } else {
+          toast.error(result.message || 'Error en la sincronización de pagos');
+        }
+        
+        // Recargar datos después de la sincronización
+        await loadData();
+      }
       
     } catch (err) {
-      console.error('Error executing process:', err);
-      alert('Error al ejecutar el proceso. Por favor, intente nuevamente.');
+      console.error('❌ Error ejecutando proceso:', err);
+      toast.error('Error al ejecutar el proceso. Por favor, intente nuevamente.');
     } finally {
       setIsExecuting(false);
     }
@@ -342,7 +274,7 @@ export default function PagoProveedoresPage() {
         {/* Execution History */}
         <ExecutionHistory 
           executions={executions} 
-          onRefresh={loadExecutionHistory}
+          onRefresh={loadData}
         />
       </div>
     </Layout>
