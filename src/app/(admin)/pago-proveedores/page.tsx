@@ -7,6 +7,7 @@ import { SupplierPaymentService } from "../../../services/supplierPaymentService
 import { SupplierPaymentProcess, ProcessExecution } from "../../../types/supplierPayment";
 import { colppyService } from "../../../services/colppyService";
 import { toast } from 'sonner';
+import ColppyProgress from "../../../components/ColppyProgress";
 
 export default function PagoProveedoresPage() {
   const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(null);
@@ -14,6 +15,7 @@ export default function PagoProveedoresPage() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showProgress, setShowProgress] = useState(false);
 
   const loadProcessInfo = async () => {
     try {
@@ -63,6 +65,7 @@ export default function PagoProveedoresPage() {
     if (!processInfo) return;
     
     setIsExecuting(true);
+    setShowProgress(true);
     try {
       console.log('🔄 Ejecutando proceso de sincronización de pagos desde el backend...');
       
@@ -103,6 +106,7 @@ export default function PagoProveedoresPage() {
       toast.error(`Error al ejecutar el proceso: ${errorMessage}`);
     } finally {
       setIsExecuting(false);
+      setTimeout(() => setShowProgress(false), 2000);
     }
   };
 
@@ -274,6 +278,20 @@ export default function PagoProveedoresPage() {
           onRefresh={loadData}
         />
       </div>
+
+      {/* Componente de progreso de sincronización */}
+      {showProgress && (
+        <ColppyProgress 
+          scope="pagos"
+          onComplete={() => {
+            setShowProgress(false);
+            toast.success('Sincronización de pagos completada');
+          }}
+          onError={(error) => {
+            toast.error(`Error: ${error}`);
+          }}
+        />
+      )}
     </Layout>
   );
 }

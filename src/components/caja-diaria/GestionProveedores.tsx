@@ -6,6 +6,7 @@ import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { reportesService, ReporteProveedoresResponse } from '@/services/reportesService';
 import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
+import ColppyProgress from '@/components/ColppyProgress';
 
 export default function GestionProveedores() {
   const [reporteProveedores, setReporteProveedores] = useState<ReporteProveedoresResponse | null>(null);
@@ -80,6 +81,18 @@ export default function GestionProveedores() {
       toast.error('Error al sincronizar con Colppy');
     } finally {
       setSincronizando(false);
+    }
+  };
+
+  const [showProgress, setShowProgress] = useState(false);
+
+  const handleSincronizarConProgress = async () => {
+    setShowProgress(true);
+    try {
+      await sincronizarConColppy();
+    } finally {
+      // El progreso se ocultará automáticamente cuando se complete
+      setTimeout(() => setShowProgress(false), 2000);
     }
   };
 
@@ -172,7 +185,7 @@ export default function GestionProveedores() {
           )}
         </div>
         <button
-          onClick={sincronizarConColppy}
+          onClick={handleSincronizarConProgress}
           disabled={sincronizando}
           className="btn-primary flex items-center space-x-2 disabled:opacity-50 w-auto p-4"
         >
@@ -564,6 +577,20 @@ export default function GestionProveedores() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Componente de progreso de sincronización */}
+      {showProgress && (
+        <ColppyProgress 
+          scope="proveedores"
+          onComplete={() => {
+            setShowProgress(false);
+            toast.success('Sincronización completada');
+          }}
+          onError={(error) => {
+            toast.error(`Error: ${error}`);
+          }}
+        />
       )}
     </div>
   );

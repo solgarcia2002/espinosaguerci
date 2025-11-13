@@ -6,6 +6,7 @@ import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { reportesService, ReporteClientesResponse } from '@/services/reportesService';
 import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
+import ColppyProgress from '@/components/ColppyProgress';
 
 export default function GestionClientes() {
   const [reporteClientes, setReporteClientes] = useState<ReporteClientesResponse | null>(null);
@@ -43,6 +44,17 @@ export default function GestionClientes() {
       toast.error('Error al sincronizar con Colppy');
     } finally {
       setSincronizando(false);
+    }
+  };
+
+  const [showProgress, setShowProgress] = useState(false);
+
+  const handleSincronizarConProgress = async () => {
+    setShowProgress(true);
+    try {
+      await sincronizarConColppy();
+    } finally {
+      setTimeout(() => setShowProgress(false), 2000);
     }
   };
 
@@ -87,7 +99,7 @@ export default function GestionClientes() {
           )}
         </div>
         <button
-          onClick={sincronizarConColppy}
+          onClick={handleSincronizarConProgress}
           disabled={sincronizando}
           className="btn-primary flex items-center space-x-2 disabled:opacity-50 w-auto p-4"
         >
@@ -262,6 +274,20 @@ export default function GestionClientes() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Componente de progreso de sincronización */}
+      {showProgress && (
+        <ColppyProgress 
+          scope="clientes"
+          onComplete={() => {
+            setShowProgress(false);
+            toast.success('Sincronización completada');
+          }}
+          onError={(error) => {
+            toast.error(`Error: ${error}`);
+          }}
+        />
       )}
     </div>
   );
