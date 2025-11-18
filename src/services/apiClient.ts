@@ -99,6 +99,21 @@ export async function apiClient<T>(
   const response = await fetch(url, fetchOptions);
 
   if (!response.ok) {
+    if (response.status === 401) {
+      console.warn('🔒 Token expirado o inválido - redirigiendo al login');
+      
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('cognito_token');
+        localStorage.removeItem('token');
+        
+        document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        
+        window.location.href = '/login';
+        return Promise.reject(new Error('Sesión expirada. Redirigiendo al login...'));
+      }
+    }
+    
     const errorData = await response.json().catch(() => null);
     console.error(`❌ Error en API: ${response.status} - ${errorData?.message || 'Error desconocido'}`);
     throw new Error(errorData?.message ?? `Error en la petición: ${response.status}`);
