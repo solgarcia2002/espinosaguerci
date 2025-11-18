@@ -42,6 +42,19 @@ export interface MovimientoCaja {
   updatedAt: string;
 }
 
+export interface MovimientoColppyExcel {
+  fecha: string;
+  clienteProveedor: string;
+  tipo: string;
+  nro: string;
+  nroCheque: string | null;
+  descripcion: string;
+  importeME: number;
+  ingresos: number;
+  egresos: number;
+  saldo: number;
+}
+
 export interface ResumenCaja {
   fecha: string;
   saldoInicial: number;
@@ -83,6 +96,7 @@ export interface ProveedorEntity {
   tipoDocumento: string | null;
   numeroDocumento: string | null;
   colppyId: string | null;
+  saldo?: number;
 }
 
 export interface PaginationInfo {
@@ -109,6 +123,7 @@ export interface ClienteEntity {
   tipoDocumento: string | null;
   numeroDocumento: string | null;
   colppyId: string | null;
+  saldo?: number;
 }
 
 export interface ClientesResponse {

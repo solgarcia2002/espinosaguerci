@@ -1,6 +1,6 @@
 export interface ColppyProgressEvent {
   type: 'start' | 'progress' | 'complete' | 'error';
-  scope: 'clientes' | 'proveedores' | 'pagos' | 'facturas' | 'todos';
+  scope: 'clientes' | 'proveedores' | 'pagos' | 'facturas' | 'movimientos' | 'todos';
   tenantId: string;
   current: number;
   total: number;

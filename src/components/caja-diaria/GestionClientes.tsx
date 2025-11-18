@@ -210,12 +210,7 @@ export default function GestionClientes() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Nombre
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Teléfono
-                  </th>
+                  
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     CUIT
                   </th>
@@ -227,6 +222,9 @@ export default function GestionClientes() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Colppy ID
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Saldo
                   </th>
                 </tr>
               </thead>
@@ -241,12 +239,6 @@ export default function GestionClientes() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.email || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.telefono || '-'}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
                       {cliente.cuit || '-'}
                     </td>
@@ -258,6 +250,23 @@ export default function GestionClientes() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                       {cliente.colppyId || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                      {cliente.saldo !== undefined ? (
+                        <span className={`font-medium ${
+                          cliente.saldo > 0 
+                            ? 'text-red-600' 
+                            : cliente.saldo < 0 
+                            ? 'text-green-600' 
+                            : 'text-gray-600'
+                        }`}>
+                          ${Math.abs(cliente.saldo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          {cliente.saldo > 0 && ' (Debe)'}
+                          {cliente.saldo < 0 && ' (A favor)'}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                   </tr>
                 ))}

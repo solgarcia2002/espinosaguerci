@@ -12,6 +12,13 @@ export interface SincronizarFacturasOptions {
   password?: string;
 }
 
+export interface SincronizarMovimientosOptions {
+  fechaDesde?: string; // Formato: "YYYY-MM-DD"
+  fechaHasta?: string; // Formato: "YYYY-MM-DD"
+  email?: string;
+  password?: string;
+}
+
 export class ColppyService {
 
   async obtenerClientes(): Promise<Cliente[]> {
@@ -209,6 +216,66 @@ export class ColppyService {
     }
   }
 
+  /**
+   * Sincroniza/descarga movimientos desde Colppy mediante RPA
+   * 
+   * El RPA realiza los siguientes pasos:
+   * 1. Clic en botón "Tesorería" (id="ext-gen48", class="x-btn-text treasury-icon")
+   * 2. Clic en botón Excel (id="ext-gen159", class="x-tool x-tool-excel")
+   * 3. Descarga el Excel y procesa las columnas:
+   *    - Fecha
+   *    - Cliente/proveedor
+   *    - Tipo
+   *    - Nro
+   *    - Nro Cheque
+   *    - Descripción
+   *    - Importe ME
+   *    - Ingresos
+   *    - Egresos
+   *    - Saldo
+   * 
+   * @param options Opciones de sincronización con fechas y credenciales opcionales
+   * @returns Resultado de la sincronización con datos procesados y URL del archivo S3 si aplica
+   */
+  async sincronizarMovimientos(options?: SincronizarMovimientosOptions): Promise<{ success: boolean; message: string; data?: any; archivoS3?: string }> {
+    try {
+      console.log('🔄 Iniciando descarga de movimientos desde Colppy...', { 
+        fechaDesde: options?.fechaDesde, 
+        fechaHasta: options?.fechaHasta 
+      });
+      
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+      
+      const body: Record<string, string> = {};
+      if (options?.fechaDesde) body.fechaDesde = options.fechaDesde;
+      if (options?.fechaHasta) body.fechaHasta = options.fechaHasta;
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+      
+      const response = await apiClient<{ success: boolean; message: string; data?: any; archivoS3?: string }>(
+        'caja-diaria/colppy/sincronizar/movimientos',
+        {
+          method: 'POST',
+          body: JSON.stringify(body)
+        }
+      );
+
+      console.log('✅ Descarga de movimientos desde Colppy completada:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error descargando movimientos desde Colppy:', error);
+      return {
+        success: false,
+        message: `Error en la descarga: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      };
+    }
+  }
+
   async sincronizarTodos(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
     try {
       console.log('🔄 Iniciando sincronización completa con Colppy...');
@@ -220,7 +287,6 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
-      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
       const body: Record<string, string> = {};
       if (options?.email) body.email = options.email;
       if (options?.password) body.password = options.password;
@@ -229,7 +295,7 @@ export class ColppyService {
         'caja-diaria/colppy/sincronizar/todos',
         {
           method: 'POST',
-          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+          body: JSON.stringify(body)
         }
       );
 

@@ -228,6 +228,9 @@ export default function GestionProveedores() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Colppy ID
                   </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Saldo
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -258,6 +261,23 @@ export default function GestionProveedores() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                       {proveedor.colppyId || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                      {proveedor.saldo !== undefined ? (
+                        <span className={`font-medium ${
+                          proveedor.saldo > 0 
+                            ? 'text-red-600' 
+                            : proveedor.saldo < 0 
+                            ? 'text-green-600' 
+                            : 'text-gray-600'
+                        }`}>
+                          ${Math.abs(proveedor.saldo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                          {proveedor.saldo > 0 && ' (Debe)'}
+                          {proveedor.saldo < 0 && ' (A favor)'}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                   </tr>
                 ))}
