@@ -99,6 +99,23 @@ export interface ProveedoresResponse {
   pagination: PaginationInfo;
 }
 
+export interface ClienteEntity {
+  id: string;
+  nombre: string;
+  email: string | null;
+  telefono: string | null;
+  direccion: string | null;
+  cuit: string | null;
+  tipoDocumento: string | null;
+  numeroDocumento: string | null;
+  colppyId: string | null;
+}
+
+export interface ClientesResponse {
+  data: ClienteEntity[];
+  pagination: PaginationInfo;
+}
+
 export interface MovimientosResponse {
   data: MovimientoCaja[];
   pagination: PaginationInfo;

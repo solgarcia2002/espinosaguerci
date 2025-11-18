@@ -80,7 +80,6 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
-      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
       const body: Record<string, string> = {};
       if (options?.email) body.email = options.email;
       if (options?.password) body.password = options.password;
@@ -89,7 +88,7 @@ export class ColppyService {
         'caja-diaria/colppy/sincronizar/clientes',
         {
           method: 'POST',
-          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+          body: JSON.stringify(body)
         }
       );
 
@@ -116,7 +115,6 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
-      // Si se pasan credenciales, las incluimos; si no, el backend las tomará del storage seguro
       const body: Record<string, string> = {};
       if (options?.email) body.email = options.email;
       if (options?.password) body.password = options.password;
@@ -125,7 +123,7 @@ export class ColppyService {
         'caja-diaria/colppy/sincronizar/proveedores',
         {
           method: 'POST',
-          body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+          body: JSON.stringify(body)
         }
       );
 

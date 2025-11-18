@@ -48,7 +48,10 @@ export default function GestionProveedores() {
   const sincronizarConColppy = async () => {
     try {
       setSincronizando(true);
-      const result = await colppyService.sincronizarProveedores();
+      const result = await colppyService.sincronizarProveedores({
+        email: 'matiespinosa05@gmail.com',
+        password: 'Mati.46939'
+      });
       toast.success(result.message || 'Sincronización exitosa');
       await cargarProveedores();
     } catch (error) {

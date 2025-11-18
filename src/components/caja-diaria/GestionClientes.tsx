@@ -1,33 +1,45 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Cliente } from '@/types/cajaDiaria';
+import { ClientesResponse, ClienteEntity } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
-import { reportesService, ReporteClientesResponse } from '@/services/reportesService';
 import { colppyService } from '@/services/colppyService';
 import { toast } from 'sonner';
 import ColppyProgress from '@/components/ColppyProgress';
 
 export default function GestionClientes() {
-  const [reporteClientes, setReporteClientes] = useState<ReporteClientesResponse | null>(null);
+  const [clientesData, setClientesData] = useState<ClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
-  const [fechaDesde, setFechaDesde] = useState('');
-  const [fechaHasta, setFechaHasta] = useState('');
+  
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [itemsPorPagina, setItemsPorPagina] = useState(20);
 
   useEffect(() => {
-    cargarReporteClientes();
-  }, [fechaDesde, fechaHasta]);
+    console.log('🔄 useEffect ejecutado - cargando clientes');
+    console.log('📄 Paginación:', { paginaActual, itemsPorPagina });
+    cargarClientes();
+  }, [paginaActual, itemsPorPagina]);
 
-  const cargarReporteClientes = async () => {
+  const cargarClientes = async () => {
     try {
+      console.log('🚀 GestionClientes - cargarClientes llamado con:', {
+        paginaActual,
+        itemsPorPagina
+      });
+      
       setLoading(true);
-      const reporteData = await reportesService.obtenerReporteClientes(fechaDesde, fechaHasta);
-      setReporteClientes(reporteData);
+      const data = await cajaDiariaService.obtenerClientesConPaginacion(
+        paginaActual, 
+        itemsPorPagina
+      );
+      
+      console.log('✅ GestionClientes - Datos recibidos:', data);
+      setClientesData(data);
     } catch (error) {
-      console.error('Error al cargar reporte de clientes:', error);
-      toast.error('Error al cargar el reporte de clientes');
+      console.error('❌ Error al cargar clientes:', error);
+      toast.error('Error al cargar los clientes');
     } finally {
       setLoading(false);
     }
@@ -36,9 +48,12 @@ export default function GestionClientes() {
   const sincronizarConColppy = async () => {
     try {
       setSincronizando(true);
-      const result = await colppyService.sincronizarClientes();
+      const result = await colppyService.sincronizarClientes({
+        email: 'matiespinosa05@gmail.com',
+        password: 'Mati.46939'
+      });
       toast.success(result.message || 'Sincronización exitosa');
-      await cargarReporteClientes();
+      await cargarClientes();
     } catch (error) {
       console.error('Error al sincronizar:', error);
       toast.error('Error al sincronizar con Colppy');
@@ -58,13 +73,24 @@ export default function GestionClientes() {
     }
   };
 
-  const clientesFiltrados = reporteClientes?.facturas?.filter(cliente =>
-    cliente.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
-    cliente.tipo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    cliente.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
-    cliente.fecha.includes(busqueda) ||
-    cliente.vencimiento.includes(busqueda)
-  ) || [];
+  const clientesFiltrados = busqueda 
+    ? (clientesData?.data || []).filter(cliente =>
+        cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        (cliente.email && cliente.email.toLowerCase().includes(busqueda.toLowerCase())) ||
+        (cliente.cuit && cliente.cuit.includes(busqueda)) ||
+        (cliente.telefono && cliente.telefono.includes(busqueda)) ||
+        (cliente.direccion && cliente.direccion.toLowerCase().includes(busqueda.toLowerCase()))
+      )
+    : (clientesData?.data || []);
+
+  const cambiarPagina = (nuevaPagina: number) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  const cambiarItemsPorPagina = (nuevoLimit: number) => {
+    setItemsPorPagina(nuevoLimit);
+    setPaginaActual(1);
+  };
 
   if (loading) {
     return (
@@ -79,24 +105,19 @@ export default function GestionClientes() {
 
   return (
     <div className="space-y-6">
-      {/* Header con acciones */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Gestión de Facturas de Clientes</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Gestión de Clientes</h3>
           <p className="text-sm text-gray-500">
-            {reporteClientes?.cantidadFacturas || 0} facturas registradas desde Excel
+            {clientesData?.pagination.total || 0} clientes registrados
+            {clientesData?.pagination && (
+              <span className="ml-2 text-blue-600">
+                • Página {clientesData.pagination.page} de {clientesData.pagination.totalPages}
+                • Mostrando {clientesData.data.length} de {clientesData.pagination.total}
+              </span>
+            )}
+            {busqueda && ` • ${clientesFiltrados.length} con búsqueda local`}
           </p>
-          <p className="text-xs text-blue-600">
-            📄 Facturas del Excel sincronizadas con Colppy vía Backend
-          </p>
-          {reporteClientes && (
-            <div className="mt-2 text-xs text-gray-500">
-              <span className="font-medium">Total Facturado:</span> ${reporteClientes.totalFacturado.toLocaleString()} | 
-              <span className="font-medium ml-2">Total Cobrado:</span> ${reporteClientes.totalCobrado.toLocaleString()} | 
-              <span className="font-medium ml-2">Total Pendiente:</span> ${reporteClientes.totalPendiente.toLocaleString()} | 
-              <span className="font-medium ml-2">% Cobrado:</span> {reporteClientes.porcentajeCobrado}%
-            </div>
-          )}
         </div>
         <button
           onClick={handleSincronizarConProgress}
@@ -108,51 +129,24 @@ export default function GestionClientes() {
         </button>
       </div>
 
-      {/* Filtros de fecha */}
       <div className="card p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Desde
-            </label>
-            <input
-              type="date"
-              value={fechaDesde}
-              onChange={(e) => setFechaDesde(e.target.value)}
-              className="input"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Hasta
-            </label>
-            <input
-              type="date"
-              value={fechaHasta}
-              onChange={(e) => setFechaHasta(e.target.value)}
-              className="input"
-            />
-          </div>
-          <div className="flex items-end">
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Búsqueda
+          </label>
+          {busqueda && (
             <button
-              onClick={() => {
-                setFechaDesde('');
-                setFechaHasta('');
-              }}
-              className="btn-secondary w-full"
+              onClick={() => setBusqueda('')}
+              className="text-xs text-blue-600 hover:text-blue-800"
             >
-              Limpiar Filtros
+              🗑️ Limpiar búsqueda
             </button>
-          </div>
+          )}
         </div>
-      </div>
-
-      {/* Búsqueda */}
-      <div className="card p-4">
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar por cliente, tipo, referencia, fecha o vencimiento..."
+            placeholder="Buscar por nombre, email, CUIT, teléfono o dirección..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="input pl-10"
@@ -160,10 +154,31 @@ export default function GestionClientes() {
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span className="text-gray-400">🔍</span>
           </div>
+          {busqueda && (
+            <button
+              onClick={() => setBusqueda('')}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
         </div>
+        
+        {busqueda && (
+          <div className="mt-3">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              🔍 "{busqueda}"
+              <button
+                onClick={() => setBusqueda('')}
+                className="ml-1 text-blue-600 hover:text-blue-800"
+              >
+                ✕
+              </button>
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Tabla de clientes */}
       {clientesFiltrados.length === 0 ? (
         <div className="card p-8 text-center">
           <div className="text-gray-400 text-6xl mb-4">👥</div>
@@ -193,28 +208,25 @@ export default function GestionClientes() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente
+                    Nombre
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
+                    Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha
+                    Teléfono
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Referencia
+                    CUIT
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vencimiento
+                    Tipo Documento
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
+                    Dirección
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cobrado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Pendiente
+                    Colppy ID
                   </th>
                 </tr>
               </thead>
@@ -224,49 +236,28 @@ export default function GestionClientes() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="text-2xl mr-3">👤</div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 max-w-xs">
-                            {cliente.cliente}
-                          </div>
+                        <div className="text-sm font-medium text-gray-900 max-w-xs">
+                          {cliente.nombre}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        cliente.tipo === 'FAV-X' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : cliente.tipo === 'FAV-A'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-purple-100 text-purple-800'
-                      }`}>
-                        {cliente.tipo}
-                      </span>
+                      {cliente.email || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.fecha}
+                      {cliente.telefono || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                      {cliente.referencia}
+                      {cliente.cuit || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cliente.vencimiento}
+                      {cliente.tipoDocumento || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium">
-                        ${cliente.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </span>
+                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                      {cliente.direccion || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium text-green-600">
-                        ${cliente.cobrado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className={`font-medium ${
-                        cliente.pendiente > 0 ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                        ${cliente.pendiente.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                      {cliente.colppyId || '-'}
                     </td>
                   </tr>
                 ))}
@@ -276,13 +267,99 @@ export default function GestionClientes() {
         </div>
       )}
 
-      {/* Componente de progreso de sincronización */}
+      {clientesData?.pagination && clientesData.pagination.totalPages > 1 && (
+        <div className="card p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-gray-700">Mostrar:</label>
+                <select
+                  value={itemsPorPagina}
+                  onChange={(e) => cambiarItemsPorPagina(parseInt(e.target.value))}
+                  className="input py-1 px-2 text-sm"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+                <span className="text-sm text-gray-500">por página</span>
+              </div>
+              
+              <div className="text-sm text-gray-700">
+                Mostrando {((clientesData.pagination.page - 1) * clientesData.pagination.limit) + 1} a{' '}
+                {Math.min(clientesData.pagination.page * clientesData.pagination.limit, clientesData.pagination.total)} de{' '}
+                {clientesData.pagination.total} resultados
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => cambiarPagina(1)}
+                disabled={!clientesData.pagination.hasPrev}
+                className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ⏮️ Primera
+              </button>
+              
+              <button
+                onClick={() => cambiarPagina(paginaActual - 1)}
+                disabled={!clientesData.pagination.hasPrev}
+                className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ⬅️ Anterior
+              </button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, clientesData.pagination.totalPages) }, (_, i) => {
+                  const startPage = Math.max(1, clientesData.pagination.page - 2);
+                  const pageNum = startPage + i;
+                  
+                  if (pageNum > clientesData.pagination.totalPages) return null;
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => cambiarPagina(pageNum)}
+                      className={`px-3 py-1 text-sm rounded ${
+                        pageNum === clientesData.pagination.page
+                          ? 'bg-blue-600 text-white'
+                          : 'btn-secondary'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => cambiarPagina(paginaActual + 1)}
+                disabled={!clientesData.pagination.hasNext}
+                className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Siguiente ➡️
+              </button>
+              
+              <button
+                onClick={() => cambiarPagina(clientesData.pagination.totalPages)}
+                disabled={!clientesData.pagination.hasNext}
+                className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Última ⏭️
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showProgress && (
         <ColppyProgress 
           scope="clientes"
           onComplete={() => {
             setShowProgress(false);
             toast.success('Sincronización completada');
+            cargarClientes();
           }}
           onError={(error) => {
             toast.error(`Error: ${error}`);

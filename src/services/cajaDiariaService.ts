@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor, ProveedoresResponse, MovimientosResponse } from '@/types/cajaDiaria';
+import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor, ProveedoresResponse, ClientesResponse, MovimientosResponse } from '@/types/cajaDiaria';
 import { reportesService } from './reportesService';
 
 export class CajaDiariaService {
@@ -105,6 +105,31 @@ export class CajaDiariaService {
     } catch (error) {
       console.error('Error obteniendo clientes:', error);
       return [];
+    }
+  }
+
+  async obtenerClientesConPaginacion(page: number = 1, limit: number = 20): Promise<ClientesResponse> {
+    try {
+      const response = await apiClient<ClientesResponse>(
+        'caja-diaria/clientes',
+        { method: 'GET' },
+        { page: String(page), limit: String(limit) }
+      );
+      
+      return response;
+    } catch (error) {
+      console.error('Error obteniendo clientes con paginación:', error);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        }
+      };
     }
   }
 
