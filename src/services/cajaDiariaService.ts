@@ -1,13 +1,13 @@
 import { apiClient } from './apiClient';
-import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor } from '@/types/cajaDiaria';
+import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor, ProveedoresResponse, MovimientosResponse } from '@/types/cajaDiaria';
 import { reportesService } from './reportesService';
 
 export class CajaDiariaService {
   async obtenerMovimientos(filtros?: FiltrosCaja): Promise<MovimientoCaja[]> {
     try {
       const params: Record<string, string> = {};
-      if (filtros?.fechaDesde) params.fechaInicio = filtros.fechaDesde;
-      if (filtros?.fechaHasta) params.fechaFin = filtros.fechaHasta;
+      if (filtros?.fechaDesde) params.fechaDesde = filtros.fechaDesde;
+      if (filtros?.fechaHasta) params.fechaHasta = filtros.fechaHasta;
       if (filtros?.tipo && filtros.tipo !== 'todos') params.tipo = filtros.tipo;
       if (filtros?.clienteId) params.clienteId = filtros.clienteId;
       if (filtros?.proveedorId) params.proveedorId = filtros.proveedorId;
@@ -23,6 +23,43 @@ export class CajaDiariaService {
     } catch (error) {
       console.error('Error obteniendo movimientos:', error);
       return [];
+    }
+  }
+
+  async obtenerMovimientosConPaginacion(
+    filtros?: FiltrosCaja & { page?: number; limit?: number }
+  ): Promise<MovimientosResponse> {
+    try {
+      const params: Record<string, string> = {};
+      if (filtros?.fechaDesde) params.fechaDesde = filtros.fechaDesde;
+      if (filtros?.fechaHasta) params.fechaHasta = filtros.fechaHasta;
+      if (filtros?.tipo && filtros.tipo !== 'todos') params.tipo = filtros.tipo;
+      if (filtros?.clienteId) params.clienteId = filtros.clienteId;
+      if (filtros?.proveedorId) params.proveedorId = filtros.proveedorId;
+      if (filtros?.metodoPago) params.metodoPago = filtros.metodoPago;
+      if (filtros?.page) params.page = String(filtros.page);
+      if (filtros?.limit) params.limit = String(filtros.limit);
+
+      const response = await apiClient<MovimientosResponse>(
+        'caja-diaria/movimientos',
+        { method: 'GET' },
+        params
+      );
+
+      return response;
+    } catch (error) {
+      console.error('Error obteniendo movimientos con paginación:', error);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        }
+      };
     }
   }
 
@@ -87,6 +124,31 @@ export class CajaDiariaService {
     } catch (error) {
       console.error('Error obteniendo proveedores:', error);
       return [];
+    }
+  }
+
+  async obtenerProveedoresConPaginacion(page: number = 1, limit: number = 20): Promise<ProveedoresResponse> {
+    try {
+      const response = await apiClient<ProveedoresResponse>(
+        'caja-diaria/proveedores',
+        { method: 'GET' },
+        { page: String(page), limit: String(limit) }
+      );
+      
+      return response;
+    } catch (error) {
+      console.error('Error obteniendo proveedores con paginación:', error);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        }
+      };
     }
   }
 

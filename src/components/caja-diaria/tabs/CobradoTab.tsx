@@ -1,81 +1,63 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MovimientoCaja, FiltrosCaja as FiltrosCajaType } from '@/types/cajaDiaria';
+import { MovimientoCaja, MovimientosResponse } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { formatCurrency } from '@/lib/utils';
 import MovimientosTable from '../MovimientosTable';
-import FiltrosCaja from '../FiltrosCaja';
-import MovimientoForm from '../MovimientoForm';
+import { toast } from 'sonner';
 
 export default function CobradoTab() {
-  const [reporteCobrado, setReporteCobrado] = useState<any>(null);
+  const [movimientosData, setMovimientosData] = useState<MovimientosResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [movimientoEditando, setMovimientoEditando] = useState<MovimientoCaja | undefined>();
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
+  const [clienteId, setClienteId] = useState<string>('');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [itemsPorPagina, setItemsPorPagina] = useState(20);
 
   useEffect(() => {
-    cargarReporteCobrado();
-  }, [fechaDesde, fechaHasta]);
+    cargarMovimientos();
+  }, [fechaDesde, fechaHasta, clienteId, paginaActual, itemsPorPagina]);
 
-  const cargarReporteCobrado = async () => {
+  const cargarMovimientos = async () => {
     try {
       setLoading(true);
-      const reporteData = await cajaDiariaService.obtenerReporteCobrado(fechaDesde, fechaHasta);
-      setReporteCobrado(reporteData);
+      const data = await cajaDiariaService.obtenerMovimientosConPaginacion({
+        tipo: 'ingreso',
+        fechaDesde: fechaDesde || undefined,
+        fechaHasta: fechaHasta || undefined,
+        clienteId: clienteId || undefined,
+        page: paginaActual,
+        limit: itemsPorPagina
+      });
+      setMovimientosData(data);
     } catch (error) {
-      console.error('Error al cargar reporte de cobrado:', error);
+      console.error('Error al cargar movimientos de cobrado:', error);
+      toast.error('Error al cargar los movimientos');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleNuevoMovimiento = () => {
-    setMovimientoEditando(undefined);
-    setMostrarFormulario(true);
+  const cambiarPagina = (nuevaPagina: number) => {
+    setPaginaActual(nuevaPagina);
   };
 
-  const handleEditarMovimiento = (movimiento: MovimientoCaja) => {
-    setMovimientoEditando(movimiento);
-    setMostrarFormulario(true);
+  const cambiarItemsPorPagina = (nuevoLimit: number) => {
+    setItemsPorPagina(nuevoLimit);
+    setPaginaActual(1);
   };
 
-  const handleFormularioSuccess = () => {
-    setMostrarFormulario(false);
-    setMovimientoEditando(undefined);
-    cargarReporteCobrado();
-  };
-
-  const handleFormularioCancel = () => {
-    setMostrarFormulario(false);
-    setMovimientoEditando(undefined);
-  };
-
-  const handleExportar = async () => {
-    try {
-      const filtros = { fechaDesde, fechaHasta };
-      const blob = await cajaDiariaService.exportarExcel(filtros);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cobros-${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error al exportar:', error);
-    }
-  };
+  const totalCobrado = movimientosData?.data.reduce((sum, m) => sum + m.monto, 0) || 0;
+  const cantidadMovimientos = movimientosData?.pagination.total || 0;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando reporte de cobrado...</p>
+          <p className="text-gray-600">Cargando movimientos de cobrado...</p>
         </div>
       </div>
     );
@@ -83,9 +65,8 @@ export default function CobradoTab() {
 
   return (
     <div className="space-y-6">
-      {/* Filtros de fecha */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha Desde
@@ -108,11 +89,24 @@ export default function CobradoTab() {
               className="input"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cliente ID (opcional)
+            </label>
+            <input
+              type="text"
+              value={clienteId}
+              onChange={(e) => setClienteId(e.target.value)}
+              placeholder="UUID del cliente"
+              className="input"
+            />
+          </div>
           <div className="flex items-end">
             <button
               onClick={() => {
                 setFechaDesde('');
                 setFechaHasta('');
+                setClienteId('');
               }}
               className="btn-secondary w-full"
             >
@@ -122,99 +116,126 @@ export default function CobradoTab() {
         </div>
       </div>
 
-      {/* Estadísticas principales */}
-      {reporteCobrado && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Total Cobrado</div>
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(reporteCobrado.totalCobrado)}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Total Facturado</div>
-            <div className="text-2xl font-bold text-blue-600">
-              {formatCurrency(reporteCobrado.totalFacturado)}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Cantidad Facturas</div>
-            <div className="text-2xl font-bold text-purple-600">
-              {reporteCobrado.cantidadFacturas}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">% Cobrado</div>
-            <div className="text-2xl font-bold text-orange-600">
-              {reporteCobrado.porcentajeCobrado}%
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500">Total Cobrado</div>
+          <div className="text-2xl font-bold text-green-600">
+            {formatCurrency(totalCobrado)}
           </div>
         </div>
-      )}
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500">Cantidad de Movimientos</div>
+          <div className="text-2xl font-bold text-purple-600">
+            {cantidadMovimientos}
+          </div>
+        </div>
+      </div>
 
-      {/* Tabla de clientes con cobros */}
-      {reporteCobrado && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-            <h3 className="text-lg font-semibold text-gray-900">Clientes con Cobros</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Cobrado
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Facturado
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Facturas
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {reporteCobrado.clientes
-                  .sort((a: any, b: any) => b.totalCobrado - a.totalCobrado)
-                  .map((cliente: any, index: number) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {cliente.cliente}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-green-600 text-right font-mono font-semibold">
-                        {formatCurrency(cliente.totalCobrado)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-blue-600 text-right font-mono">
-                        {formatCurrency(cliente.totalFacturado)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 text-right">
-                        {cliente.cantidadFacturas}
-                      </td>
-                      <td className="px-4 py-3 text-center">
+      {movimientosData && movimientosData.data.length > 0 ? (
+        <>
+          <MovimientosTable
+            movimientos={movimientosData.data}
+            onEdit={() => {}}
+            onRefresh={cargarMovimientos}
+          />
+
+          {movimientosData.pagination.totalPages > 1 && (
+            <div className="card p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-gray-700">Mostrar:</label>
+                    <select
+                      value={itemsPorPagina}
+                      onChange={(e) => cambiarItemsPorPagina(parseInt(e.target.value))}
+                      className="input py-1 px-2 text-sm"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                    <span className="text-sm text-gray-500">por página</span>
+                  </div>
+                  
+                  <div className="text-sm text-gray-700">
+                    Mostrando {((movimientosData.pagination.page - 1) * movimientosData.pagination.limit) + 1} a{' '}
+                    {Math.min(movimientosData.pagination.page * movimientosData.pagination.limit, movimientosData.pagination.total)} de{' '}
+                    {movimientosData.pagination.total} resultados
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => cambiarPagina(1)}
+                    disabled={!movimientosData.pagination.hasPrev}
+                    className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ⏮️ Primera
+                  </button>
+                  
+                  <button
+                    onClick={() => cambiarPagina(paginaActual - 1)}
+                    disabled={!movimientosData.pagination.hasPrev}
+                    className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ⬅️ Anterior
+                  </button>
+
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, movimientosData.pagination.totalPages) }, (_, i) => {
+                      const startPage = Math.max(1, movimientosData.pagination.page - 2);
+                      const pageNum = startPage + i;
+                      
+                      if (pageNum > movimientosData.pagination.totalPages) return null;
+                      
+                      return (
                         <button
-                          onClick={() => {
-                            // Aquí podrías abrir un modal con los detalles del cliente
-                            console.log('Ver detalles de:', cliente.cliente);
-                          }}
-                          className="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded hover:bg-blue-50"
+                          key={pageNum}
+                          onClick={() => cambiarPagina(pageNum)}
+                          className={`px-3 py-1 text-sm rounded ${
+                            pageNum === movimientosData.pagination.page
+                              ? 'bg-blue-600 text-white'
+                              : 'btn-secondary'
+                          }`}
                         >
-                          Ver Detalles
+                          {pageNum}
                         </button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => cambiarPagina(paginaActual + 1)}
+                    disabled={!movimientosData.pagination.hasNext}
+                    className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Siguiente ➡️
+                  </button>
+                  
+                  <button
+                    onClick={() => cambiarPagina(movimientosData.pagination.totalPages)}
+                    disabled={!movimientosData.pagination.hasNext}
+                    className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Última ⏭️
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="card p-8 text-center">
+          <div className="text-gray-400 text-6xl mb-4">📊</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No hay movimientos de cobrado
+          </h3>
+          <p className="text-gray-500">
+            No se encontraron ingresos para los filtros seleccionados.
+          </p>
         </div>
       )}
     </div>
   );
 }
-

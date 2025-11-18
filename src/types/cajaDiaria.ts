@@ -28,11 +28,14 @@ export interface MovimientoCaja {
   tipo: 'ingreso' | 'egreso';
   concepto: string;
   monto: number;
-  clienteId?: string;
-  proveedorId?: string;
+  clienteId?: string | null;
+  proveedorId?: string | null;
   cliente?: Cliente;
   proveedor?: Proveedor;
   metodoPago: 'efectivo' | 'transferencia' | 'cheque' | 'tarjeta' | 'pendiente';
+  estado?: string;
+  numeroComprobante?: string | null;
+  colppyId?: string | null;
   observaciones?: string;
   usuario: string;
   createdAt: string;
@@ -68,4 +71,35 @@ export interface ColppyApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+}
+
+export interface ProveedorEntity {
+  id: string;
+  nombre: string;
+  email: string | null;
+  telefono: string | null;
+  direccion: string | null;
+  cuit: string | null;
+  tipoDocumento: string | null;
+  numeroDocumento: string | null;
+  colppyId: string | null;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface ProveedoresResponse {
+  data: ProveedorEntity[];
+  pagination: PaginationInfo;
+}
+
+export interface MovimientosResponse {
+  data: MovimientoCaja[];
+  pagination: PaginationInfo;
 }
