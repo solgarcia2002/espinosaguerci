@@ -29,7 +29,9 @@ export default function CobradoTab() {
         fechaHasta: fechaHasta || undefined,
         clienteId: clienteId || undefined,
         page: paginaActual,
-        limit: itemsPorPagina
+        limit: itemsPorPagina,
+        orderBy: 'fecha',
+        order: 'desc'
       });
       setMovimientosData(data);
     } catch (error) {

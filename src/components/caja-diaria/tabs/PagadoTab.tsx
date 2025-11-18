@@ -29,7 +29,9 @@ export default function PagadoTab() {
         fechaHasta: fechaHasta || undefined,
         proveedorId: proveedorId || undefined,
         page: paginaActual,
-        limit: itemsPorPagina
+        limit: itemsPorPagina,
+        orderBy: 'fecha',
+        order: 'desc'
       });
       setMovimientosData(data);
     } catch (error) {

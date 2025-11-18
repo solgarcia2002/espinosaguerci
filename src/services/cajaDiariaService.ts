@@ -27,7 +27,7 @@ export class CajaDiariaService {
   }
 
   async obtenerMovimientosConPaginacion(
-    filtros?: FiltrosCaja & { page?: number; limit?: number }
+    filtros?: FiltrosCaja & { page?: number; limit?: number; orderBy?: string; order?: 'asc' | 'desc' }
   ): Promise<MovimientosResponse> {
     try {
       const params: Record<string, string> = {};
@@ -39,6 +39,8 @@ export class CajaDiariaService {
       if (filtros?.metodoPago) params.metodoPago = filtros.metodoPago;
       if (filtros?.page) params.page = String(filtros.page);
       if (filtros?.limit) params.limit = String(filtros.limit);
+      if (filtros?.orderBy) params.orderBy = filtros.orderBy;
+      if (filtros?.order) params.order = filtros.order;
 
       const response = await apiClient<MovimientosResponse>(
         'caja-diaria/movimientos',
