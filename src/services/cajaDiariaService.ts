@@ -113,7 +113,7 @@ export class CajaDiariaService {
       const response = await apiClient<ClientesResponse>(
         'caja-diaria/clientes',
         { method: 'GET' },
-        { page: String(page), limit: String(limit) }
+        { page, limit, orderBy: 'saldo', order: 'desc' }
       );
       
       return response;
@@ -157,7 +157,7 @@ export class CajaDiariaService {
       const response = await apiClient<ProveedoresResponse>(
         'caja-diaria/proveedores',
         { method: 'GET' },
-        { page: String(page), limit: String(limit) }
+        { page, limit, orderBy: 'saldo', order: 'desc' }
       );
       
       return response;

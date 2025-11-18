@@ -73,23 +73,15 @@ export default function GestionClientes() {
     }
   };
 
-  const clientesFiltrados = (() => {
-    const filtrados = busqueda 
-      ? (clientesData?.data || []).filter(cliente =>
-          cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-          (cliente.email && cliente.email.toLowerCase().includes(busqueda.toLowerCase())) ||
-          (cliente.cuit && cliente.cuit.includes(busqueda)) ||
-          (cliente.telefono && cliente.telefono.includes(busqueda)) ||
-          (cliente.direccion && cliente.direccion.toLowerCase().includes(busqueda.toLowerCase()))
-        )
-      : (clientesData?.data || []);
-    
-    return [...filtrados].sort((a, b) => {
-      const saldoA = a.saldo ?? 0;
-      const saldoB = b.saldo ?? 0;
-      return saldoB - saldoA;
-    });
-  })();
+  const clientesFiltrados = busqueda 
+    ? (clientesData?.data || []).filter(cliente =>
+        cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        (cliente.email && cliente.email.toLowerCase().includes(busqueda.toLowerCase())) ||
+        (cliente.cuit && cliente.cuit.includes(busqueda)) ||
+        (cliente.telefono && cliente.telefono.includes(busqueda)) ||
+        (cliente.direccion && cliente.direccion.toLowerCase().includes(busqueda.toLowerCase()))
+      )
+    : (clientesData?.data || []);
 
   const cambiarPagina = (nuevaPagina: number) => {
     setPaginaActual(nuevaPagina);
