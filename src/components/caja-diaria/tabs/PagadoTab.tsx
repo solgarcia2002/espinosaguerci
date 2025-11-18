@@ -65,27 +65,43 @@ export default function PagadoTab() {
     setPaginaActual(1);
   };
 
+  const obtenerFechasPorDefecto = () => {
+    const hoy = new Date();
+    const mesAnterior = new Date(hoy);
+    mesAnterior.setMonth(hoy.getMonth() - 1);
+    
+    const fechaHastaDefault = hoy.toISOString().split('T')[0];
+    const fechaDesdeDefault = mesAnterior.toISOString().split('T')[0];
+    
+    return {
+      fechaDesde: fechaDesde || fechaDesdeDefault,
+      fechaHasta: fechaHasta || fechaHastaDefault
+    };
+  };
+
   const sincronizarMovimientos = async () => {
     try {
       setSincronizando(true);
       setShowProgress(true);
       
-      const resultado = await colppyService.sincronizarMovimientos({
-        fechaDesde: fechaDesde || undefined,
-        fechaHasta: fechaHasta || undefined,
+      const fechas = obtenerFechasPorDefecto();
+      
+      const resultado = await colppyService.sincronizarFacturasProveedores({
+        fechaDesde: fechas.fechaDesde,
+        fechaHasta: fechas.fechaHasta,
         email: 'matiespinosa05@gmail.com',
         password: 'Mati.46939'
       });
 
       if (resultado.success) {
-        toast.success('Movimientos sincronizados correctamente');
+        toast.success('Facturas de proveedores sincronizadas correctamente');
         await cargarMovimientos();
       } else {
-        toast.error(resultado.message || 'Error al sincronizar movimientos');
+        toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
       }
     } catch (error) {
-      console.error('Error sincronizando movimientos:', error);
-      toast.error('Error al sincronizar movimientos');
+      console.error('Error sincronizando facturas de proveedores:', error);
+      toast.error('Error al sincronizar facturas de proveedores');
     } finally {
       setSincronizando(false);
       setTimeout(() => setShowProgress(false), 2000);

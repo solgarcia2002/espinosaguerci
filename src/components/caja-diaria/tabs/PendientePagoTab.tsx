@@ -3,16 +3,21 @@
 import { useState, useEffect } from 'react';
 import { MovimientoCaja, FiltrosCaja as FiltrosCajaType } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import MovimientosTable from '../MovimientosTable';
 import FiltrosCaja from '../FiltrosCaja';
 import MovimientoForm from '../MovimientoForm';
+import { toast } from 'sonner';
+import ColppyProgress from '@/components/ColppyProgress';
 
 export default function PendientePagoTab() {
   const [reportePendientePago, setReportePendientePago] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [movimientoEditando, setMovimientoEditando] = useState<MovimientoCaja | undefined>();
+  const [sincronizando, setSincronizando] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
 
   useEffect(() => {
     cargarReportePendientePago();
@@ -68,6 +73,49 @@ export default function PendientePagoTab() {
     }
   };
 
+  const obtenerFechasPorDefecto = () => {
+    const hoy = new Date();
+    const mesAnterior = new Date(hoy);
+    mesAnterior.setMonth(hoy.getMonth() - 1);
+    
+    const fechaHastaDefault = hoy.toISOString().split('T')[0];
+    const fechaDesdeDefault = mesAnterior.toISOString().split('T')[0];
+    
+    return {
+      fechaDesde: fechaDesdeDefault,
+      fechaHasta: fechaHastaDefault
+    };
+  };
+
+  const sincronizarFacturasProveedores = async () => {
+    try {
+      setSincronizando(true);
+      setShowProgress(true);
+      
+      const fechas = obtenerFechasPorDefecto();
+      
+      const resultado = await colppyService.sincronizarFacturasProveedores({
+        fechaDesde: fechas.fechaDesde,
+        fechaHasta: fechas.fechaHasta,
+        email: 'matiespinosa05@gmail.com',
+        password: 'Mati.46939'
+      });
+
+      if (resultado.success) {
+        toast.success('Facturas de proveedores sincronizadas correctamente');
+        await cargarReportePendientePago();
+      } else {
+        toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
+      }
+    } catch (error) {
+      console.error('Error sincronizando facturas de proveedores:', error);
+      toast.error('Error al sincronizar facturas de proveedores');
+    } finally {
+      setSincronizando(false);
+      setTimeout(() => setShowProgress(false), 2000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -81,6 +129,31 @@ export default function PendientePagoTab() {
 
   return (
     <div className="space-y-6">
+      {showProgress && (
+        <ColppyProgress
+          scope="facturas"
+          onComplete={() => {
+            setShowProgress(false);
+            cargarReportePendientePago();
+          }}
+          onError={() => {
+            setShowProgress(false);
+          }}
+        />
+      )}
+      
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Pendientes de Pago</h3>
+        <button
+          onClick={sincronizarFacturasProveedores}
+          disabled={sincronizando}
+          className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+        >
+          <span>🔄</span>
+          <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
+        </button>
+      </div>
+
       {/* Estadísticas principales */}
       {reportePendientePago && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
