@@ -91,18 +91,6 @@ export default function CobradoTab() {
               className="input"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cliente ID (opcional)
-            </label>
-            <input
-              type="text"
-              value={clienteId}
-              onChange={(e) => setClienteId(e.target.value)}
-              placeholder="UUID del cliente"
-              className="input"
-            />
-          </div>
           <div className="flex items-end">
             <button
               onClick={() => {

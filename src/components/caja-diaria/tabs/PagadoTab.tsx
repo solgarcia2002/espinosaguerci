@@ -91,18 +91,6 @@ export default function PagadoTab() {
               className="input"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Proveedor ID (opcional)
-            </label>
-            <input
-              type="text"
-              value={proveedorId}
-              onChange={(e) => setProveedorId(e.target.value)}
-              placeholder="UUID del proveedor"
-              className="input"
-            />
-          </div>
           <div className="flex items-end">
             <button
               onClick={() => {
