@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { MovimientoCaja, MovimientosResponse } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import MovimientosTable from '../MovimientosTable';
 import { toast } from 'sonner';
+import ColppyProgress from '@/components/ColppyProgress';
 
 export default function PagadoTab() {
   const [movimientosData, setMovimientosData] = useState<MovimientosResponse | null>(null);
@@ -17,6 +19,8 @@ export default function PagadoTab() {
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [orderBy, setOrderBy] = useState<'fecha' | 'monto'>('fecha');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
+  const [sincronizando, setSincronizando] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
 
   useEffect(() => {
     cargarMovimientos();
@@ -61,6 +65,31 @@ export default function PagadoTab() {
     setPaginaActual(1);
   };
 
+  const sincronizarMovimientos = async () => {
+    try {
+      setSincronizando(true);
+      setShowProgress(true);
+      
+      const resultado = await colppyService.sincronizarMovimientos({
+        fechaDesde: fechaDesde || undefined,
+        fechaHasta: fechaHasta || undefined
+      });
+
+      if (resultado.success) {
+        toast.success('Movimientos sincronizados correctamente');
+        await cargarMovimientos();
+      } else {
+        toast.error(resultado.message || 'Error al sincronizar movimientos');
+      }
+    } catch (error) {
+      console.error('Error sincronizando movimientos:', error);
+      toast.error('Error al sincronizar movimientos');
+    } finally {
+      setSincronizando(false);
+      setTimeout(() => setShowProgress(false), 2000);
+    }
+  };
+
   const totalPagado = movimientosData?.data.reduce((sum, m) => sum + m.monto, 0) || 0;
   const cantidadMovimientos = movimientosData?.pagination.total || 0;
 
@@ -77,7 +106,31 @@ export default function PagadoTab() {
 
   return (
     <div className="space-y-6">
+      {showProgress && (
+        <ColppyProgress
+          scope="movimientos"
+          onComplete={() => {
+            setShowProgress(false);
+            cargarMovimientos();
+          }}
+          onError={() => {
+            setShowProgress(false);
+          }}
+        />
+      )}
+      
       <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Movimientos Pagados</h3>
+          <button
+            onClick={sincronizarMovimientos}
+            disabled={sincronizando}
+            className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+          >
+            <span>🔄</span>
+            <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
