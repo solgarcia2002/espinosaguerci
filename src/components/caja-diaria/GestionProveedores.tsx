@@ -73,7 +73,7 @@ export default function GestionProveedores() {
     }
   };
 
-  const proveedoresFiltrados = busqueda 
+  const proveedoresFiltrados = (busqueda 
     ? (proveedoresData?.data || []).filter(proveedor =>
         proveedor.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         (proveedor.email && proveedor.email.toLowerCase().includes(busqueda.toLowerCase())) ||
@@ -81,7 +81,12 @@ export default function GestionProveedores() {
         (proveedor.telefono && proveedor.telefono.includes(busqueda)) ||
         (proveedor.direccion && proveedor.direccion.toLowerCase().includes(busqueda.toLowerCase()))
       )
-    : (proveedoresData?.data || []);
+    : (proveedoresData?.data || [])
+  ).sort((a, b) => {
+    const saldoA = a.saldo ?? 0;
+    const saldoB = b.saldo ?? 0;
+    return saldoB - saldoA;
+  });
 
   const cambiarPagina = (nuevaPagina: number) => {
     setPaginaActual(nuevaPagina);

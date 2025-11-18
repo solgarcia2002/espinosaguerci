@@ -73,7 +73,7 @@ export default function GestionClientes() {
     }
   };
 
-  const clientesFiltrados = busqueda 
+  const clientesFiltrados = (busqueda 
     ? (clientesData?.data || []).filter(cliente =>
         cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         (cliente.email && cliente.email.toLowerCase().includes(busqueda.toLowerCase())) ||
@@ -81,7 +81,12 @@ export default function GestionClientes() {
         (cliente.telefono && cliente.telefono.includes(busqueda)) ||
         (cliente.direccion && cliente.direccion.toLowerCase().includes(busqueda.toLowerCase()))
       )
-    : (clientesData?.data || []);
+    : (clientesData?.data || [])
+  ).sort((a, b) => {
+    const saldoA = a.saldo ?? 0;
+    const saldoB = b.saldo ?? 0;
+    return saldoB - saldoA;
+  });
 
   const cambiarPagina = (nuevaPagina: number) => {
     setPaginaActual(nuevaPagina);
