@@ -15,6 +15,8 @@ export default function PagadoTab() {
   const [proveedorId, setProveedorId] = useState<string>('');
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
+  const [orderBy, setOrderBy] = useState<'fecha' | 'monto'>('fecha');
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     cargarMovimientos();
@@ -29,9 +31,7 @@ export default function PagadoTab() {
         fechaHasta: fechaHasta || undefined,
         proveedorId: proveedorId || undefined,
         page: paginaActual,
-        limit: itemsPorPagina,
-        orderBy: 'fecha',
-        order: 'desc'
+        limit: itemsPorPagina
       });
       setMovimientosData(data);
     } catch (error) {
@@ -41,6 +41,16 @@ export default function PagadoTab() {
       setLoading(false);
     }
   };
+
+  const movimientosOrdenados = movimientosData?.data ? [...movimientosData.data].sort((a, b) => {
+    if (orderBy === 'fecha') {
+      const fechaA = new Date(a.fecha).getTime();
+      const fechaB = new Date(b.fecha).getTime();
+      return order === 'desc' ? fechaB - fechaA : fechaA - fechaB;
+    } else {
+      return order === 'desc' ? b.monto - a.monto : a.monto - b.monto;
+    }
+  }) : [];
 
   const cambiarPagina = (nuevaPagina: number) => {
     setPaginaActual(nuevaPagina);
@@ -68,7 +78,7 @@ export default function PagadoTab() {
   return (
     <div className="space-y-6">
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha Desde
@@ -91,12 +101,40 @@ export default function PagadoTab() {
               className="input"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ordenar por
+            </label>
+            <select
+              value={orderBy}
+              onChange={(e) => setOrderBy(e.target.value as 'fecha' | 'monto')}
+              className="input"
+            >
+              <option value="fecha">Fecha</option>
+              <option value="monto">Importe</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Dirección
+            </label>
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value as 'asc' | 'desc')}
+              className="input"
+            >
+              <option value="desc">Descendente</option>
+              <option value="asc">Ascendente</option>
+            </select>
+          </div>
           <div className="flex items-end">
             <button
               onClick={() => {
                 setFechaDesde('');
                 setFechaHasta('');
                 setProveedorId('');
+                setOrderBy('fecha');
+                setOrder('desc');
               }}
               className="btn-secondary w-full"
             >
@@ -121,10 +159,10 @@ export default function PagadoTab() {
         </div>
       </div>
 
-      {movimientosData && movimientosData.data.length > 0 ? (
+      {movimientosData && movimientosOrdenados.length > 0 ? (
         <>
           <MovimientosTable
-            movimientos={movimientosData.data}
+            movimientos={movimientosOrdenados}
             onEdit={() => {}}
             onRefresh={cargarMovimientos}
           />

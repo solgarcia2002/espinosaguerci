@@ -39,8 +39,6 @@ export class CajaDiariaService {
       if (filtros?.metodoPago) params.metodoPago = filtros.metodoPago;
       if (filtros?.page) params.page = String(filtros.page);
       if (filtros?.limit) params.limit = String(filtros.limit);
-      if (filtros?.orderBy) params.orderBy = filtros.orderBy;
-      if (filtros?.order) params.order = filtros.order;
 
       const response = await apiClient<MovimientosResponse>(
         'caja-diaria/movimientos',
