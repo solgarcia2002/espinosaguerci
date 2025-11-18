@@ -72,7 +72,9 @@ export default function PagadoTab() {
       
       const resultado = await colppyService.sincronizarMovimientos({
         fechaDesde: fechaDesde || undefined,
-        fechaHasta: fechaHasta || undefined
+        fechaHasta: fechaHasta || undefined,
+        email: 'matiespinosa05@gmail.com',
+        password: 'Mati.46939'
       });
 
       if (resultado.success) {
