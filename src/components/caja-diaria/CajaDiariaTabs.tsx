@@ -124,18 +124,7 @@ export default function CajaDiariaTabs({
 
   return (
     <div>
-      {/* Selector de Mes */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
-        <SelectorMes
-          mesSeleccionado={mesSeleccionado}
-          onMesChange={(mes) => {
-            setMesSeleccionado(mes);
-            onFiltrosChange({ ...filtros, mes });
-          }}
-        />
-      </div>
-
-      {/* Tab Navigation */}
+     
       <div className="border-b border-gray-200 mb-6">
         <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => (
