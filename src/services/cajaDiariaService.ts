@@ -152,12 +152,28 @@ export class CajaDiariaService {
     }
   }
 
-  async obtenerProveedoresConPaginacion(page: number = 1, limit: number = 20): Promise<ProveedoresResponse> {
+  async obtenerProveedoresConPaginacion(
+    page: number = 1, 
+    limit: number = 20, 
+    estadoPago?: string,
+    fechaDesde?: string,
+    fechaHasta?: string
+  ): Promise<ProveedoresResponse> {
     try {
+      const params: Record<string, string> = { 
+        page: String(page), 
+        limit: String(limit), 
+        orderBy: 'saldo', 
+        order: 'desc' 
+      };
+      if (estadoPago) params.estadoPago = estadoPago;
+      if (fechaDesde) params.fechaDesde = fechaDesde;
+      if (fechaHasta) params.fechaHasta = fechaHasta;
+      
       const response = await apiClient<ProveedoresResponse>(
         'caja-diaria/proveedores',
         { method: 'GET' },
-        { page, limit, orderBy: 'saldo', order: 'desc' }
+        params
       );
       
       return response;

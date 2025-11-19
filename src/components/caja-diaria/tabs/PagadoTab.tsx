@@ -1,60 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MovimientoCaja, MovimientosResponse } from '@/types/cajaDiaria';
+import { ProveedoresResponse, ProveedorEntity } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
-import MovimientosTable from '../MovimientosTable';
 import { toast } from 'sonner';
 import ColppyProgress from '@/components/ColppyProgress';
 
 export default function PagadoTab() {
-  const [movimientosData, setMovimientosData] = useState<MovimientosResponse | null>(null);
+  const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
-  const [proveedorId, setProveedorId] = useState<string>('');
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
-  const [orderBy, setOrderBy] = useState<'fecha' | 'monto'>('fecha');
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [sincronizando, setSincronizando] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    cargarMovimientos();
-  }, [fechaDesde, fechaHasta, proveedorId, paginaActual, itemsPorPagina]);
+    cargarProveedores();
+  }, [fechaDesde, fechaHasta, paginaActual, itemsPorPagina]);
 
-  const cargarMovimientos = async () => {
+  const cargarProveedores = async () => {
     try {
       setLoading(true);
-      const data = await cajaDiariaService.obtenerMovimientosConPaginacion({
-        tipo: 'egreso',
-        fechaDesde: fechaDesde || undefined,
-        fechaHasta: fechaHasta || undefined,
-        proveedorId: proveedorId || undefined,
-        page: paginaActual,
-        limit: itemsPorPagina
-      });
-      setMovimientosData(data);
+      const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
+        paginaActual,
+        itemsPorPagina,
+        'pagado',
+        fechaDesde || undefined,
+        fechaHasta || undefined
+      );
+      setProveedoresData(data);
     } catch (error) {
-      console.error('Error al cargar movimientos de pagado:', error);
-      toast.error('Error al cargar los movimientos');
+      console.error('Error al cargar proveedores pagados:', error);
+      toast.error('Error al cargar los proveedores');
     } finally {
       setLoading(false);
     }
   };
-
-  const movimientosOrdenados = movimientosData?.data ? [...movimientosData.data].sort((a, b) => {
-    if (orderBy === 'fecha') {
-      const fechaA = new Date(a.fecha).getTime();
-      const fechaB = new Date(b.fecha).getTime();
-      return order === 'desc' ? fechaB - fechaA : fechaA - fechaB;
-    } else {
-      return order === 'desc' ? b.monto - a.monto : a.monto - b.monto;
-    }
-  }) : [];
 
   const cambiarPagina = (nuevaPagina: number) => {
     setPaginaActual(nuevaPagina);
@@ -79,7 +65,7 @@ export default function PagadoTab() {
     };
   };
 
-  const sincronizarMovimientos = async () => {
+  const sincronizarFacturasProveedores = async () => {
     try {
       setSincronizando(true);
       setShowProgress(true);
@@ -95,7 +81,7 @@ export default function PagadoTab() {
 
       if (resultado.success) {
         toast.success('Facturas de proveedores sincronizadas correctamente');
-        await cargarMovimientos();
+        await cargarProveedores();
       } else {
         toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
       }
@@ -108,15 +94,25 @@ export default function PagadoTab() {
     }
   };
 
-  const totalPagado = movimientosData?.data.reduce((sum, m) => sum + m.monto, 0) || 0;
-  const cantidadMovimientos = movimientosData?.pagination.total || 0;
+  const proveedoresFiltrados = busqueda 
+    ? (proveedoresData?.data || []).filter(proveedor =>
+        proveedor.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        (proveedor.email && proveedor.email.toLowerCase().includes(busqueda.toLowerCase())) ||
+        (proveedor.cuit && proveedor.cuit.includes(busqueda)) ||
+        (proveedor.telefono && proveedor.telefono.includes(busqueda)) ||
+        (proveedor.direccion && proveedor.direccion.toLowerCase().includes(busqueda.toLowerCase()))
+      )
+    : (proveedoresData?.data || []);
+
+  const totalSaldo = proveedoresFiltrados.reduce((sum, p) => sum + (p.saldo || 0), 0);
+  const cantidadProveedores = proveedoresData?.pagination.total || 0;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando movimientos de pagado...</p>
+          <p className="text-gray-600">Cargando proveedores pagados...</p>
         </div>
       </div>
     );
@@ -126,10 +122,10 @@ export default function PagadoTab() {
     <div className="space-y-6">
       {showProgress && (
         <ColppyProgress
-          scope="movimientos"
+          scope="facturas"
           onComplete={() => {
             setShowProgress(false);
-            cargarMovimientos();
+            cargarProveedores();
           }}
           onError={() => {
             setShowProgress(false);
@@ -139,9 +135,9 @@ export default function PagadoTab() {
       
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Movimientos Pagados</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Proveedores Pagados</h3>
           <button
-            onClick={sincronizarMovimientos}
+            onClick={sincronizarFacturasProveedores}
             disabled={sincronizando}
             className="btn-primary flex items-center space-x-2 disabled:opacity-50"
           >
@@ -149,7 +145,7 @@ export default function PagadoTab() {
             <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fecha Desde
@@ -172,40 +168,12 @@ export default function PagadoTab() {
               className="input"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ordenar por
-            </label>
-            <select
-              value={orderBy}
-              onChange={(e) => setOrderBy(e.target.value as 'fecha' | 'monto')}
-              className="input"
-            >
-              <option value="fecha">Fecha</option>
-              <option value="monto">Importe</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Dirección
-            </label>
-            <select
-              value={order}
-              onChange={(e) => setOrder(e.target.value as 'asc' | 'desc')}
-              className="input"
-            >
-              <option value="desc">Descendente</option>
-              <option value="asc">Ascendente</option>
-            </select>
-          </div>
           <div className="flex items-end">
             <button
               onClick={() => {
                 setFechaDesde('');
                 setFechaHasta('');
-                setProveedorId('');
-                setOrderBy('fecha');
-                setOrder('desc');
+                setBusqueda('');
               }}
               className="btn-secondary w-full"
             >
@@ -215,30 +183,131 @@ export default function PagadoTab() {
         </div>
       </div>
 
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Buscar proveedor por nombre, CUIT, email, teléfono o dirección..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="input w-full"
+            />
+          </div>
+          {busqueda && (
+            <button
+              onClick={() => setBusqueda('')}
+              className="btn-secondary"
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Total Pagado</div>
-          <div className="text-2xl font-bold text-red-600">
-            {formatCurrency(totalPagado)}
+          <div className="text-sm font-medium text-gray-500">Total Saldo</div>
+          <div className="text-2xl font-bold text-blue-600">
+            {formatCurrency(totalSaldo)}
           </div>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Cantidad de Movimientos</div>
+          <div className="text-sm font-medium text-gray-500">Cantidad de Proveedores</div>
           <div className="text-2xl font-bold text-purple-600">
-            {cantidadMovimientos}
+            {cantidadProveedores}
           </div>
         </div>
       </div>
 
-      {movimientosData && movimientosOrdenados.length > 0 ? (
+      {proveedoresFiltrados.length === 0 ? (
+        <div className="card p-8 text-center">
+          <div className="text-gray-400 text-6xl mb-4">🏢</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {busqueda ? 'No se encontraron proveedores' : 'No hay proveedores pagados'}
+          </h3>
+          <p className="text-gray-500">
+            {busqueda 
+              ? 'Intenta con otros términos de búsqueda'
+              : 'No se encontraron proveedores con estado de pago completado para el período seleccionado.'
+            }
+          </p>
+        </div>
+      ) : (
         <>
-          <MovimientosTable
-            movimientos={movimientosOrdenados}
-            onEdit={() => {}}
-            onRefresh={cargarMovimientos}
-          />
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nombre
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      CUIT
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tipo Documento
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dirección
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Colppy ID
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Saldo
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {proveedoresFiltrados.map((proveedor) => (
+                    <tr key={proveedor.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="text-2xl mr-3">🏢</div>
+                          <div className="text-sm font-medium text-gray-900 max-w-xs">
+                            {proveedor.nombre}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                        {proveedor.cuit || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {proveedor.tipoDocumento || '-'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                        {proveedor.direccion || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                        {proveedor.colppyId || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        {proveedor.saldo !== undefined ? (
+                          <span className={`font-medium ${
+                            proveedor.saldo > 0 
+                              ? 'text-red-600' 
+                              : proveedor.saldo < 0 
+                              ? 'text-green-600' 
+                              : 'text-gray-600'
+                          }`}>
+                            {formatCurrency(Math.abs(proveedor.saldo))}
+                            {proveedor.saldo > 0 && ' (Debe)'}
+                            {proveedor.saldo < 0 && ' (A favor)'}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-          {movimientosData.pagination.totalPages > 1 && (
+          {proveedoresData?.pagination && proveedoresData.pagination.totalPages > 1 && (
             <div className="card p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -258,16 +327,16 @@ export default function PagadoTab() {
                   </div>
                   
                   <div className="text-sm text-gray-700">
-                    Mostrando {((movimientosData.pagination.page - 1) * movimientosData.pagination.limit) + 1} a{' '}
-                    {Math.min(movimientosData.pagination.page * movimientosData.pagination.limit, movimientosData.pagination.total)} de{' '}
-                    {movimientosData.pagination.total} resultados
+                    Mostrando {((proveedoresData.pagination.page - 1) * proveedoresData.pagination.limit) + 1} a{' '}
+                    {Math.min(proveedoresData.pagination.page * proveedoresData.pagination.limit, proveedoresData.pagination.total)} de{' '}
+                    {proveedoresData.pagination.total} resultados
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => cambiarPagina(1)}
-                    disabled={!movimientosData.pagination.hasPrev}
+                    disabled={!proveedoresData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⏮️ Primera
@@ -275,25 +344,25 @@ export default function PagadoTab() {
                   
                   <button
                     onClick={() => cambiarPagina(paginaActual - 1)}
-                    disabled={!movimientosData.pagination.hasPrev}
+                    disabled={!proveedoresData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⬅️ Anterior
                   </button>
 
                   <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(5, movimientosData.pagination.totalPages) }, (_, i) => {
-                      const startPage = Math.max(1, movimientosData.pagination.page - 2);
+                    {Array.from({ length: Math.min(5, proveedoresData.pagination.totalPages) }, (_, i) => {
+                      const startPage = Math.max(1, proveedoresData.pagination.page - 2);
                       const pageNum = startPage + i;
                       
-                      if (pageNum > movimientosData.pagination.totalPages) return null;
+                      if (pageNum > proveedoresData.pagination.totalPages) return null;
                       
                       return (
                         <button
                           key={pageNum}
                           onClick={() => cambiarPagina(pageNum)}
                           className={`px-3 py-1 text-sm rounded ${
-                            pageNum === movimientosData.pagination.page
+                            pageNum === proveedoresData.pagination.page
                               ? 'bg-blue-600 text-white'
                               : 'btn-secondary'
                           }`}
@@ -306,15 +375,15 @@ export default function PagadoTab() {
 
                   <button
                     onClick={() => cambiarPagina(paginaActual + 1)}
-                    disabled={!movimientosData.pagination.hasNext}
+                    disabled={!proveedoresData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Siguiente ➡️
                   </button>
                   
                   <button
-                    onClick={() => cambiarPagina(movimientosData.pagination.totalPages)}
-                    disabled={!movimientosData.pagination.hasNext}
+                    onClick={() => cambiarPagina(proveedoresData.pagination.totalPages)}
+                    disabled={!proveedoresData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Última ⏭️
@@ -324,16 +393,6 @@ export default function PagadoTab() {
             </div>
           )}
         </>
-      ) : (
-        <div className="card p-8 text-center">
-          <div className="text-gray-400 text-6xl mb-4">📊</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No hay movimientos de pagado
-          </h3>
-          <p className="text-gray-500">
-            No se encontraron egresos para los filtros seleccionados.
-          </p>
-        </div>
       )}
     </div>
   );
