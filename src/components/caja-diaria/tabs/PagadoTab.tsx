@@ -256,6 +256,9 @@ export default function PagadoTab() {
                       Colppy ID
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Monto Pagado
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Saldo
                     </th>
                   </tr>
@@ -282,6 +285,15 @@ export default function PagadoTab() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                         {proveedor.colppyId || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        {proveedor.montoPagado !== undefined ? (
+                          <span className="font-medium text-green-600">
+                            {formatCurrency(proveedor.montoPagado)}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                         {proveedor.saldo !== undefined ? (

@@ -97,6 +97,7 @@ export interface ProveedorEntity {
   numeroDocumento: string | null;
   colppyId: string | null;
   saldo?: number;
+  montoPagado?: number;
 }
 
 export interface PaginationInfo {
