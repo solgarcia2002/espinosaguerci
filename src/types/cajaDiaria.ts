@@ -98,6 +98,7 @@ export interface ProveedorEntity {
   colppyId: string | null;
   saldo?: number;
   montoPagado?: number;
+  montoPendiente?: number;
 }
 
 export interface PaginationInfo {
