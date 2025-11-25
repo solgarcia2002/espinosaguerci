@@ -126,6 +126,8 @@ export interface ClienteEntity {
   numeroDocumento: string | null;
   colppyId: string | null;
   saldo?: number;
+  montoCobrado?: number;
+  montoPendienteCobro?: number;
 }
 
 export interface ClientesResponse {

@@ -30,10 +30,10 @@ export default function GestionClientes() {
       });
       
       setLoading(true);
-      const data = await cajaDiariaService.obtenerClientesConPaginacion(
-        paginaActual, 
-        itemsPorPagina
-      );
+      const data = await cajaDiariaService.obtenerClientesConPaginacion({
+        page: paginaActual,
+        limit: itemsPorPagina
+      });
       
       console.log('✅ GestionClientes - Datos recibidos:', data);
       setClientesData(data);

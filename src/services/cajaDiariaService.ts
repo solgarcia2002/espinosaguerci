@@ -108,14 +108,32 @@ export class CajaDiariaService {
     }
   }
 
-  async obtenerClientesConPaginacion(page: number = 1, limit: number = 20): Promise<ClientesResponse> {
+  async obtenerClientesConPaginacion(options?: {
+    page?: number;
+    limit?: number;
+    orderBy?: 'saldo' | 'nombre';
+    order?: 'asc' | 'desc';
+    estadoCobro?: 'cobrado' | 'pendiente';
+    fechaDesde?: string;
+    fechaHasta?: string;
+  }): Promise<ClientesResponse> {
     try {
+      const params: Record<string, string> = {
+        page: String(options?.page ?? 1),
+        limit: String(options?.limit ?? 20),
+        orderBy: options?.orderBy ?? 'saldo',
+        order: options?.order ?? 'desc'
+      };
+      if (options?.estadoCobro) params.estadoCobro = options.estadoCobro;
+      if (options?.fechaDesde) params.fechaDesde = options.fechaDesde;
+      if (options?.fechaHasta) params.fechaHasta = options.fechaHasta;
+
       const response = await apiClient<ClientesResponse>(
         'caja-diaria/clientes',
         { method: 'GET' },
-        { page, limit, orderBy: 'saldo', order: 'desc' }
+        params
       );
-      
+
       return response;
     } catch (error) {
       console.error('Error obteniendo clientes con paginación:', error);
