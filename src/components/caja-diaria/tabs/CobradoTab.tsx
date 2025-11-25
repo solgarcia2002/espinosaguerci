@@ -165,15 +165,11 @@ export default function CobradoTab() {
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-900">Clientes cobrados</h3>
           <div className="flex items-center gap-3">
-            <button onClick={cargarClientes} className="btn-secondary px-3 py-1 text-sm">
-              🔄 Actualizar
-            </button>
-            <button
-            onClick={sincronizarFacturas}
-              disabled={sincronizando}
+            <button      
               className="btn-primary px-3 py-1 text-sm disabled:opacity-50"
-            >
-              {sincronizando ? 'Sincronizando...' : 'Sincronizar movimientos'}
+              onClick={sincronizarFacturas}
+              disabled={sincronizando}>
+            🔄 Actualizar{sincronizando ? 'Sincronizando...' : 'Sincronizar movimientos'}
             </button>
           </div>
         </div>
