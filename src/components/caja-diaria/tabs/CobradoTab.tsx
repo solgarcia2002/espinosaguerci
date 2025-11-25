@@ -70,12 +70,12 @@ export default function CobradoTab() {
   const totalSaldo = clientes.reduce((sum, cliente) => sum + (cliente.saldo ?? 0), 0);
   const cantidadClientes = pagination?.total ?? 0;
 
-  const sincronizarMovimientos = async () => {
+  const sincronizarFacturas = async () => {
     try {
       setSincronizando(true);
       setShowProgress(true);
 
-      const resultado = await colppyService.sincronizarMovimientos({
+      const resultado = await colppyService.sincronizarFacturasClientes({
         fechaDesde: fechaDesde || undefined,
         fechaHasta: fechaHasta || undefined,
         email: 'matiespinosa05@gmail.com',
@@ -131,7 +131,7 @@ export default function CobradoTab() {
     <div className="space-y-6">
       {showProgress && (
         <ColppyProgress
-          scope="movimientos"
+            scope="facturas"
           onComplete={() => {
             setShowProgress(false);
             cargarClientes();
@@ -169,7 +169,7 @@ export default function CobradoTab() {
               🔄 Actualizar
             </button>
             <button
-              onClick={sincronizarMovimientos}
+            onClick={sincronizarFacturas}
               disabled={sincronizando}
               className="btn-primary px-3 py-1 text-sm disabled:opacity-50"
             >

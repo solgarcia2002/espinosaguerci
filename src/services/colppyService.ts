@@ -26,6 +26,13 @@ export interface SincronizarFacturasProveedoresOptions {
   password?: string;
 }
 
+export interface SincronizarFacturasClientesOptions {
+  fechaDesde?: string;
+  fechaHasta?: string;
+  email?: string;
+  password?: string;
+}
+
 export class ColppyService {
 
   async obtenerClientes(): Promise<Cliente[]> {
@@ -315,6 +322,45 @@ export class ColppyService {
       return response;
     } catch (error) {
       console.error('❌ Error sincronizando facturas de proveedores con Colppy:', error);
+      return {
+        success: false,
+        message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      };
+    }
+  }
+
+  async sincronizarFacturasClientes(options?: SincronizarFacturasClientesOptions): Promise<{ success: boolean; message: string; data?: any }> {
+    try {
+      console.log('🔄 Iniciando sincronización de facturas de clientes con Colppy...', {
+        fechaDesde: options?.fechaDesde,
+        fechaHasta: options?.fechaHasta
+      });
+
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+
+      const body: Record<string, string> = {};
+      if (options?.fechaDesde) body.fechaDesde = options.fechaDesde;
+      if (options?.fechaHasta) body.fechaHasta = options.fechaHasta;
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+
+      const response = await apiClient<{ success: boolean; message: string; data?: any }>(
+        'caja-diaria/colppy/sincronizar/facturas-clientes',
+        {
+          method: 'POST',
+          body: JSON.stringify(body)
+        }
+      );
+
+      console.log('✅ Sincronización de facturas de clientes completada:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error sincronizando facturas de clientes con Colppy:', error);
       return {
         success: false,
         message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
