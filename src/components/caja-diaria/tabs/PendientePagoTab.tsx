@@ -245,7 +245,7 @@ export default function PendientePagoTab() {
                       Colppy ID
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Monto Pagado
+                      Monto Pendiente
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Saldo
@@ -276,9 +276,9 @@ export default function PendientePagoTab() {
                         {proveedor.colppyId || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        {proveedor.montoPagado !== undefined ? (
-                          <span className="font-medium text-green-600">
-                            {formatCurrency(proveedor.montoPagado)}
+                        {proveedor.montoPendiente !== undefined ? (
+                          <span className="font-medium text-orange-600">
+                            {formatCurrency(proveedor.montoPendiente)}
                           </span>
                         ) : (
                           <span className="text-gray-400">-</span>
