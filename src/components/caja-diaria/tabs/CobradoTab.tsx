@@ -169,7 +169,7 @@ export default function CobradoTab() {
               className="btn-primary px-3 py-1 text-sm disabled:opacity-50"
               onClick={sincronizarFacturas}
               disabled={sincronizando}>
-            🔄 Actualizar{sincronizando ? 'Sincronizando...' : 'Sincronizar movimientos'}
+            🔄 {sincronizando ? 'Sincronizando...' : 'Sincronizar movimientos'}
             </button>
           </div>
         </div>
