@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { colppyService } from '@/services/colppyService';
 import ColppyProgress from '@/components/ColppyProgress';
@@ -19,6 +19,7 @@ export default function DisponibilidadTab() {
   const [sincronizando, setSincronizando] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cacheRef = useRef<TesoreriaDisponibilidadResponse | null>(null);
 
   const cargarDisponibilidad = useCallback(async ({ triggeredByButton = false } = {}) => {
     if (triggeredByButton) {
@@ -30,10 +31,18 @@ export default function DisponibilidadTab() {
 
     setError(null);
 
+    if (!triggeredByButton && cacheRef.current) {
+      setDisponibilidad(cacheRef.current.data);
+      setTimestamp(cacheRef.current.timestamp);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await colppyService.obtenerDisponibilidadTesoreria(COLPPY_CREDENTIALS);
 
       if (response && response.success) {
+        cacheRef.current = response;
         setDisponibilidad(response.data);
         setTimestamp(response.timestamp);
       } else {

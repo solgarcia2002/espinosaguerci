@@ -140,6 +140,74 @@ export interface MovimientosResponse {
   pagination: PaginationInfo;
 }
 
+export interface ConsolidadoSaldosValues {
+  disponibilidades: number;
+  cheques: number;
+  aCobrar: number;
+  aPagar: number;
+  aPagarTarjetas: number;
+  incrementoTarjetas: number;
+  incrementoProveedores: number;
+  saldo: number;
+}
+
+export interface ConsolidadoSaldos {
+  delDia: ConsolidadoSaldosValues;
+  diaAnterior: ConsolidadoSaldosValues;
+  diferencia: number;
+}
+
+export interface ConsolidadoCashFlow {
+  reduccionDisponibilidades: number;
+  reduccionCheques: number;
+  cobranzas: number;
+  pagosProveedores: number;
+  cancelacionTarjetas: number;
+  cancelacionPlanes: number;
+  total: number;
+}
+
+export interface ConsolidadoAjustes {
+  ajustesCobranzas: number;
+  ajustesPagos: number;
+  diferencia: number;
+}
+
+export interface ConsolidadoTarjeta {
+  tarjeta: string;
+  titular: string;
+  importe: number;
+}
+
+export interface ConsolidadoCobranzasDiferencias {
+  cliente: string;
+  registrado: number;
+  cobrado: number;
+  diferencia: number;
+}
+
+export interface ConsolidadoPagoProveedoresPlan {
+  proveedor: string;
+  importeCancelado: number;
+}
+
+export interface ConsolidadoTotales {
+  incrementoSaldoClientes?: number;
+  incrementoSaldoProveedores?: number;
+  incrementoSaldoTarjetas?: number;
+}
+
+export interface ConsolidadoReport {
+  fecha: string;
+  saldosConsolidados: ConsolidadoSaldos;
+  cashFlow: ConsolidadoCashFlow;
+  ajustes: ConsolidadoAjustes;
+  tarjetas: ConsolidadoTarjeta[];
+  cobranzasDiferencias: ConsolidadoCobranzasDiferencias[];
+  pagosProveedoresPlanes: ConsolidadoPagoProveedoresPlan[];
+  totales?: ConsolidadoTotales;
+}
+
 export interface TesoreriaDisponibilidadDetalle {
   nombre: string;
   saldo: number;
