@@ -5,7 +5,7 @@ import { formatCurrency } from '@/lib/utils';
 import { colppyService } from '@/services/colppyService';
 import ColppyProgress from '@/components/ColppyProgress';
 import { toast } from 'sonner';
-import { TesoreriaDisponibilidadData } from '@/types/cajaDiaria';
+import { TesoreriaDisponibilidadData, TesoreriaDisponibilidadResponse } from '@/types/cajaDiaria';
 
 const COLPPY_CREDENTIALS = {
   email: 'matiespinosa05@gmail.com',
