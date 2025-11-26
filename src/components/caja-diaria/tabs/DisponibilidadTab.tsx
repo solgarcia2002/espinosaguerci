@@ -1,77 +1,32 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { colppyService } from '@/services/colppyService';
 import ColppyProgress from '@/components/ColppyProgress';
 import { toast } from 'sonner';
-import { TesoreriaDisponibilidadData, TesoreriaDisponibilidadResponse } from '@/types/cajaDiaria';
-
-const COLPPY_CREDENTIALS = {
-  email: 'matiespinosa05@gmail.com',
-  password: 'Mati.46939'
-};
+import { useConsolidado } from '@/contexts/ConsolidadoContext';
 
 export default function DisponibilidadTab() {
-  const [disponibilidad, setDisponibilidad] = useState<TesoreriaDisponibilidadData | null>(null);
-  const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sincronizando, setSincronizando] = useState(false);
+  const { data, loading, error, syncAll } = useConsolidado();
   const [showProgress, setShowProgress] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const cacheRef = useRef<TesoreriaDisponibilidadResponse | null>(null);
-  const inicializadoRef = useRef(false);
 
-  const cargarDisponibilidad = useCallback(async ({ triggeredByButton = false } = {}) => {
-    if (triggeredByButton) {
-      setSincronizando(true);
-      setShowProgress(true);
-    } else {
-      setLoading(true);
-    }
+  const disponibilidadResponse = data?.disponibilidad ?? null;
+  const disponibilidad = disponibilidadResponse?.data ?? null;
+  const timestamp = disponibilidadResponse?.timestamp ?? data?.timestamp ?? null;
 
-    setError(null);
-
-    if (!triggeredByButton && cacheRef.current) {
-      setDisponibilidad(cacheRef.current.data);
-      setTimestamp(cacheRef.current.timestamp);
-      setLoading(false);
-      return;
-    }
-
+  const sincronizar = async () => {
+    setShowProgress(true);
     try {
-      const response = await colppyService.obtenerDisponibilidadTesoreria(COLPPY_CREDENTIALS);
-
-      if (response && response.success) {
-        cacheRef.current = response;
-        setDisponibilidad(response.data);
-        setTimestamp(response.timestamp);
-      } else {
-        const message = response?.message ?? 'No se pudieron obtener los datos de disponibilidad';
-        setError(message);
-        toast.error(message);
-      }
+      await syncAll();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al obtener disponibilidad';
-      setError(message);
+      const message = err instanceof Error ? err.message : 'Error al sincronizar';
       toast.error(message);
     } finally {
-      if (triggeredByButton) {
-        setSincronizando(false);
-        setTimeout(() => setShowProgress(false), 500);
-      } else {
-        setLoading(false);
-      }
+      setTimeout(() => setShowProgress(false), 500);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (inicializadoRef.current) return;
-    inicializadoRef.current = true;
-    cargarDisponibilidad();
-  }, [cargarDisponibilidad]);
-
-  if (loading) {
+  if (loading && !disponibilidad) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -89,7 +44,7 @@ export default function DisponibilidadTab() {
           scope="disponibilidad"
           onComplete={() => {
             setShowProgress(false);
-            cargarDisponibilidad();
+            syncAll();
           }}
           onError={() => {
             setShowProgress(false);
@@ -101,18 +56,15 @@ export default function DisponibilidadTab() {
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Disponibilidad en Tesorería</h3>
           {timestamp && (
-            <p className="text-xs text-gray-500">
-              Última actualización: {new Date(timestamp).toLocaleString()}
-            </p>
+            <p className="text-xs text-gray-500">Última actualización: {new Date(timestamp).toLocaleString()}</p>
           )}
         </div>
         <button
-          onClick={() => cargarDisponibilidad({ triggeredByButton: true })}
-          disabled={sincronizando}
+          onClick={sincronizar}
           className="btn-primary px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"
         >
           <span>🔄</span>
-          {sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}
+          {loading ? 'Sincronizando...' : 'Sincronizar con Colppy'}
         </button>
       </div>
 
@@ -127,27 +79,19 @@ export default function DisponibilidadTab() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="text-sm font-medium text-gray-500">Caja Estudio</div>
-              <div className="text-2xl font-bold text-indigo-600">
-                {formatCurrency(disponibilidad.cajaEstudio)}
-              </div>
+              <div className="text-2xl font-bold text-indigo-600">{formatCurrency(disponibilidad.cajaEstudio)}</div>
             </div>
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="text-sm font-medium text-gray-500">Bancos</div>
-              <div className="text-2xl font-bold text-blue-600">
-                {formatCurrency(disponibilidad.bancos)}
-              </div>
+              <div className="text-2xl font-bold text-blue-600">{formatCurrency(disponibilidad.bancos)}</div>
             </div>
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="text-sm font-medium text-gray-500">Cambio Marcelo</div>
-              <div className="text-2xl font-bold text-red-600">
-                {formatCurrency(disponibilidad.cambioMarcelo)}
-              </div>
+              <div className="text-2xl font-bold text-red-600">{formatCurrency(disponibilidad.cambioMarcelo)}</div>
             </div>
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="text-sm font-medium text-gray-500">Total Tesorería</div>
-              <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(disponibilidad.total)}
-              </div>
+              <div className="text-2xl font-bold text-green-600">{formatCurrency(disponibilidad.total)}</div>
             </div>
           </div>
 
@@ -162,21 +106,15 @@ export default function DisponibilidadTab() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nombre
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Saldo
-                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {disponibilidad.detalle.map((item, index) => (
                     <tr key={`${item.nombre}-${index}`} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900">{item.nombre}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                        {formatCurrency(item.saldo)}
-                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">{formatCurrency(item.saldo)}</td>
                     </tr>
                   ))}
                 </tbody>

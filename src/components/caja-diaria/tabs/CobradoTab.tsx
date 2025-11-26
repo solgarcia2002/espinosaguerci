@@ -7,11 +7,13 @@ import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import ColppyProgress from '@/components/ColppyProgress';
 import { toast } from 'sonner';
+import { useConsolidado } from '@/contexts/ConsolidadoContext';
 
 type ClienteOrderBy = 'saldo' | 'nombre';
 type ClienteOrder = 'asc' | 'desc';
 
 export default function CobradoTab() {
+  const { syncAll } = useConsolidado();
   const [clientesData, setClientesData] = useState<ClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fechaDesde, setFechaDesde] = useState('');
@@ -84,7 +86,8 @@ export default function CobradoTab() {
 
       if (resultado.success) {
         toast.success('Movimientos sincronizados correctamente');
-        cargarClientes();
+        await cargarClientes();
+        await syncAll();
       } else {
         toast.error(resultado.message || 'Error al sincronizar movimientos');
       }
