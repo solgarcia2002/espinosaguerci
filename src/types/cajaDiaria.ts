@@ -139,3 +139,23 @@ export interface MovimientosResponse {
   data: MovimientoCaja[];
   pagination: PaginationInfo;
 }
+
+export interface TesoreriaDisponibilidadDetalle {
+  nombre: string;
+  saldo: number;
+}
+
+export interface TesoreriaDisponibilidadData {
+  cajaEstudio: number;
+  bancos: number;
+  cambioMarcelo: number;
+  total: number;
+  detalle: TesoreriaDisponibilidadDetalle[];
+}
+
+export interface TesoreriaDisponibilidadResponse {
+  success: boolean;
+  message: string;
+  data: TesoreriaDisponibilidadData;
+  timestamp: string;
+}

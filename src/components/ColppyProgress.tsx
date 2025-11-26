@@ -5,7 +5,7 @@ import { useColppyProgress } from '@/hooks/useColppyProgress';
 import { ColppyProgressEvent } from '@/services/colppyRpaService';
 
 interface ColppyProgressProps {
-  scope?: 'clientes' | 'proveedores' | 'pagos' | 'facturas' | 'movimientos' | 'todos';
+  scope?: 'clientes' | 'proveedores' | 'pagos' | 'facturas' | 'movimientos' | 'disponibilidad' | 'todos';
   onComplete?: () => void;
   onError?: (error: string) => void;
 }

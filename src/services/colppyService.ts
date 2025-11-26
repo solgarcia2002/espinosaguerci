@@ -1,5 +1,5 @@
 import { apiClient, getAuthToken } from './apiClient';
-import { Cliente, Proveedor, ColppyApiResponse } from '@/types/cajaDiaria';
+import { Cliente, Proveedor, ColppyApiResponse, TesoreriaDisponibilidadResponse } from '@/types/cajaDiaria';
 
 export interface SincronizarOptions {
   email?: string;
@@ -365,6 +365,37 @@ export class ColppyService {
         success: false,
         message: `Error en la sincronización: ${error instanceof Error ? error.message : 'Error desconocido'}`
       };
+    }
+  }
+
+  async obtenerDisponibilidadTesoreria(options?: SincronizarOptions): Promise<TesoreriaDisponibilidadResponse | null> {
+    try {
+      console.log('🔄 Consultando disponibilidad desde Tesorería...');
+
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+
+      const body: Record<string, string> = {};
+      if (options?.email) body.email = options.email;
+      if (options?.password) body.password = options.password;
+
+      const response = await apiClient<TesoreriaDisponibilidadResponse>(
+        'caja-diaria/colppy/tesoreria/disponibilidad',
+        {
+          method: 'POST',
+          body: JSON.stringify(body)
+        }
+      );
+
+      console.log('✅ Disponibilidad obtenida desde Tesorería:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error obteniendo disponibilidad de Tesorería:', error);
+      return null;
     }
   }
 
