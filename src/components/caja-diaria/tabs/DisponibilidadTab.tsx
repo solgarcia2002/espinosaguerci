@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { TesoreriaDisponibilidadData } from '@/types/cajaDiaria';
 
 const COLPPY_CREDENTIALS = {
-  email: 'usuario@colppy.com',
-  password: 'mi-password-seguro'
+  email: 'matiespinosa05@gmail.com',
+  password: 'Mati.46939'
 };
 
 export default function DisponibilidadTab() {
