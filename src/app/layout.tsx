@@ -3,7 +3,6 @@ import '@/styles/globals.css';
 import type { Metadata } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
 import React from 'react';
-import { ConsolidadoProvider } from '@/contexts/ConsolidadoContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat' });
@@ -29,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="font-brand bg-[#f4f4f4] text-[#1a1a1a] tracking-[0.01em] min-h-screen">
-        <ConsolidadoProvider>{children}</ConsolidadoProvider>
+        {children}
       </body>
     </html>
   );

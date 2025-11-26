@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { useConsolidado } from '@/contexts/ConsolidadoContext';
+import { reportesService } from '@/services/reportesService';
 import { MovimientoCaja } from '@/types/cajaDiaria';
 import {
   ReporteCobradoResponse,
@@ -11,10 +11,10 @@ import {
 } from '@/services/reportesService';
 
 const filasSaldos = [
-  { label: 'Disponibilidades', key: 'disponibilidades' as const },
-  { label: 'Cheques en cartera', key: 'chequesEnCartera' as const },
-  { label: 'A Cobrar corrientes', key: 'aCobrar' as const },
-  { label: 'A Pagar proveedores', key: 'aPagar' as const }
+  { label: 'Disponibilidades', key: 'disponibilidades' },
+  { label: 'Cheques en cartera', key: 'chequesEnCartera' },
+  { label: 'A Cobrar corrientes', key: 'aCobrar' },
+  { label: 'A Pagar proveedores', key: 'aPagar' }
 ];
 
 const obtenerCashFlow = (
@@ -90,11 +90,40 @@ const cargarPagosProveedoresDeMas = (reporte: ReportePagadoResponse | null) => {
 };
 
 export default function ConsolidadoTab() {
-  const { data, loading, error, fecha, setFecha, syncAll } = useConsolidado();
-  const dashboard = data?.dashboard ?? null;
-  const reporteCobrado = data?.cobrado ?? null;
-  const reportePagado = data?.pagado ?? null;
-  const movimientos = data?.movimientos ?? [];
+  const [dashboard, setDashboard] = useState<ReporteDashboardResponse | null>(null);
+  const [reporteCobrado, setReporteCobrado] = useState<ReporteCobradoResponse | null>(null);
+  const [reportePagado, setReportePagado] = useState<ReportePagadoResponse | null>(null);
+  const [movimientos, setMovimientos] = useState<MovimientoCaja[]>([]);
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const cargarConsolidado = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [dashboardData, reporteCobradoData, reportePagadoData] = await Promise.all([
+        reportesService.obtenerReporteDashboard(fecha),
+        reportesService.obtenerReporteCobrado(fecha, fecha),
+        reportesService.obtenerReportePagado(fecha, fecha)
+      ]);
+
+      setDashboard(dashboardData);
+      setReporteCobrado(reporteCobradoData);
+      setReportePagado(reportePagadoData);
+      setMovimientos(dashboardData.movimientosDelDia.movimientos);
+    } catch (err) {
+      console.error('Error al cargar consolidado:', err);
+      setError('No se pudo cargar el reporte consolidado');
+    } finally {
+      setLoading(false);
+    }
+  }, [fecha]);
+
+  useEffect(() => {
+    cargarConsolidado();
+  }, [cargarConsolidado]);
 
   const cashFlow = useMemo(() => obtenerCashFlow(dashboard, movimientos), [dashboard, movimientos]);
   const diferenciasCobranza = useMemo(() => cargarDiferenciasCobranza(reporteCobrado), [reporteCobrado]);
@@ -129,7 +158,7 @@ export default function ConsolidadoTab() {
           />
         </div>
         <button
-          onClick={syncAll}
+          onClick={cargarConsolidado}
           className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
         >
           Actualizar consolidado
@@ -150,9 +179,15 @@ export default function ConsolidadoTab() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-white">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Métrica</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Del día</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Día anterior</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Métrica
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Del día
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Día anterior
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -160,10 +195,10 @@ export default function ConsolidadoTab() {
                 <tr key={fila.key}>
                   <td className="px-4 py-3 text-sm text-gray-900 font-medium">{fila.label}</td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                    {formatCurrency(dashboard?.saldos[fila.key].delDia ?? 0)}
+                    {formatCurrency(dashboard?.saldos[fila.key as keyof typeof dashboard['saldos']].delDia ?? 0)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                    {formatCurrency(dashboard?.saldos[fila.key].diaAnterior ?? 0)}
+                    {formatCurrency(dashboard?.saldos[fila.key as keyof typeof dashboard['saldos']].diaAnterior ?? 0)}
                   </td>
                 </tr>
               ))}
@@ -207,27 +242,39 @@ export default function ConsolidadoTab() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-700">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Reducción disponibilidades</div>
-              <div className="text-lg font-semibold text-gray-900 text-right">{formatCurrency(cashFlow.reduccionDisponibilidades)}</div>
+              <div className="text-lg font-semibold text-gray-900 text-right">
+                {formatCurrency(cashFlow.reduccionDisponibilidades)}
+              </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Reducción cheques</div>
-              <div className="text-lg font-semibold text-gray-900 text-right">{formatCurrency(cashFlow.reduccionCheques)}</div>
+              <div className="text-lg font-semibold text-gray-900 text-right">
+                {formatCurrency(cashFlow.reduccionCheques)}
+              </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Cobranza</div>
-              <div className="text-lg font-semibold text-green-600 text-right">{formatCurrency(cashFlow.cobranzas)}</div>
+              <div className="text-lg font-semibold text-green-600 text-right">
+                {formatCurrency(cashFlow.cobranzas)}
+              </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Pagos proveedores</div>
-              <div className="text-lg font-semibold text-red-600 text-right">{formatCurrency(cashFlow.pagosProveedores)}</div>
+              <div className="text-lg font-semibold text-red-600 text-right">
+                {formatCurrency(cashFlow.pagosProveedores)}
+              </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Cancelación tarjetas</div>
-              <div className="text-lg font-semibold text-gray-900 text-right">{formatCurrency(cashFlow.cancelacionTarjetas)}</div>
+              <div className="text-lg font-semibold text-gray-900 text-right">
+                {formatCurrency(cashFlow.cancelacionTarjetas)}
+              </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase">Cancelación planes</div>
-              <div className="text-lg font-semibold text-gray-900 text-right">{formatCurrency(cashFlow.cancelacionPlanes)}</div>
+              <div className="text-lg font-semibold text-gray-900 text-right">
+                {formatCurrency(cashFlow.cancelacionPlanes)}
+              </div>
             </div>
           </div>
         </section>
@@ -238,13 +285,19 @@ export default function ConsolidadoTab() {
           <div className="bg-blue-50 border-b border-blue-100 px-4 py-3">
             <h3 className="text-lg font-semibold text-blue-900">Incremento de saldo tarjetas</h3>
           </div>
-          <div className="px-4 py-3 text-sm text-gray-600">Total: {formatCurrency(totalTarjetas)}</div>
+          <div className="px-4 py-3 text-sm text-gray-600">
+            Total: {formatCurrency(totalTarjetas)}
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-white">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concepto</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Importe</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Concepto
+                  </th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Importe
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
@@ -253,7 +306,9 @@ export default function ConsolidadoTab() {
                   .map((mov) => (
                     <tr key={`${mov.id}-${mov.concepto}`}>
                       <td className="px-4 py-2 text-sm text-gray-900">{mov.concepto || 'Sin descripción'}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(mov.monto)}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(mov.monto)}
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -270,23 +325,35 @@ export default function ConsolidadoTab() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-white">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Registrado</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cobrado</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cliente
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registrado
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cobrado
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {diferenciasCobranza.map((item) => (
                     <tr key={item.cliente}>
                       <td className="px-4 py-2 text-sm text-gray-900">{item.cliente}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(item.registrado)}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(item.cobrado)}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(item.registrado)}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(item.cobrado)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <div className="px-4 py-2 text-xs text-gray-500">Diferencia total: {formatCurrency(diferenciasCobranza.reduce((sum, item) => sum + item.diferencia, 0))}</div>
+            <div className="px-4 py-2 text-xs text-gray-500">
+              Diferencia total: {formatCurrency(diferenciasCobranza.reduce((sum, item) => sum + item.diferencia, 0))}
+            </div>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -297,15 +364,21 @@ export default function ConsolidadoTab() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-white">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Importe cancelado</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Proveedor
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Importe cancelado
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Object.entries(pagosPlanes).map(([proveedor, total]) => (
                     <tr key={proveedor}>
                       <td className="px-4 py-2 text-sm text-gray-900">{proveedor}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(total)}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(total)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -321,17 +394,27 @@ export default function ConsolidadoTab() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-white">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Registrado</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pagado</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Proveedor
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registrado
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Pagado
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {diferenciasProveedores.map((item) => (
                     <tr key={item.proveedor}>
                       <td className="px-4 py-2 text-sm text-gray-900">{item.proveedor}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(item.registrado)}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">{formatCurrency(item.pagado)}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(item.registrado)}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(item.pagado)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

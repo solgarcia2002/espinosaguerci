@@ -7,10 +7,8 @@ import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import ColppyProgress from '@/components/ColppyProgress';
-import { useConsolidado } from '@/contexts/ConsolidadoContext';
 
 export default function PagadoTab() {
-  const { syncAll } = useConsolidado();
   const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fechaDesde, setFechaDesde] = useState('');
@@ -84,7 +82,6 @@ export default function PagadoTab() {
       if (resultado.success) {
         toast.success('Facturas de proveedores sincronizadas correctamente');
         await cargarProveedores();
-        await syncAll();
       } else {
         toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
       }
