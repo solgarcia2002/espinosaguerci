@@ -71,7 +71,7 @@ const cargarPagosPlanes = (movimientos: MovimientoCaja[]) => {
   return movimientos
     .filter((mov) => mov.metodoPago === 'pendiente' && mov.tipo === 'egreso')
     .reduce<Record<string, number>>((acc, mov) => {
-      const key = mov.proveedor?.nombre || mov.proveedorId || 'Sin proveedor';
+      const key = mov.proveedor?.proveedor || mov.proveedorId || 'Sin proveedor';
       acc[key] = (acc[key] ?? 0) + mov.monto;
       return acc;
     }, {});
