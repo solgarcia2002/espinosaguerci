@@ -1,31 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MovimientoCaja, ResumenCaja, FiltrosCaja as FiltrosCajaType } from '@/types/cajaDiaria';
-import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import EstadisticasCaja from '../EstadisticasCaja';
+import { reportesService } from '@/services/reportesService';
+import { ConsolidadoReport } from '@/types/cajaDiaria';
+
+const filasSaldos = [
+  { label: 'Disponibilidades', key: 'disponibilidades' },
+  { label: 'Cheques en cartera', key: 'cheques' },
+  { label: 'A Cobrar corrientes', key: 'aCobrar' },
+  { label: 'A Pagar proveedores', key: 'aPagar' },
+  { label: 'A Pagar tarjetas', key: 'aPagarTarjetas' },
+  { label: 'Incremento saldo tarjetas', key: 'incrementoTarjetas' },
+  { label: 'Incremento saldo de proveedores', key: 'incrementoProveedores' },
+  { label: 'Saldo', key: 'saldo' }
+];
 
 export default function ConsolidadoTab() {
-  const [reporteConsolidado, setReporteConsolidado] = useState<any>(null);
+  const [consolidado, setConsolidado] = useState<ConsolidadoReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    cargarConsolidado();
-  }, [fecha]);
+  const cargarConsolidado = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-  const cargarConsolidado = async () => {
     try {
-      setLoading(true);
-      const reporteData = await cajaDiariaService.obtenerReporteConsolidado(fecha);
-      setReporteConsolidado(reporteData);
-    } catch (error) {
-      console.error('Error al cargar consolidado:', error);
+      const data = await reportesService.obtenerReporteConsolidado(fecha);
+      setConsolidado(data);
+    } catch (err) {
+      console.error('Error al cargar consolidado:', err);
+      setError('No se pudo cargar el reporte consolidado');
     } finally {
       setLoading(false);
     }
-  };
+  }, [fecha]);
+
+  useEffect(() => {
+    cargarConsolidado();
+  }, [cargarConsolidado]);
+
+  const diferencia = useMemo(() => consolidado?.saldosConsolidados.diferencia ?? 0, [consolidado]);
+  const totalTarjetas = useMemo(
+    () => consolidado?.tarjetas.reduce((sum, tarjeta) => sum + tarjeta.importe, 0) ?? 0,
+    [consolidado]
+  );
+  const incrementoSaldoClientes = consolidado?.totales?.incrementoSaldoClientes;
+  const incrementoSaldoProveedores = consolidado?.totales?.incrementoSaldoProveedores;
+  const incrementoSaldoTarjetas = consolidado?.totales?.incrementoSaldoTarjetas ?? totalTarjetas;
 
   if (loading) {
     return (
@@ -38,155 +61,233 @@ export default function ConsolidadoTab() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando datos consolidados...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Selector de fecha */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium text-gray-700">Fecha:</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="px-2 py-1 border border-gray-300 rounded text-xs"
-          />
+        <div className="flex items-center gap-4 flex-wrap">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Fecha:</label>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+              className="ml-2 px-2 py-1 border border-gray-300 rounded text-xs"
+            />
+          </div>
           <button
             onClick={cargarConsolidado}
-            className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+            className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
           >
-            Actualizar
+            Actualizar consolidado
           </button>
         </div>
       </div>
 
-      {/* Estadísticas principales */}
-      {reporteConsolidado && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Total Facturado</div>
-            <div className="text-2xl font-bold text-blue-600">
-              {formatCurrency(reporteConsolidado.totalFacturado)}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Total Cobrado</div>
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(reporteConsolidado.totalCobrado)}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Total Pagado</div>
-            <div className="text-2xl font-bold text-red-600">
-              {formatCurrency(reporteConsolidado.totalPagado)}
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="text-sm font-medium text-gray-500">Saldo Neto</div>
-            <div className={`text-2xl font-bold ${
-              reporteConsolidado.saldoNeto >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {formatCurrency(reporteConsolidado.saldoNeto)}
-            </div>
-          </div>
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3">
+          {error}
         </div>
       )}
 
-      {/* Resumen de pendientes */}
-      {reporteConsolidado && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-            <h3 className="text-lg font-semibold text-gray-900">Resumen de Pendientes</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <div className="text-center">
-              <div className="text-sm font-medium text-gray-500">Cobros Pendientes</div>
-              <div className="text-xl font-bold text-yellow-600">
-                {formatCurrency(reporteConsolidado.totalPendienteCobro)}
-              </div>
+      {consolidado && (
+        <>
+          <section className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+              <h3 className="text-lg font-semibold text-gray-900">Saldos consolidados</h3>
             </div>
-            <div className="text-center">
-              <div className="text-sm font-medium text-gray-500">Pagos Pendientes</div>
-              <div className="text-xl font-bold text-orange-600">
-                {formatCurrency(reporteConsolidado.totalPendientePago)}
-              </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-white">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Métrica
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Del día
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Día anterior
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filasSaldos.map((fila) => (
+                    <tr key={fila.key} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900">{fila.label}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(consolidado.saldosConsolidados.delDia[fila.key as keyof typeof consolidado.saldosConsolidados.delDia])}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+                        {formatCurrency(consolidado.saldosConsolidados.diaAnterior[fila.key as keyof typeof consolidado.saldosConsolidados.diaAnterior])}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="px-4 py-3 text-sm text-gray-900 font-semibold">Diferencia</td>
+                    <td colSpan={2} className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+                      {formatCurrency(diferencia)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-      )}
+          </section>
 
-      {/* Resumen por tipo de factura */}
-      {reporteConsolidado && (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-            <h3 className="text-lg font-semibold text-gray-900">Resumen por Tipo</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Facturado
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Cobrado/Pagado
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Pendiente
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cantidad
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">Clientes</td>
-                  <td className="px-4 py-3 text-sm text-blue-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalFacturadoClientes)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-green-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalCobradoClientes)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-yellow-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalPendienteCobro)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
-                    {reporteConsolidado.cantidadFacturasClientes}
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">Proveedores</td>
-                  <td className="px-4 py-3 text-sm text-blue-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalFacturadoProveedores)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-red-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalPagadoProveedores)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-orange-600 text-right font-mono">
-                    {formatCurrency(reporteConsolidado.totalPendientePago)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600 text-right">
-                    {reporteConsolidado.cantidadFacturasProveedores}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <section className="bg-white border border-gray-200 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">Cash Flow</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-700">
+              {Object.entries(consolidado.cashFlow)
+                .filter(([label]) => label !== 'total')
+                .map(([label, value]) => (
+                <div key={label} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <div className="text-xs text-gray-500 uppercase">{label}</div>
+                  <div className="text-lg font-semibold text-gray-900 text-right">
+                    {formatCurrency(value)}
+                  </div>
+                </div>
+              ))}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <div className="text-xs text-emerald-600 uppercase">Total Cash Flow</div>
+                <div className="text-lg font-semibold text-emerald-700 text-right">
+                  {formatCurrency(consolidado.cashFlow.total)}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <div className="bg-blue-50 border-b border-blue-100 px-4 py-3">
+                <h3 className="text-lg font-semibold text-blue-900">Incremento de saldo tarjetas</h3>
+              </div>
+              <div className="px-4 py-3 text-sm text-gray-600">
+                Total: {formatCurrency(totalTarjetas)}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-white">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tarjeta
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Titular
+                      </th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Importe agregado
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-100">
+                    {consolidado.tarjetas.map((tarjeta) => (
+                      <tr key={tarjeta.tarjeta}>
+                        <td className="px-4 py-2 text-sm text-gray-900">{tarjeta.tarjeta}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900">{tarjeta.titular}</td>
+                        <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                          {formatCurrency(tarjeta.importe)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-yellow-50 border-b border-yellow-100 px-4 py-3">
+                  <h3 className="text-lg font-semibold text-yellow-900">
+                    Cobranzas con diferencias
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-white">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cliente
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Registrado
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cobrado
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {consolidado.cobranzasDiferencias.map((item) => (
+                        <tr key={item.cliente}>
+                          <td className="px-4 py-2 text-sm text-gray-900">{item.cliente}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                            {formatCurrency(item.registrado)}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                            {formatCurrency(item.cobrado)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-4 py-2 text-xs text-gray-500">
+                  Diferencia total: {formatCurrency(consolidado.cobranzasDiferencias.reduce((sum, item) => sum + item.diferencia, 0))}
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-blue-50 border-b border-blue-100 px-4 py-3">
+                  <h3 className="text-lg font-semibold text-blue-900">Pago proveedores mediante planes</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-white">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Proveedor
+                        </th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Importe cancelado
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {consolidado.pagosProveedoresPlanes.map((item) => (
+                        <tr key={item.proveedor}>
+                          <td className="px-4 py-2 text-sm text-gray-900">{item.proveedor}</td>
+                          <td className="px-4 py-2 text-sm text-gray-900 text-right font-mono">
+                            {formatCurrency(item.importeCancelado)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Incremento saldo clientes</p>
+              <p className="text-2xl font-semibold text-indigo-600">
+                {incrementoSaldoClientes ? formatCurrency(incrementoSaldoClientes) : '-'}
+              </p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Incremento saldo proveedores</p>
+              <p className="text-2xl font-semibold text-rose-600">
+                {incrementoSaldoProveedores ? formatCurrency(incrementoSaldoProveedores) : '-'}
+              </p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Incremento saldo tarjetas</p>
+              <p className="text-2xl font-semibold text-emerald-600">
+                {incrementoSaldoTarjetas ? formatCurrency(incrementoSaldoTarjetas) : '-'}
+              </p>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

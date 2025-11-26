@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { Cliente, Proveedor, MovimientoCaja } from '@/types/cajaDiaria';
+import { Cliente, Proveedor, MovimientoCaja, ConsolidadoReport } from '@/types/cajaDiaria';
 
 // Interfaces para las respuestas de los reportes
 export interface ReporteClientesResponse {
@@ -377,24 +377,7 @@ export class ReportesService {
     }
   }
 
-  async obtenerReporteConsolidado(fecha: string): Promise<{
-    fecha: string;
-    totalFacturado: number;
-    totalCobrado: number;
-    totalPagado: number;
-    saldoNeto: number;
-    totalPendienteCobro: number;
-    totalPendientePago: number;
-    saldosConsolidados: any;
-    cashFlow: any;
-    ajustes: any;
-    cuentasBancarias: any[];
-    tarjetas: any[];
-    cobranzasDiferencias: any[];
-    pagosProveedoresPlanes: any[];
-    totales: any;
-    resumenPorTipo: any;
-  }> {
+  async obtenerReporteConsolidado(fecha: string): Promise<ConsolidadoReport> {
     try {
       const response = await apiClient<{ success: boolean; data: any }>(
         'api/reportes/consolidado',

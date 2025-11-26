@@ -20,6 +20,7 @@ export default function DisponibilidadTab() {
   const [showProgress, setShowProgress] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cacheRef = useRef<TesoreriaDisponibilidadResponse | null>(null);
+  const inicializadoRef = useRef(false);
 
   const cargarDisponibilidad = useCallback(async ({ triggeredByButton = false } = {}) => {
     if (triggeredByButton) {
@@ -65,6 +66,8 @@ export default function DisponibilidadTab() {
   }, []);
 
   useEffect(() => {
+    if (inicializadoRef.current) return;
+    inicializadoRef.current = true;
     cargarDisponibilidad();
   }, [cargarDisponibilidad]);
 
