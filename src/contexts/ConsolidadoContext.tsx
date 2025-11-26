@@ -33,11 +33,11 @@ export const ConsolidadoProvider = ({ children }: { children: React.ReactNode })
       setLoading(false);
     }
   }, [fecha]);
-
+/*
   useEffect(() => {
     syncAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []);*/
 
   const value = useMemo(
     () => ({

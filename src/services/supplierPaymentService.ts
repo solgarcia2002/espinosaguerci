@@ -32,9 +32,9 @@ export class SupplierPaymentService {
     try {
       console.log('🔄 Ejecutando proceso desde el backend...', request);
       const response = await apiClient<ProcessExecutionResponse>('caja-diaria/pago-proveedores/execute', {
-        method: 'POST',
-        body: JSON.stringify(request),
-      });
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
       console.log('✅ Proceso ejecutado:', response);
       return response;
     } catch (error) {
@@ -83,8 +83,8 @@ export class SupplierPaymentService {
     try {
       console.log('🔄 Cancelando ejecución desde el backend...', { executionId });
       await apiClient<void>(`caja-diaria/pago-proveedores/executions/${executionId}/cancel`, {
-        method: 'POST',
-      });
+      method: 'POST',
+    });
       console.log('✅ Ejecución cancelada');
     } catch (error) {
       console.error('❌ Error cancelando ejecución:', error);

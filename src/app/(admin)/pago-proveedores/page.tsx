@@ -78,7 +78,7 @@ export default function PagoProveedoresPage() {
         
         console.log('✅ Proceso iniciado desde el backend:', response);
         toast.success(response.message || 'Proceso iniciado correctamente');
-        
+      
         // Recargar datos después de un breve delay
         setTimeout(() => {
           loadData();
