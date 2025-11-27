@@ -1,75 +1,30 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { colppyService } from '@/services/colppyService';
 import ColppyProgress from '@/components/ColppyProgress';
 import { toast } from 'sonner';
-import { TesoreriaDisponibilidadData, TesoreriaDisponibilidadResponse } from '@/types/cajaDiaria';
-
-const COLPPY_CREDENTIALS = {
-  email: 'matiespinosa05@gmail.com',
-  password: 'Mati.46939'
-};
+import { useDisponibilidadContext } from '@/contexts/DisponibilidadContext';
 
 export default function DisponibilidadTab() {
-  const [disponibilidad, setDisponibilidad] = useState<TesoreriaDisponibilidadData | null>(null);
-  const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sincronizando, setSincronizando] = useState(false);
+  const { data: disponibilidad, timestamp, loading, error, syncing, refresh } = useDisponibilidadContext();
   const [showProgress, setShowProgress] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const cacheRef = useRef<TesoreriaDisponibilidadResponse | null>(null);
-  const inicializadoRef = useRef(false);
 
-  const cargarDisponibilidad = useCallback(async ({ triggeredByButton = false } = {}) => {
-    if (triggeredByButton) {
-      setSincronizando(true);
-      setShowProgress(true);
-    } else {
-      setLoading(true);
-    }
+  const handleSync = useCallback(() => {
+    setShowProgress(true);
+    void refresh({ triggeredByButton: true });
+  }, [refresh]);
 
-    setError(null);
-
-    if (!triggeredByButton && cacheRef.current) {
-      setDisponibilidad(cacheRef.current.data);
-      setTimestamp(cacheRef.current.timestamp);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await colppyService.obtenerDisponibilidadTesoreria(COLPPY_CREDENTIALS);
-
-      if (response && response.success) {
-        cacheRef.current = response;
-        setDisponibilidad(response.data);
-        setTimestamp(response.timestamp);
-      } else {
-        const message = response?.message ?? 'No se pudieron obtener los datos de disponibilidad';
-        setError(message);
-        toast.error(message);
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al obtener disponibilidad';
-      setError(message);
-      toast.error(message);
-    } finally {
-      if (triggeredByButton) {
-        setSincronizando(false);
-        setTimeout(() => setShowProgress(false), 500);
-      } else {
-        setLoading(false);
-      }
-    }
-  }, []);
+  const handleProgressComplete = useCallback(() => {
+    setShowProgress(false);
+    void refresh();
+  }, [refresh]);
 
   useEffect(() => {
-    if (inicializadoRef.current) return;
-    inicializadoRef.current = true;
-    cargarDisponibilidad();
-  }, [cargarDisponibilidad]);
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   if (loading) {
     return (
@@ -87,13 +42,8 @@ export default function DisponibilidadTab() {
       {showProgress && (
         <ColppyProgress
           scope="disponibilidad"
-          onComplete={() => {
-            setShowProgress(false);
-            cargarDisponibilidad();
-          }}
-          onError={() => {
-            setShowProgress(false);
-          }}
+          onComplete={handleProgressComplete}
+          onError={() => setShowProgress(false)}
         />
       )}
 
@@ -107,12 +57,12 @@ export default function DisponibilidadTab() {
           )}
         </div>
         <button
-          onClick={() => cargarDisponibilidad({ triggeredByButton: true })}
-          disabled={sincronizando}
+          onClick={handleSync}
+          disabled={syncing}
           className="btn-primary px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50"
         >
           <span>🔄</span>
-          {sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}
+          {syncing ? 'Sincronizando...' : 'Sincronizar con Colppy'}
         </button>
       </div>
 
