@@ -136,14 +136,6 @@ export default function PagadoTab() {
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Proveedores Pagados</h3>
-          <button
-            onClick={sincronizarFacturasProveedores}
-            disabled={sincronizando}
-            className="btn-primary flex items-center space-x-2 disabled:opacity-50"
-          >
-            <span>🔄</span>
-            <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
@@ -167,6 +159,16 @@ export default function PagadoTab() {
               onChange={(e) => setFechaHasta(e.target.value)}
               className="input"
             />
+          </div>
+          <div>          
+            <button
+              onClick={sincronizarFacturasProveedores}
+              disabled={sincronizando}
+              className="btn-primary flex items-center space-x-2 disabled:opacity-50"
+            >
+              <span>🔄</span>
+              <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
+            </button>
           </div>
           <div className="flex items-end">
             <button
