@@ -46,9 +46,7 @@ export default function PagadoTab() {
       const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
         paginaActual,
         itemsPorPagina,
-        'pagado',
-        fechaDesde || undefined,
-        fechaHasta || undefined
+        'pagado'
       );
       setProveedoresData(data);
     } catch (error) {
