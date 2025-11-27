@@ -160,7 +160,8 @@ export default function PagadoTab() {
               className="input"
             />
           </div>
-          <div>          
+          
+          <div className="flex items-end">       
             <button
               onClick={sincronizarFacturasProveedores}
               disabled={sincronizando}
@@ -168,18 +169,6 @@ export default function PagadoTab() {
             >
               <span>🔄</span>
               <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-            </button>
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={() => {
-                setFechaDesde('');
-                setFechaHasta('');
-                setBusqueda('');
-              }}
-              className="btn-secondary w-full"
-            >
-              Limpiar Filtros
             </button>
           </div>
         </div>
