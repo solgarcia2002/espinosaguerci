@@ -170,7 +170,7 @@ export default function PagadoTab() {
               disabled={sincronizando}
               className="btn-primary flex items-center space-x-2 disabled:opacity-50"
             >
-              <span>🔄</span>
+              <span> 🔄</span>
               <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
             </button>
           </div>
