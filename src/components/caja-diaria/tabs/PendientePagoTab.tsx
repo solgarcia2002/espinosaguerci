@@ -13,17 +13,16 @@ export default function PendientePagoTab() {
   const fechasDefault = obtenerFechasUltimoMes();
   const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
-  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [sincronizando, setSincronizando] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
-  const [busqueda, setBusqueda] = useState('');
+  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
+  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
 
   useEffect(() => {
     cargarProveedores();
-  }, [fechaDesde, fechaHasta, paginaActual, itemsPorPagina]);
+  }, [paginaActual, itemsPorPagina]);
 
   const cargarProveedores = async () => {
     try {
@@ -31,9 +30,7 @@ export default function PendientePagoTab() {
       const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
         paginaActual,
         itemsPorPagina,
-        'pendiente',
-        fechaDesde || undefined,
-        fechaHasta || undefined
+        'pendiente'
       );
       setProveedoresData(data);
     } catch (error) {
@@ -58,11 +55,9 @@ export default function PendientePagoTab() {
       setSincronizando(true);
       setShowProgress(true);
 
-      const fechas = obtenerFechasUltimoMes(fechaDesde, fechaHasta);
-
       const resultado = await colppyService.sincronizarFacturasProveedores({
-        fechaDesde: fechas.fechaDesde,
-        fechaHasta: fechas.fechaHasta,
+        fechaDesde,
+        fechaHasta,
         email: 'matiespinosa05@gmail.com',
         password: 'Mati.46939'
       });
@@ -82,17 +77,8 @@ export default function PendientePagoTab() {
     }
   };
 
-  const proveedoresFiltrados = busqueda
-    ? (proveedoresData?.data || []).filter(proveedor =>
-        proveedor.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-        (proveedor.email && proveedor.email.toLowerCase().includes(busqueda.toLowerCase())) ||
-        (proveedor.cuit && proveedor.cuit.includes(busqueda)) ||
-        (proveedor.telefono && proveedor.telefono.includes(busqueda)) ||
-        (proveedor.direccion && proveedor.direccion.toLowerCase().includes(busqueda.toLowerCase()))
-      )
-    : (proveedoresData?.data || []);
-
-  const totalSaldo = proveedoresFiltrados.reduce((sum, p) => sum + (p.saldo || 0), 0);
+  const proveedores = proveedoresData?.data || [];
+  const totalSaldo = proveedores.reduce((sum, p) => sum + (p.saldo || 0), 0);
   const cantidadProveedores = proveedoresData?.pagination.total || 0;
 
   if (loading) {
@@ -121,64 +107,39 @@ export default function PendientePagoTab() {
         />
       )}
 
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Pendientes de Pago</h3>
-        <button
-          onClick={sincronizarFacturasProveedores}
-          disabled={sincronizando}
-          className="btn-primary flex items-center space-x-2 disabled:opacity-50"
-        >
-          <span>🔄</span>
-          <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-        </button>
-      </div>
-
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Pendientes de Pago</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Desde
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
             <input
               type="date"
               value={fechaDesde}
               onChange={(e) => setFechaDesde(e.target.value)}
-              className="input w-full"
+              className="input"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fecha Hasta
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
             <input
               type="date"
               value={fechaHasta}
               onChange={(e) => setFechaHasta(e.target.value)}
-              className="input w-full"
+              className="input"
             />
           </div>
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Buscar proveedor por nombre, CUIT, email, teléfono o dirección..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              className="input w-full"
-            />
-          </div>
-          {busqueda && (
+          <div className="flex items-end">
             <button
-              onClick={() => setBusqueda('')}
-              className="btn-secondary"
+              onClick={sincronizarFacturasProveedores}
+              disabled={sincronizando}
+              className="btn-primary flex items-center space-x-2 disabled:opacity-50"
             >
-              Limpiar
+              <span>🔄</span>
+              <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
             </button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -197,18 +158,11 @@ export default function PendientePagoTab() {
         </div>
       </div>
 
-      {proveedoresFiltrados.length === 0 ? (
+      {proveedores.length === 0 ? (
         <div className="card p-8 text-center">
           <div className="text-gray-400 text-6xl mb-4">🏢</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {busqueda ? 'No se encontraron proveedores' : 'No hay proveedores pendientes de pago'}
-          </h3>
-          <p className="text-gray-500">
-            {busqueda
-              ? 'Intenta con otros términos de búsqueda'
-              : 'No se encontraron proveedores con estado de pago pendiente para el período seleccionado.'
-            }
-          </p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay proveedores pendientes de pago</h3>
+          <p className="text-gray-500">No se encontraron proveedores con estado de pago pendiente.</p>
         </div>
       ) : (
         <>
@@ -241,7 +195,7 @@ export default function PendientePagoTab() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {proveedoresFiltrados.map((proveedor) => (
+                  {proveedores.map((proveedor) => (
                     <tr key={proveedor.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
@@ -275,10 +229,10 @@ export default function PendientePagoTab() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                         {proveedor.saldo !== undefined ? (
                           <span className={`font-medium ${
-                            proveedor.saldo > 0 
-                              ? 'text-red-600' 
-                              : proveedor.saldo < 0 
-                              ? 'text-green-600' 
+                            proveedor.saldo > 0
+                              ? 'text-red-600'
+                              : proveedor.saldo < 0
+                              ? 'text-green-600'
                               : 'text-gray-600'
                           }`}>
                             {formatCurrency(Math.abs(proveedor.saldo))}
