@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Layout from "../../../components/Layout";
-import ExecutionHistory from "../../../components/ExecutionHistory";
-import { SupplierPaymentService } from "../../../services/supplierPaymentService";
-import { SupplierPaymentProcess, ProcessExecution } from "../../../types/supplierPayment";
-import { colppyService } from "../../../services/colppyService";
+import Layout from "@/components/Layout";
+import ExecutionHistory from "@/components/ExecutionHistory";
+import { SupplierPaymentService } from "@/services/supplierPaymentService";
+import { SupplierPaymentProcess, ProcessExecution } from "@/types/supplierPayment";
+import { colppyService } from "@/services/colppyService";
 import { toast } from 'sonner';
-import ColppyProgress from "../../../components/ColppyProgress";
+import ColppyProgress from "@/components/ColppyProgress";
 
 export default function PagoProveedoresPage() {
   const [processInfo, setProcessInfo] = useState<SupplierPaymentProcess | null>(null);
