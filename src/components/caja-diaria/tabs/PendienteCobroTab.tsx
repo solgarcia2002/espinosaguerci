@@ -7,15 +7,17 @@ import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import ColppyProgress from '@/components/ColppyProgress';
 import { toast } from 'sonner';
+import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
 
 type ClienteOrderBy = 'saldo' | 'nombre';
 type ClienteOrder = 'asc' | 'desc';
 
 export default function PendienteCobroTab() {
+  const fechasDefault = obtenerFechasUltimoMes();
   const [clientesData, setClientesData] = useState<ClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [fechaDesde, setFechaDesde] = useState('');
-  const [fechaHasta, setFechaHasta] = useState('');
+  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
+  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [orderBy, setOrderBy] = useState<ClienteOrderBy>('saldo');
@@ -74,9 +76,11 @@ export default function PendienteCobroTab() {
       setSincronizando(true);
       setShowProgress(true);
 
+      const fechas = obtenerFechasUltimoMes(fechaDesde, fechaHasta);
+
       const resultado = await colppyService.sincronizarFacturasClientes({
-        fechaDesde: fechaDesde || undefined,
-        fechaHasta: fechaHasta || undefined,
+        fechaDesde: fechas.fechaDesde,
+        fechaHasta: fechas.fechaHasta,
         email: 'matiespinosa05@gmail.com',
         password: 'Mati.46939'
       });
@@ -106,9 +110,14 @@ export default function PendienteCobroTab() {
     setPaginaActual(1);
   };
 
+  const resetFechas = () => {
+    const fechas = obtenerFechasUltimoMes();
+    setFechaDesde(fechas.fechaDesde);
+    setFechaHasta(fechas.fechaHasta);
+  };
+
   const limpiarFiltros = () => {
-    setFechaDesde('');
-    setFechaHasta('');
+    resetFechas();
     setBusqueda('');
     setOrderBy('saldo');
     setOrder('desc');

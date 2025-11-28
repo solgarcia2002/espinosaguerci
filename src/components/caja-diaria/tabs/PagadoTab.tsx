@@ -7,29 +7,14 @@ import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import ColppyProgress from '@/components/ColppyProgress';
-
-const obtenerFechasPorDefecto = (
-  fechaDesde?: string,
-  fechaHasta?: string
-): { fechaDesde: string; fechaHasta: string } => {
-  const hoy = new Date();
-  const mesAnterior = new Date(hoy);
-  mesAnterior.setMonth(hoy.getMonth() - 1);
-  const fechaHastaDefault = hoy.toISOString().split('T')[0];
-  const fechaDesdeDefault = mesAnterior.toISOString().split('T')[0];
-
-  return {
-    fechaDesde: fechaDesde || fechaDesdeDefault,
-    fechaHasta: fechaHasta || fechaHastaDefault
-  };
-};
+import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
 
 export default function PagadoTab() {
+  const fechasDefault = obtenerFechasUltimoMes();
   const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const defaultFechas = obtenerFechasPorDefecto();
-  const [fechaDesde, setFechaDesde] = useState(defaultFechas.fechaDesde);
-  const [fechaHasta, setFechaHasta] = useState(defaultFechas.fechaHasta);
+  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
+  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [sincronizando, setSincronizando] = useState(false);
@@ -46,7 +31,9 @@ export default function PagadoTab() {
       const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
         paginaActual,
         itemsPorPagina,
-        'pagado'
+        'pagado',
+        fechaDesde || undefined,
+        fechaHasta || undefined
       );
       setProveedoresData(data);
     } catch (error) {
@@ -71,7 +58,7 @@ export default function PagadoTab() {
       setSincronizando(true);
       setShowProgress(true);
       
-      const fechas = obtenerFechasPorDefecto(fechaDesde, fechaHasta);
+      const fechas = obtenerFechasUltimoMes(fechaDesde, fechaHasta);
       
       const resultado = await colppyService.sincronizarFacturasProveedores({
         fechaDesde: fechas.fechaDesde,
