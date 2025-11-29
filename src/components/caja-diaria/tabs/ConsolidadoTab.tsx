@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { reportesService } from '@/services/reportesService';
+import { useConsolidadoContext } from '@/contexts/ConsolidadoContext';
+import { useDisponibilidadContext } from '@/contexts/DisponibilidadContext';
 import { MovimientoCaja } from '@/types/cajaDiaria';
 import {
   ReporteCobradoResponse,
@@ -90,40 +91,19 @@ const cargarPagosProveedoresDeMas = (reporte: ReportePagadoResponse | null) => {
 };
 
 export default function ConsolidadoTab() {
-  const [dashboard, setDashboard] = useState<ReporteDashboardResponse | null>(null);
-  const [reporteCobrado, setReporteCobrado] = useState<ReporteCobradoResponse | null>(null);
-  const [reportePagado, setReportePagado] = useState<ReportePagadoResponse | null>(null);
-  const [movimientos, setMovimientos] = useState<MovimientoCaja[]>([]);
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const cargarConsolidado = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const [dashboardData, reporteCobradoData, reportePagadoData] = await Promise.all([
-        reportesService.obtenerReporteDashboard(fecha),
-        reportesService.obtenerReporteCobrado(fecha, fecha),
-        reportesService.obtenerReportePagado(fecha, fecha)
-      ]);
-
-      setDashboard(dashboardData);
-      setReporteCobrado(reporteCobradoData);
-      setReportePagado(reportePagadoData);
-      setMovimientos(dashboardData.movimientosDelDia.movimientos);
-    } catch (err) {
-      console.error('Error al cargar consolidado:', err);
-      setError('No se pudo cargar el reporte consolidado');
-    } finally {
-      setLoading(false);
-    }
-  }, [fecha]);
-
-  useEffect(() => {
-    cargarConsolidado();
-  }, [cargarConsolidado]);
+  const {
+    dashboard,
+    reporteCobrado,
+    reportePagado,
+    movimientos,
+    loading,
+    error,
+    fecha,
+    setFecha,
+    refresh
+  } = useConsolidadoContext();
+  
+  const { data: disponibilidadData } = useDisponibilidadContext();
 
   const cashFlow = useMemo(() => obtenerCashFlow(dashboard, movimientos), [dashboard, movimientos]);
   const diferenciasCobranza = useMemo(() => cargarDiferenciasCobranza(reporteCobrado), [reporteCobrado]);
@@ -158,7 +138,7 @@ export default function ConsolidadoTab() {
           />
         </div>
         <button
-          onClick={cargarConsolidado}
+          onClick={() => refresh()}
           className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
         >
           Actualizar consolidado
@@ -191,22 +171,29 @@ export default function ConsolidadoTab() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filasSaldos.map((fila) => (
-                <tr key={fila.key}>
-                  <td className="px-4 py-3 text-sm text-gray-900 font-medium">{fila.label}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                    {formatCurrency(dashboard?.saldos[fila.key as keyof typeof dashboard['saldos']].delDia ?? 0)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                    {formatCurrency(dashboard?.saldos[fila.key as keyof typeof dashboard['saldos']].diaAnterior ?? 0)}
-                  </td>
-                </tr>
-              ))}
+              {filasSaldos.map((fila) => {
+                const saldo = dashboard?.saldos[fila.key as keyof typeof dashboard.saldos];
+                const esDisponibilidades = fila.key === 'disponibilidades';
+                
+                return (
+                  <tr key={fila.key}>
+                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{fila.label}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+                      {esDisponibilidades && disponibilidadData
+                        ? formatCurrency(disponibilidadData.total)
+                        : formatCurrency(saldo?.delDia ?? 0)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
+                      {formatCurrency(saldo?.diaAnterior ?? 0)}
+                    </td>
+                  </tr>
+                );
+              })}
               <tr>
                 <td className="px-4 py-3 text-sm text-gray-900 font-semibold">Saldo</td>
                 <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
-                    (dashboard?.saldos.disponibilidades.delDia ?? 0) +
+                    (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) +
                       (dashboard?.saldos.chequesEnCartera.delDia ?? 0) +
                       (dashboard?.saldos.aCobrar.delDia ?? 0) -
                       (dashboard?.saldos.aPagar.delDia ?? 0) -
