@@ -59,7 +59,7 @@ export default function DisponibilidadTab() {
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="btn-primary px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 mx-auto"
+          className="btn-primary px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 w-fit mx-auto"
         >
           <span>🔄</span>
           {syncing ? 'Sincronizando...' : 'Sincronizar con Colppy'}
