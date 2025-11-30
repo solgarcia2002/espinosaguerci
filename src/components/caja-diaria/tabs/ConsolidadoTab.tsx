@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { useConsolidadoContext } from '@/contexts/ConsolidadoContext';
 import { useDisponibilidadContext } from '@/contexts/DisponibilidadContext';
+import { useProveedoresContext } from '@/contexts/ProveedoresContext';
 import { MovimientoCaja } from '@/types/cajaDiaria';
 import {
   ReporteCobradoResponse,
@@ -104,6 +105,7 @@ export default function ConsolidadoTab() {
   } = useConsolidadoContext();
   
   const { data: disponibilidadData } = useDisponibilidadContext();
+  const { totalPendientePago } = useProveedoresContext();
 
   const cashFlow = useMemo(() => obtenerCashFlow(dashboard, movimientos), [dashboard, movimientos]);
   const diferenciasCobranza = useMemo(() => cargarDiferenciasCobranza(reporteCobrado), [reporteCobrado]);
@@ -174,6 +176,7 @@ export default function ConsolidadoTab() {
               {filasSaldos.map((fila) => {
                 const saldo = dashboard?.saldos[fila.key as keyof typeof dashboard.saldos];
                 const esDisponibilidades = fila.key === 'disponibilidades';
+                const esAPagar = fila.key === 'aPagar';
                 
                 return (
                   <tr key={fila.key}>
@@ -181,6 +184,8 @@ export default function ConsolidadoTab() {
                     <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                       {esDisponibilidades && disponibilidadData
                         ? formatCurrency(disponibilidadData.total)
+                        : esAPagar && totalPendientePago > 0
+                        ? formatCurrency(totalPendientePago)
                         : formatCurrency(saldo?.delDia ?? 0)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
@@ -196,7 +201,7 @@ export default function ConsolidadoTab() {
                     (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) +
                       (dashboard?.saldos.chequesEnCartera.delDia ?? 0) +
                       (dashboard?.saldos.aCobrar.delDia ?? 0) -
-                      (dashboard?.saldos.aPagar.delDia ?? 0) -
+                      (totalPendientePago > 0 ? totalPendientePago : dashboard?.saldos.aPagar.delDia ?? 0) -
                       totalTarjetas
                   )}
                 </td>

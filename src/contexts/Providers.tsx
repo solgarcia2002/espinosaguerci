@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { ConsolidadoProvider } from '@/contexts/ConsolidadoContext';
 import { DisponibilidadProvider } from '@/contexts/DisponibilidadContext';
+import { ProveedoresProvider } from '@/contexts/ProveedoresContext';
 
 interface Props {
   children: ReactNode;
@@ -11,7 +12,9 @@ interface Props {
 export default function Providers({ children }: Props) {
   return (
     <ConsolidadoProvider>
-      <DisponibilidadProvider>{children}</DisponibilidadProvider>
+      <DisponibilidadProvider>
+        <ProveedoresProvider>{children}</ProveedoresProvider>
+      </DisponibilidadProvider>
     </ConsolidadoProvider>
   );
 }
