@@ -78,7 +78,7 @@ export default function PendientePagoTab() {
   };
 
   const proveedores = proveedoresData?.data || [];
-  const totalSaldo = proveedores.reduce((sum, p) => sum + (p.saldo || 0), 0);
+  const montoTotal = proveedoresData?.montoTotal ?? proveedores.reduce((sum, p) => sum + (p.montoPendiente ?? p.saldo ?? 0), 0);
   const cantidadProveedores = proveedoresData?.pagination.total || 0;
 
   if (loading) {
@@ -145,9 +145,9 @@ export default function PendientePagoTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Total Saldo</div>
+          <div className="text-sm font-medium text-gray-500">Monto Total</div>
           <div className="text-2xl font-bold text-orange-600">
-            {formatCurrency(totalSaldo)}
+            {formatCurrency(montoTotal)}
           </div>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">

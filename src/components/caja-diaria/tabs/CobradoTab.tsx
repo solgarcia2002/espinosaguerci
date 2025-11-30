@@ -49,7 +49,7 @@ export default function CobradoTab() {
   const clientes = clientesData?.data ?? [];
   const pagination = clientesData?.pagination;
 
-  const totalCobrado = clientes.reduce((sum, cliente) => sum + (cliente.montoCobrado ?? 0), 0);
+  const montoTotal = clientesData?.montoTotal ?? clientes.reduce((sum, cliente) => sum + (cliente.montoCobrado ?? 0), 0);
   const totalSaldo = clientes.reduce((sum, cliente) => sum + (cliente.saldo ?? 0), 0);
   const cantidadClientes = pagination?.total ?? 0;
 
@@ -118,9 +118,9 @@ export default function CobradoTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-gray-500">Total cobrado</p>
+          <p className="text-sm font-medium text-gray-500">Monto Total</p>
           <p className="text-2xl font-semibold text-green-600">
-            {formatCurrency(totalCobrado)}
+            {formatCurrency(montoTotal)}
           </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">

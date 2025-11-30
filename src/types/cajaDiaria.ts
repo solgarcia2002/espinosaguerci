@@ -112,6 +112,7 @@ export interface PaginationInfo {
 
 export interface ProveedoresResponse {
   data: ProveedorEntity[];
+  montoTotal?: number;
   pagination: PaginationInfo;
 }
 
@@ -132,6 +133,7 @@ export interface ClienteEntity {
 
 export interface ClientesResponse {
   data: ClienteEntity[];
+  montoTotal?: number;
   pagination: PaginationInfo;
 }
 

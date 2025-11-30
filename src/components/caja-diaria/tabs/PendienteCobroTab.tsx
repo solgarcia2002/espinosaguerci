@@ -48,7 +48,7 @@ export default function PendienteCobroTab() {
   const clientes = clientesData?.data ?? [];
   const pagination = clientesData?.pagination;
 
-  const totalPendiente = clientes.reduce((sum, cliente) => sum + (cliente.montoPendienteCobro ?? 0), 0);
+  const montoTotal = clientesData?.montoTotal ?? clientes.reduce((sum, cliente) => sum + (cliente.montoPendienteCobro ?? 0), 0);
   const totalSaldo = clientes.reduce((sum, cliente) => sum + (cliente.saldo ?? 0), 0);
   const cantidadClientes = pagination?.total ?? 0;
 
@@ -117,9 +117,9 @@ export default function PendienteCobroTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-gray-500">Total pendiente</p>
+          <p className="text-sm font-medium text-gray-500">Monto Total</p>
           <p className="text-2xl font-semibold text-yellow-600">
-            {formatCurrency(totalPendiente)}
+            {formatCurrency(montoTotal)}
           </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">

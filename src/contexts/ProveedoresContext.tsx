@@ -8,6 +8,7 @@ interface ProveedoresContextValue {
   proveedoresPagados: ProveedoresResponse | null;
   proveedoresPendientes: ProveedoresResponse | null;
   totalPendientePago: number;
+  montoTotalPagado: number;
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -52,16 +53,21 @@ export const ProveedoresProvider = ({ children }: { children: React.ReactNode })
     }, 0);
   }, [proveedoresPendientes]);
 
+  const montoTotalPagado = useMemo(() => {
+    return proveedoresPagados?.montoTotal ?? 0;
+  }, [proveedoresPagados]);
+
   const value = useMemo(
     () => ({
       proveedoresPagados,
       proveedoresPendientes,
       totalPendientePago,
+      montoTotalPagado,
       loading,
       error,
       refresh
     }),
-    [proveedoresPagados, proveedoresPendientes, totalPendientePago, loading, error, refresh]
+    [proveedoresPagados, proveedoresPendientes, totalPendientePago, montoTotalPagado, loading, error, refresh]
   );
 
   return <ProveedoresContext.Provider value={value}>{children}</ProveedoresContext.Provider>;
