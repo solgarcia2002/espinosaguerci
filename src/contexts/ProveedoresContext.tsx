@@ -47,10 +47,7 @@ export const ProveedoresProvider = ({ children }: { children: React.ReactNode })
   }, [refresh]);
 
   const totalPendientePago = useMemo(() => {
-    if (!proveedoresPendientes?.data) return 0;
-    return proveedoresPendientes.data.reduce((sum, proveedor) => {
-      return sum + (proveedor.montoPendiente ?? proveedor.saldo ?? 0);
-    }, 0);
+    return proveedoresPendientes?.montoTotal ?? 0;
   }, [proveedoresPendientes]);
 
   const montoTotalPagado = useMemo(() => {
