@@ -78,7 +78,6 @@ export default function PagadoTab() {
   };
 
   const proveedores = proveedoresData?.data || [];
-  const montoTotal = proveedoresData?.montoTotal ?? proveedores.reduce((sum, p) => sum + (p.montoPagado || 0), 0);
   const cantidadProveedores = proveedoresData?.pagination.total || 0;
 
   if (loading) {
@@ -143,13 +142,7 @@ export default function PagadoTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Monto Total</div>
-          <div className="text-2xl font-bold text-blue-600">
-            {formatCurrency(montoTotal)}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <div className="text-sm font-medium text-gray-500">Cantidad de Proveedores</div>
           <div className="text-2xl font-bold text-purple-600">
