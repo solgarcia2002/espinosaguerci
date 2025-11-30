@@ -149,11 +149,7 @@ export default function ConsolidadoTab() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
+    
 
       <section className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
