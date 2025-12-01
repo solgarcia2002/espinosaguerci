@@ -171,7 +171,7 @@ export default function CajaDiariaPage() {
           <button
             onClick={ejecutarTodosLosRPA}
             disabled={ejecutandoRPA}
-            className="btn-secondary px-4 py-2 flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 flex items-center gap-2 disabled:opacity-50 btn-primary"
           >
             <span>🤖</span>
             <span>{ejecutandoRPA ? 'Ejecutando RPA...' : 'Ejecutar todos los Robots de sincronizacion con Colppy'}</span>
