@@ -114,26 +114,6 @@ export default function PendienteCobroTab() {
           }}
         />
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-gray-500">Monto Total</p>
-          <p className="text-2xl font-semibold text-yellow-600">
-            {formatCurrency(montoTotal)}
-          </p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-gray-500">Saldo de clientes</p>
-          <p className="text-2xl font-semibold text-blue-600">
-            {formatCurrency(totalSaldo)}
-          </p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <p className="text-sm font-medium text-gray-500">Clientes</p>
-          <p className="text-2xl font-semibold text-purple-600">{cantidadClientes}</p>
-        </div>
-      </div>
-
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Clientes pendientes de cobro</h3>
@@ -171,6 +151,25 @@ export default function PendienteCobroTab() {
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <p className="text-sm font-medium text-gray-500">Monto Total</p>
+          <p className="text-2xl font-semibold text-yellow-600">
+            {formatCurrency(montoTotal)}
+          </p>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <p className="text-sm font-medium text-gray-500">Saldo de clientes</p>
+          <p className="text-2xl font-semibold text-blue-600">
+            {formatCurrency(totalSaldo)}
+          </p>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <p className="text-sm font-medium text-gray-500">Clientes</p>
+          <p className="text-2xl font-semibold text-purple-600">{cantidadClientes}</p>
+        </div>
+      </div>
+
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3">
