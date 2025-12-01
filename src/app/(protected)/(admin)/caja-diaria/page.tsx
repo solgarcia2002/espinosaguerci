@@ -168,14 +168,16 @@ export default function CajaDiariaPage() {
               Gestiona los movimientos de caja diaria
             </p>
           </div>
-          <button
-            onClick={ejecutarTodosLosRPA}
-            disabled={ejecutandoRPA}
-            className="px-4 py-2 flex items-center gap-2 disabled:opacity-50 btn-primary"
-          >
-            <span>🤖</span>
-            <span>{ejecutandoRPA ? 'Ejecutando RPA...' : 'Ejecutar todos los Robots de sincronizacion con Colppy'}</span>
-          </button>
+          <div>
+            <button
+              onClick={ejecutarTodosLosRPA}
+              disabled={ejecutandoRPA}
+              className="px-4 py-2 flex items-center gap-2 disabled:opacity-50 btn-primary"
+            >
+              <span>🤖</span>
+              <span>{ejecutandoRPA ? 'Ejecutando RPA...' : 'Ejecutar todos los Robots de sincronizacion con Colppy'}</span>
+            </button>
+          </div>
         </div>
 
         <CajaDiariaTabs
