@@ -132,12 +132,12 @@ export default function PagadoTab() {
           <div className="flex items-end">
             <button
               onClick={sincronizarFacturasProveedores}
-              disabled={sincronizando}
-              className="btn-primary flex items-center space-x-2 disabled:opacity-50"
-            >
-              <span>🔄</span>
-              <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-            </button>
+              disabled={sincronizando} 
+              className="btn-primary flex items-center space-x-2 disabled:opacity-50 px-3 py-1 text-sm"
+              >
+                <span>🔄</span>
+                <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
+              </button>
           </div>
         </div>
       </div>

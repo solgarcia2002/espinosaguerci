@@ -138,16 +138,14 @@ export default function PendienteCobroTab() {
             />
           </div>
           <div className="flex items-end gap-3">
-            <button onClick={cargarClientes} className="btn-secondary px-3 py-1 text-sm">
-              🔄 Actualizar
-            </button>
             <button
               onClick={sincronizarFacturas}
               disabled={sincronizando}
-              className="btn-primary px-3 py-1 text-sm disabled:opacity-50"
-            >
-              {sincronizando ? 'Sincronizando...' : 'Sincronizar facturas'}
-            </button>
+              className="btn-primary flex items-center space-x-2 disabled:opacity-50 px-3 py-1 text-sm"
+              >
+                <span>🔄</span>
+                <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
+              </button>
           </div>
         </div>
       </div>
