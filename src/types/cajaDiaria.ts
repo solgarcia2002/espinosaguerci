@@ -257,10 +257,18 @@ export interface FacturasProveedoresResponse {
 }
 
 export interface UltimoProcesoSincronizacion {
+  id: string;
   scope: string;
   status: string;
-  fecha: string;
-  totalDisponibilidad?: number;
-  totalCobrosPendientes?: number;
-  totalPagosPendientes?: number;
+  count: number | null;
+  message: string | null;
+  totalDisponibilidad: number | null;
+  totalCobrosPendientes: number | null;
+  totalPagosPendientes: number | null;
+  createdAt: string;
+}
+
+export interface UltimoProcesoResponse {
+  success: boolean;
+  lastSync: UltimoProcesoSincronizacion;
 }

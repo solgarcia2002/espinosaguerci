@@ -433,7 +433,7 @@ export class ColppyService {
     }
   }
 
-  async obtenerUltimoProceso(): Promise<{ success: boolean; data: any; message?: string } | null> {
+  async obtenerUltimoProceso(): Promise<{ success: boolean; lastSync: any } | null> {
     try {
       console.log('🔄 Obteniendo último proceso de sincronización...');
       
@@ -444,7 +444,7 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
-      const response = await apiClient<{ success: boolean; data: any; message?: string }>(
+      const response = await apiClient<{ success: boolean; lastSync: any }>(
         'caja-diaria/colppy/sincronizar/ultimo',
         {
           method: 'GET'

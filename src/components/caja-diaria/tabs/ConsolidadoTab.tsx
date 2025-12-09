@@ -6,7 +6,7 @@ import { useConsolidadoContext } from '@/contexts/ConsolidadoContext';
 import { useDisponibilidadContext } from '@/contexts/DisponibilidadContext';
 import { useProveedoresContext } from '@/contexts/ProveedoresContext';
 import { useClientesContext } from '@/contexts/ClientesContext';
-import { MovimientoCaja, UltimoProcesoSincronizacion } from '@/types/cajaDiaria';
+import { MovimientoCaja, UltimoProcesoSincronizacion, UltimoProcesoResponse } from '@/types/cajaDiaria';
 import {
   ReporteCobradoResponse,
   ReporteDashboardResponse,
@@ -118,8 +118,8 @@ export default function ConsolidadoTab() {
       try {
         setLoadingProceso(true);
         const response = await colppyService.obtenerUltimoProceso();
-        if (response?.success && response.data) {
-          setUltimoProceso(response.data);
+        if (response?.success && response.lastSync) {
+          setUltimoProceso(response.lastSync);
         }
       } catch (error) {
         console.error('Error al cargar último proceso:', error);
@@ -199,10 +199,16 @@ export default function ConsolidadoTab() {
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase mb-1">Fecha</div>
               <div className="text-sm font-semibold text-gray-900">
-                {ultimoProceso.fecha ? new Date(ultimoProceso.fecha).toLocaleDateString('es-AR') : '-'}
+                {ultimoProceso.createdAt ? new Date(ultimoProceso.createdAt).toLocaleDateString('es-AR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : '-'}
               </div>
             </div>
-            {ultimoProceso.totalDisponibilidad !== undefined && (
+            {ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <div className="text-xs text-gray-500 uppercase mb-1">Total Disponibilidad</div>
                 <div className="text-sm font-semibold text-blue-600">
@@ -210,7 +216,7 @@ export default function ConsolidadoTab() {
                 </div>
               </div>
             )}
-            {ultimoProceso.totalCobrosPendientes !== undefined && (
+            {ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <div className="text-xs text-gray-500 uppercase mb-1">Total Cobros Pendientes</div>
                 <div className="text-sm font-semibold text-orange-600">
@@ -218,7 +224,7 @@ export default function ConsolidadoTab() {
                 </div>
               </div>
             )}
-            {ultimoProceso.totalPagosPendientes !== undefined && (
+            {ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <div className="text-xs text-gray-500 uppercase mb-1">Total Pagos Pendientes</div>
                 <div className="text-sm font-semibold text-red-600">
