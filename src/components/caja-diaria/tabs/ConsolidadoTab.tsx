@@ -1,17 +1,18 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { useConsolidadoContext } from '@/contexts/ConsolidadoContext';
 import { useDisponibilidadContext } from '@/contexts/DisponibilidadContext';
 import { useProveedoresContext } from '@/contexts/ProveedoresContext';
 import { useClientesContext } from '@/contexts/ClientesContext';
-import { MovimientoCaja } from '@/types/cajaDiaria';
+import { MovimientoCaja, UltimoProcesoSincronizacion } from '@/types/cajaDiaria';
 import {
   ReporteCobradoResponse,
   ReporteDashboardResponse,
   ReportePagadoResponse
 } from '@/services/reportesService';
+import { colppyService } from '@/services/colppyService';
 
 const filasSaldos = [
   { label: 'Disponibilidades', key: 'disponibilidades' },
@@ -108,6 +109,27 @@ export default function ConsolidadoTab() {
   const { data: disponibilidadData } = useDisponibilidadContext();
   const { totalPendientePago } = useProveedoresContext();
   const { totalPendienteCobro } = useClientesContext();
+  
+  const [ultimoProceso, setUltimoProceso] = useState<UltimoProcesoSincronizacion | null>(null);
+  const [loadingProceso, setLoadingProceso] = useState(true);
+
+  useEffect(() => {
+    const cargarUltimoProceso = async () => {
+      try {
+        setLoadingProceso(true);
+        const response = await colppyService.obtenerUltimoProceso();
+        if (response?.success && response.data) {
+          setUltimoProceso(response.data);
+        }
+      } catch (error) {
+        console.error('Error al cargar último proceso:', error);
+      } finally {
+        setLoadingProceso(false);
+      }
+    };
+    
+    cargarUltimoProceso();
+  }, []);
 
   const cashFlow = useMemo(() => obtenerCashFlow(dashboard, movimientos), [dashboard, movimientos]);
   const diferenciasCobranza = useMemo(() => cargarDiferenciasCobranza(reporteCobrado), [reporteCobrado]);
@@ -148,6 +170,65 @@ export default function ConsolidadoTab() {
           Actualizar consolidado
         </button>
       </div>
+
+      {ultimoProceso && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Último proceso de sincronización</h3>
+            {loadingProceso && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500 uppercase mb-1">Scope</div>
+              <div className="text-sm font-semibold text-gray-900">{ultimoProceso.scope || '-'}</div>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500 uppercase mb-1">Status</div>
+              <div className={`text-sm font-semibold ${
+                ultimoProceso.status === 'completed' || ultimoProceso.status === 'success' 
+                  ? 'text-green-600' 
+                  : ultimoProceso.status === 'error' || ultimoProceso.status === 'failed'
+                  ? 'text-red-600'
+                  : 'text-yellow-600'
+              }`}>
+                {ultimoProceso.status || '-'}
+              </div>
+            </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500 uppercase mb-1">Fecha</div>
+              <div className="text-sm font-semibold text-gray-900">
+                {ultimoProceso.fecha ? new Date(ultimoProceso.fecha).toLocaleDateString('es-AR') : '-'}
+              </div>
+            </div>
+            {ultimoProceso.totalDisponibilidad !== undefined && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="text-xs text-gray-500 uppercase mb-1">Total Disponibilidad</div>
+                <div className="text-sm font-semibold text-blue-600">
+                  {formatCurrency(ultimoProceso.totalDisponibilidad)}
+                </div>
+              </div>
+            )}
+            {ultimoProceso.totalCobrosPendientes !== undefined && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="text-xs text-gray-500 uppercase mb-1">Total Cobros Pendientes</div>
+                <div className="text-sm font-semibold text-orange-600">
+                  {formatCurrency(ultimoProceso.totalCobrosPendientes)}
+                </div>
+              </div>
+            )}
+            {ultimoProceso.totalPagosPendientes !== undefined && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="text-xs text-gray-500 uppercase mb-1">Total Pagos Pendientes</div>
+                <div className="text-sm font-semibold text-red-600">
+                  {formatCurrency(ultimoProceso.totalPagosPendientes)}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     
 

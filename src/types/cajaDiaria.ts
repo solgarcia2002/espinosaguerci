@@ -255,3 +255,12 @@ export interface FacturasProveedoresResponse {
   data: FacturaProveedor[];
   pagination: PaginationInfo;
 }
+
+export interface UltimoProcesoSincronizacion {
+  scope: string;
+  status: string;
+  fecha: string;
+  totalDisponibilidad?: number;
+  totalCobrosPendientes?: number;
+  totalPagosPendientes?: number;
+}

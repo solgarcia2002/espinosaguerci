@@ -433,6 +433,32 @@ export class ColppyService {
     }
   }
 
+  async obtenerUltimoProceso(): Promise<{ success: boolean; data: any; message?: string } | null> {
+    try {
+      console.log('🔄 Obteniendo último proceso de sincronización...');
+      
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+      
+      const response = await apiClient<{ success: boolean; data: any; message?: string }>(
+        'caja-diaria/colppy/sincronizar/ultimo',
+        {
+          method: 'GET'
+        }
+      );
+
+      console.log('✅ Último proceso obtenido:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error obteniendo último proceso de sincronización:', error);
+      return null;
+    }
+  }
+
   async autenticar(email?: string, password?: string): Promise<boolean> {
     try {
       console.log('🔄 Autenticando con Colppy...');
