@@ -116,6 +116,9 @@ export class CajaDiariaService {
     estadoCobro?: 'cobrado' | 'pendiente';
     fechaDesde?: string;
     fechaHasta?: string;
+    nombre?: string;
+    cuit?: string;
+    email?: string;
   }): Promise<ClientesResponse> {
     try {
       const params: Record<string, string> = {
@@ -127,6 +130,9 @@ export class CajaDiariaService {
       if (options?.estadoCobro) params.estadoCobro = options.estadoCobro;
       if (options?.fechaDesde) params.fechaDesde = options.fechaDesde;
       if (options?.fechaHasta) params.fechaHasta = options.fechaHasta;
+      if (options?.nombre) params.nombre = options.nombre;
+      if (options?.cuit) params.cuit = options.cuit;
+      if (options?.email) params.email = options.email;
 
       const response = await apiClient<ClientesResponse>(
         'caja-diaria/clientes',
@@ -175,7 +181,10 @@ export class CajaDiariaService {
     limit: number = 20, 
     estadoPago?: string,
     fechaDesde?: string,
-    fechaHasta?: string
+    fechaHasta?: string,
+    nombre?: string,
+    cuit?: string,
+    email?: string
   ): Promise<ProveedoresResponse> {
     try {
       const params: Record<string, string> = { 
@@ -187,6 +196,9 @@ export class CajaDiariaService {
       if (estadoPago) params.estadoPago = estadoPago;
       if (fechaDesde) params.fechaDesde = fechaDesde;
       if (fechaHasta) params.fechaHasta = fechaHasta;
+      if (nombre) params.nombre = nombre;
+      if (cuit) params.cuit = cuit;
+      if (email) params.email = email;
       
       const response = await apiClient<ProveedoresResponse>(
         'caja-diaria/proveedores',

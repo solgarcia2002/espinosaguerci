@@ -99,6 +99,8 @@ export interface ProveedorEntity {
   saldo?: number;
   montoPagado?: number;
   montoPendiente?: number;
+  cbu?: string | null;
+  conceptoPreestablecido?: string | null;
 }
 
 export interface PaginationInfo {

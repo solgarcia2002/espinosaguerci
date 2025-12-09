@@ -7,6 +7,8 @@ import PagadoTab from './tabs/PagadoTab';
 import CobradoTab from './tabs/CobradoTab';
 import PendienteCobroTab from './tabs/PendienteCobroTab';
 import PendientePagoTab from './tabs/PendientePagoTab';
+import ClientesTab from './tabs/ClientesTab';
+import ProveedoresTab from './tabs/ProveedoresTab';
 import GestionClientes from './GestionClientes';
 import GestionProveedores from './GestionProveedores';
 import ConsolidadoTab from './tabs/ConsolidadoTab';
@@ -109,10 +111,10 @@ export default function CajaDiariaTabs({
         return <PendientePagoTab />;
 
       case 'clientes':
-        return <GestionClientes />;
+        return <ClientesTab />;
 
       case 'proveedores':
-        return <GestionProveedores />;
+        return <ProveedoresTab />;
 
       case 'consolidado':
         return <ConsolidadoTab />;
