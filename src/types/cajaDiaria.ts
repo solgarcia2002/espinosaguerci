@@ -229,3 +229,27 @@ export interface TesoreriaDisponibilidadResponse {
   data: TesoreriaDisponibilidadData;
   timestamp: string;
 }
+
+export interface FacturaProveedor {
+  id: string;
+  proveedor: string;
+  razonSocial: string;
+  tipo: 'FAC-C' | 'FAC-A' | 'FAC-X' | 'PAG';
+  fecha: string;
+  referencia: string;
+  vencimiento?: string | null;
+  total: number;
+  totalME?: number | null;
+  tipoCambio?: string | null;
+  pagado: number;
+  pendiente: number;
+  proveedorId?: string;
+  colppyId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FacturasProveedoresResponse {
+  data: FacturaProveedor[];
+  pagination: PaginationInfo;
+}

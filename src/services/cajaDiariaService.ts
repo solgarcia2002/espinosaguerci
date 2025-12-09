@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor, ProveedoresResponse, ClientesResponse, MovimientosResponse } from '@/types/cajaDiaria';
+import { MovimientoCaja, ResumenCaja, FiltrosCaja, Cliente, Proveedor, ProveedoresResponse, ClientesResponse, MovimientosResponse, FacturaProveedor, FacturasProveedoresResponse } from '@/types/cajaDiaria';
 import { reportesService } from './reportesService';
 
 export class CajaDiariaService {
@@ -439,6 +439,48 @@ export class CajaDiariaService {
     } catch (error) {
       console.error('Error obteniendo reporte de dashboard:', error);
       return null;
+    }
+  }
+
+  async obtenerFacturasProveedores(options?: {
+    page?: number;
+    limit?: number;
+    fechaDesde?: string;
+    fechaHasta?: string;
+    proveedorId?: string;
+    tipo?: string;
+    busqueda?: string;
+  }): Promise<FacturasProveedoresResponse> {
+    try {
+      const params: Record<string, string> = {};
+      if (options?.page) params.page = String(options.page);
+      if (options?.limit) params.limit = String(options.limit);
+      if (options?.fechaDesde) params.fechaDesde = options.fechaDesde;
+      if (options?.fechaHasta) params.fechaHasta = options.fechaHasta;
+      if (options?.proveedorId) params.proveedorId = options.proveedorId;
+      if (options?.tipo) params.tipo = options.tipo;
+      if (options?.busqueda) params.busqueda = options.busqueda;
+
+      const response = await apiClient<FacturasProveedoresResponse>(
+        'caja-diaria/proveedores/facturas',
+        { method: 'GET' },
+        params
+      );
+
+      return response;
+    } catch (error) {
+      console.error('Error obteniendo facturas de proveedores:', error);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false
+        }
+      };
     }
   }
 }
