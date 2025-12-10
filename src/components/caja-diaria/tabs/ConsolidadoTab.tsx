@@ -286,6 +286,14 @@ export default function ConsolidadoTab() {
                 const esAPagar = fila.key === 'aPagar';
                 const esACobrar = fila.key === 'aCobrar';
                 
+                const valorDiaAnterior = esDisponibilidades && ultimoProceso?.totalDisponibilidad !== null && ultimoProceso?.totalDisponibilidad !== undefined
+                  ? ultimoProceso.totalDisponibilidad
+                  : esACobrar && ultimoProceso?.totalCobrosPendientes !== null && ultimoProceso?.totalCobrosPendientes !== undefined
+                  ? ultimoProceso.totalCobrosPendientes
+                  : esAPagar && ultimoProceso?.totalPagosPendientes !== null && ultimoProceso?.totalPagosPendientes !== undefined
+                  ? ultimoProceso.totalPagosPendientes
+                  : saldo?.diaAnterior ?? 0;
+                
                 return (
                   <tr key={fila.key}>
                     <td className="px-4 py-3 text-sm text-gray-900 font-medium">{fila.label}</td>
@@ -299,7 +307,7 @@ export default function ConsolidadoTab() {
                         : formatCurrency(saldo?.delDia ?? 0)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                      {formatCurrency(saldo?.diaAnterior ?? 0)}
+                      {formatCurrency(valorDiaAnterior)}
                     </td>
                   </tr>
                 );
@@ -317,17 +325,20 @@ export default function ConsolidadoTab() {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
-                    (dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
+                    (ultimoProceso?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
                       (dashboard?.saldos.chequesEnCartera.diaAnterior ?? 0) +
-                      (dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
-                      (dashboard?.saldos.aPagar.diaAnterior ?? 0)
+                      (ultimoProceso?.totalCobrosPendientes ?? dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
+                      (ultimoProceso?.totalPagosPendientes ?? dashboard?.saldos.aPagar.diaAnterior ?? 0)
                   )}
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-3 text-sm text-gray-900 font-semibold">Diferencia</td>
                 <td colSpan={2} className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
-                  {formatCurrency(dashboard?.saldos.disponibilidades.diferencia ?? 0)}
+                  {formatCurrency(
+                    (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) -
+                      (ultimoProceso?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0)
+                  )}
                 </td>
               </tr>
             </tbody>
