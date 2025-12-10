@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { colppyService } from '@/services/colppyService';
 import { TesoreriaDisponibilidadData } from '@/types/cajaDiaria';
 
@@ -23,7 +23,7 @@ const DisponibilidadContext = createContext<DisponibilidadContextValue | null>(n
 export const DisponibilidadProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<TesoreriaDisponibilidadData | null>(null);
   const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,10 +56,6 @@ export const DisponibilidadProvider = ({ children }: { children: ReactNode }) =>
       }
     }
   }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
 
   const value = useMemo(
     () => ({
