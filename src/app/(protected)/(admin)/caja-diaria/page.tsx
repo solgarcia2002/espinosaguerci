@@ -108,13 +108,8 @@ export default function CajaDiariaPage() {
 
       toast.info('Iniciando sincronización de los 3 RPA...');
 
-      // Ejecutar los 3 RPA en paralelo
-      const [movimientosResult, clientesResult, proveedoresResult] = await Promise.allSettled([
-        colppyService.sincronizarMovimientos({
-          fechaDesde: fechasDefault.fechaDesde,
-          fechaHasta: fechasDefault.fechaHasta,
-          ...credenciales
-        }),
+      const [disponibilidadResult, clientesResult, proveedoresResult] = await Promise.allSettled([
+        colppyService.obtenerDisponibilidadTesoreria(credenciales),
         colppyService.sincronizarFacturasClientes({
           fechaDesde: fechasDefault.fechaDesde,
           fechaHasta: fechasDefault.fechaHasta,
@@ -127,9 +122,8 @@ export default function CajaDiariaPage() {
         })
       ]);
 
-      // Procesar resultados
       const resultados = {
-        movimientos: movimientosResult.status === 'fulfilled' && movimientosResult.value.success,
+        disponibilidad: disponibilidadResult.status === 'fulfilled' && disponibilidadResult.value?.success,
         clientes: clientesResult.status === 'fulfilled' && clientesResult.value.success,
         proveedores: proveedoresResult.status === 'fulfilled' && proveedoresResult.value.success
       };
@@ -142,7 +136,6 @@ export default function CajaDiariaPage() {
         toast.warning(`Se ejecutaron ${exitosos} de 3 RPA correctamente`);
       }
 
-      // Recargar datos después de la sincronización
       if (datosCargados) {
         await cargarDatos();
       }
