@@ -179,6 +179,11 @@ export default function ConsolidadoTab() {
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
             )}
           </div>
+          {ultimoProceso.message && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-sm font-medium text-blue-900">{ultimoProceso.message}</div>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
               <div className="text-xs text-gray-500 uppercase mb-1">Scope</div>
@@ -208,31 +213,48 @@ export default function ConsolidadoTab() {
                 }) : '-'}
               </div>
             </div>
-            {ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined && (
+            {ultimoProceso.count !== null && ultimoProceso.count !== undefined && (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <div className="text-xs text-gray-500 uppercase mb-1">Total Disponibilidad</div>
-                <div className="text-sm font-semibold text-blue-600">
-                  {formatCurrency(ultimoProceso.totalDisponibilidad)}
-                </div>
-              </div>
-            )}
-            {ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <div className="text-xs text-gray-500 uppercase mb-1">Total Cobros Pendientes</div>
-                <div className="text-sm font-semibold text-orange-600">
-                  {formatCurrency(ultimoProceso.totalCobrosPendientes)}
-                </div>
-              </div>
-            )}
-            {ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <div className="text-xs text-gray-500 uppercase mb-1">Total Pagos Pendientes</div>
-                <div className="text-sm font-semibold text-red-600">
-                  {formatCurrency(ultimoProceso.totalPagosPendientes)}
+                <div className="text-xs text-gray-500 uppercase mb-1">Cantidad</div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {ultimoProceso.count}
                 </div>
               </div>
             )}
           </div>
+          {(ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined) ||
+           (ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined) ||
+           (ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined) ? (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Totales</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="text-xs text-blue-600 uppercase mb-1">Total Disponibilidad</div>
+                    <div className="text-lg font-semibold text-blue-900">
+                      {formatCurrency(ultimoProceso.totalDisponibilidad)}
+                    </div>
+                  </div>
+                )}
+                {ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <div className="text-xs text-orange-600 uppercase mb-1">Total Cobros Pendientes</div>
+                    <div className="text-lg font-semibold text-orange-900">
+                      {formatCurrency(ultimoProceso.totalCobrosPendientes)}
+                    </div>
+                  </div>
+                )}
+                {ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="text-xs text-red-600 uppercase mb-1">Total Pagos Pendientes</div>
+                    <div className="text-lg font-semibold text-red-900">
+                      {formatCurrency(ultimoProceso.totalPagosPendientes)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
 

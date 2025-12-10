@@ -1,5 +1,5 @@
 import { apiClient, getAuthToken } from './apiClient';
-import { Cliente, Proveedor, ColppyApiResponse, TesoreriaDisponibilidadResponse } from '@/types/cajaDiaria';
+import { Cliente, Proveedor, ColppyApiResponse, TesoreriaDisponibilidadResponse, UltimoProcesoResponse } from '@/types/cajaDiaria';
 
 export interface SincronizarOptions {
   email?: string;
@@ -433,7 +433,7 @@ export class ColppyService {
     }
   }
 
-  async obtenerUltimoProceso(): Promise<{ success: boolean; lastSync: any } | null> {
+  async obtenerUltimoProceso(): Promise<UltimoProcesoResponse | null> {
     try {
       console.log('🔄 Obteniendo último proceso de sincronización...');
       
@@ -444,7 +444,7 @@ export class ColppyService {
         console.log('🔑 Token JWT encontrado, enviando en Authorization header');
       }
       
-      const response = await apiClient<{ success: boolean; lastSync: any }>(
+      const response = await apiClient<UltimoProcesoResponse>(
         'caja-diaria/colppy/sincronizar/ultimo',
         {
           method: 'GET'
