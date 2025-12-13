@@ -153,112 +153,8 @@ export default function ConsolidadoTab() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-wrap items-center gap-4">
-        <div>
-          <label className="text-sm font-medium text-gray-700">Fecha:</label>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="ml-2 px-2 py-1 border border-gray-300 rounded text-xs"
-          />
-        </div>
-        <button
-          onClick={() => refresh()}
-          className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
-        >
-          Actualizar consolidado
-        </button>
-      </div>
-
-      {ultimoProceso && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Último proceso de sincronización</h3>
-            {loadingProceso && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            )}
-          </div>
-          {ultimoProceso.message && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="text-sm font-medium text-blue-900">{ultimoProceso.message}</div>
-            </div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <div className="text-xs text-gray-500 uppercase mb-1">Scope</div>
-              <div className="text-sm font-semibold text-gray-900">{ultimoProceso.scope || '-'}</div>
-            </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <div className="text-xs text-gray-500 uppercase mb-1">Status</div>
-              <div className={`text-sm font-semibold ${
-                ultimoProceso.status === 'completed' || ultimoProceso.status === 'success' 
-                  ? 'text-green-600' 
-                  : ultimoProceso.status === 'error' || ultimoProceso.status === 'failed'
-                  ? 'text-red-600'
-                  : 'text-yellow-600'
-              }`}>
-                {ultimoProceso.status || '-'}
-              </div>
-            </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <div className="text-xs text-gray-500 uppercase mb-1">Fecha</div>
-              <div className="text-sm font-semibold text-gray-900">
-                {ultimoProceso.createdAt ? new Date(ultimoProceso.createdAt).toLocaleDateString('es-AR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : '-'}
-              </div>
-            </div>
-            {ultimoProceso.count !== null && ultimoProceso.count !== undefined && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <div className="text-xs text-gray-500 uppercase mb-1">Cantidad</div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {ultimoProceso.count}
-                </div>
-              </div>
-            )}
-          </div>
-          {(ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined) ||
-           (ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined) ||
-           (ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined) ? (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Totales</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {ultimoProceso.totalDisponibilidad !== null && ultimoProceso.totalDisponibilidad !== undefined && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="text-xs text-blue-600 uppercase mb-1">Total Disponibilidad</div>
-                    <div className="text-lg font-semibold text-blue-900">
-                      {formatCurrency(ultimoProceso.totalDisponibilidad)}
-                    </div>
-                  </div>
-                )}
-                {ultimoProceso.totalCobrosPendientes !== null && ultimoProceso.totalCobrosPendientes !== undefined && (
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                    <div className="text-xs text-orange-600 uppercase mb-1">Total Cobros Pendientes</div>
-                    <div className="text-lg font-semibold text-orange-900">
-                      {formatCurrency(ultimoProceso.totalCobrosPendientes)}
-                    </div>
-                  </div>
-                )}
-                {ultimoProceso.totalPagosPendientes !== null && ultimoProceso.totalPagosPendientes !== undefined && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <div className="text-xs text-red-600 uppercase mb-1">Total Pagos Pendientes</div>
-                    <div className="text-lg font-semibold text-red-900">
-                      {formatCurrency(ultimoProceso.totalPagosPendientes)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      )}
-
     
+   
 
       <section className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
@@ -276,6 +172,17 @@ export default function ConsolidadoTab() {
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Día anterior
+                  {ultimoProceso?.createdAt && (
+                    <div className="text-xs text-gray-400 font-normal mt-1">
+                      {new Date(ultimoProceso.createdAt).toLocaleString('es-AR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  )}
                 </th>
               </tr>
             </thead>
