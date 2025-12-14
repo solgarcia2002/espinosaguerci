@@ -110,7 +110,7 @@ export default function ConsolidadoTab() {
   const { totalPendientePago } = useProveedoresContext();
   const { totalPendienteCobro } = useClientesContext();
   
-  const [ultimoProceso, setUltimoProceso] = useState<UltimoProcesoSincronizacion | null>(null);
+  const [ultimosProcesos, setUltimosProcesos] = useState<UltimoProcesoResponse['lastSync'] | null>(null);
   const [loadingProceso, setLoadingProceso] = useState(true);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function ConsolidadoTab() {
         setLoadingProceso(true);
         const response = await colppyService.obtenerUltimoProceso();
         if (response?.success && response.lastSync) {
-          setUltimoProceso(response.lastSync);
+          setUltimosProcesos(response.lastSync);
         }
       } catch (error) {
         console.error('Error al cargar último proceso:', error);
@@ -130,6 +130,21 @@ export default function ConsolidadoTab() {
     
     cargarUltimoProceso();
   }, []);
+
+  const fechaMasReciente = useMemo(() => {
+    if (!ultimosProcesos) return null;
+    const fechas = [
+      ultimosProcesos.tesoreria?.createdAt,
+      ultimosProcesos.facturas_proveedores?.createdAt,
+      ultimosProcesos.facturas_clientes?.createdAt
+    ].filter(Boolean) as string[];
+    
+    if (fechas.length === 0) return null;
+    
+    return fechas.reduce((latest, current) => {
+      return new Date(current) > new Date(latest) ? current : latest;
+    });
+  }, [ultimosProcesos]);
 
   const cashFlow = useMemo(() => obtenerCashFlow(dashboard, movimientos), [dashboard, movimientos]);
   const diferenciasCobranza = useMemo(() => cargarDiferenciasCobranza(reporteCobrado), [reporteCobrado]);
@@ -172,9 +187,9 @@ export default function ConsolidadoTab() {
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Día anterior
-                  {ultimoProceso?.createdAt && (
+                  {fechaMasReciente && (
                     <div className="text-xs text-gray-400 font-normal mt-1">
-                      {new Date(ultimoProceso.createdAt).toLocaleString('es-AR', {
+                      {new Date(fechaMasReciente).toLocaleString('es-AR', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit',
@@ -193,12 +208,12 @@ export default function ConsolidadoTab() {
                 const esAPagar = fila.key === 'aPagar';
                 const esACobrar = fila.key === 'aCobrar';
                 
-                const valorDiaAnterior = esDisponibilidades && ultimoProceso?.totalDisponibilidad !== null && ultimoProceso?.totalDisponibilidad !== undefined
-                  ? ultimoProceso.totalDisponibilidad
-                  : esACobrar && ultimoProceso?.totalCobrosPendientes !== null && ultimoProceso?.totalCobrosPendientes !== undefined
-                  ? ultimoProceso.totalCobrosPendientes
-                  : esAPagar && ultimoProceso?.totalPagosPendientes !== null && ultimoProceso?.totalPagosPendientes !== undefined
-                  ? ultimoProceso.totalPagosPendientes
+                const valorDiaAnterior = esDisponibilidades && ultimosProcesos?.tesoreria?.totalDisponibilidad !== null && ultimosProcesos?.tesoreria?.totalDisponibilidad !== undefined
+                  ? ultimosProcesos.tesoreria.totalDisponibilidad
+                  : esACobrar && ultimosProcesos?.facturas_clientes?.totalCobrosPendientes !== null && ultimosProcesos?.facturas_clientes?.totalCobrosPendientes !== undefined
+                  ? ultimosProcesos.facturas_clientes.totalCobrosPendientes
+                  : esAPagar && ultimosProcesos?.facturas_proveedores?.totalPagosPendientes !== null && ultimosProcesos?.facturas_proveedores?.totalPagosPendientes !== undefined
+                  ? ultimosProcesos.facturas_proveedores.totalPagosPendientes
                   : saldo?.diaAnterior ?? 0;
                 
                 return (
@@ -232,10 +247,10 @@ export default function ConsolidadoTab() {
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
-                    (ultimoProceso?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
+                    (ultimosProcesos?.tesoreria?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
                       (dashboard?.saldos.chequesEnCartera.diaAnterior ?? 0) +
-                      (ultimoProceso?.totalCobrosPendientes ?? dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
-                      (ultimoProceso?.totalPagosPendientes ?? dashboard?.saldos.aPagar.diaAnterior ?? 0)
+                      (ultimosProcesos?.facturas_clientes?.totalCobrosPendientes ?? dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
+                      (ultimosProcesos?.facturas_proveedores?.totalPagosPendientes ?? dashboard?.saldos.aPagar.diaAnterior ?? 0)
                   )}
                 </td>
               </tr>
@@ -244,7 +259,7 @@ export default function ConsolidadoTab() {
                 <td colSpan={2} className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
                     (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) -
-                      (ultimoProceso?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0)
+                      (ultimosProcesos?.tesoreria?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0)
                   )}
                 </td>
               </tr>

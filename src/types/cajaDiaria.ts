@@ -270,5 +270,9 @@ export interface UltimoProcesoSincronizacion {
 
 export interface UltimoProcesoResponse {
   success: boolean;
-  lastSync: UltimoProcesoSincronizacion;
+  lastSync: {
+    tesoreria: UltimoProcesoSincronizacion;
+    facturas_proveedores: UltimoProcesoSincronizacion;
+    facturas_clientes: UltimoProcesoSincronizacion;
+  };
 }
