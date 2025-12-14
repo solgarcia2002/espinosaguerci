@@ -239,16 +239,13 @@ export default function ConsolidadoTab() {
                 <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
                     (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) +
-                      (dashboard?.saldos.chequesEnCartera.delDia ?? 0) +
                       (totalPendienteCobro !== 0 ? totalPendienteCobro : dashboard?.saldos.aCobrar.delDia ?? 0) -
-                      (totalPendientePago !== 0 ? totalPendientePago : dashboard?.saldos.aPagar.delDia ?? 0) -
-                      totalTarjetas
+                      (totalPendientePago !== 0 ? totalPendientePago : dashboard?.saldos.aPagar.delDia ?? 0)
                   )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
                     (ultimosProcesos?.tesoreria?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
-                      (dashboard?.saldos.chequesEnCartera.diaAnterior ?? 0) +
                       (ultimosProcesos?.facturas_clientes?.totalCobrosPendientes ?? dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
                       (ultimosProcesos?.facturas_proveedores?.totalPagosPendientes ?? dashboard?.saldos.aPagar.diaAnterior ?? 0)
                   )}
@@ -258,8 +255,12 @@ export default function ConsolidadoTab() {
                 <td className="px-4 py-3 text-sm text-gray-900 font-semibold">Diferencia</td>
                 <td colSpan={2} className="px-4 py-3 text-sm text-gray-900 text-right font-mono">
                   {formatCurrency(
-                    (disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) -
-                      (ultimosProcesos?.tesoreria?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0)
+                    ((disponibilidadData?.total ?? dashboard?.saldos.disponibilidades.delDia ?? 0) +
+                      (totalPendienteCobro !== 0 ? totalPendienteCobro : dashboard?.saldos.aCobrar.delDia ?? 0) -
+                      (totalPendientePago !== 0 ? totalPendientePago : dashboard?.saldos.aPagar.delDia ?? 0)) -
+                    ((ultimosProcesos?.tesoreria?.totalDisponibilidad ?? dashboard?.saldos.disponibilidades.diaAnterior ?? 0) +
+                      (ultimosProcesos?.facturas_clientes?.totalCobrosPendientes ?? dashboard?.saldos.aCobrar.diaAnterior ?? 0) -
+                      (ultimosProcesos?.facturas_proveedores?.totalPagosPendientes ?? dashboard?.saldos.aPagar.diaAnterior ?? 0))
                   )}
                 </td>
               </tr>
