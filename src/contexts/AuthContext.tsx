@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const jwt_decode = require('jwt-decode') as <T>(token: string) => T;
@@ -25,6 +25,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<DecodedUser | null>(null);
   const router = useRouter();
 
+  const logout = useCallback(() => {
+    try {
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'access_token=; path=/; max-age=0';
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('cognito_token');
+        localStorage.removeItem('token');
+        localStorage.clear();
+      }
+      setUser(null);
+      router.push('/login');
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+  }, [router]);
+
   useEffect(() => {
     const token = getTokenFromCookie();
     if (token) {
@@ -36,16 +56,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         logout();
       }
     } else {
-      logout();
+      setUser(null);
     }
-  }, []);
-
-  const logout = () => {
-    document.cookie = 'access_token=; path=/; max-age=0';
-    localStorage.clear();
-    setUser(null);
-    router.push('/login');
-  };
+  }, [logout]);
 
   return (
     <AuthContext.Provider value={{ user, logout }}>
