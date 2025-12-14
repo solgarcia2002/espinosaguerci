@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { colppyService } from '@/services/colppyService';
 import { TesoreriaDisponibilidadData } from '@/types/cajaDiaria';
 
@@ -23,9 +23,30 @@ const DisponibilidadContext = createContext<DisponibilidadContextValue | null>(n
 export const DisponibilidadProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<TesoreriaDisponibilidadData | null>(null);
   const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const cargarDatosGuardados = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await colppyService.obtenerDisponibilidadTesoreriaGuardada();
+      if (response?.success && response.data) {
+        setData(response.data);
+        setTimestamp(response.timestamp ?? new Date().toISOString());
+      } else {
+        const message = response?.message ?? 'No se pudieron obtener los datos de disponibilidad guardados';
+        setError(message);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al obtener disponibilidad guardada';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const refresh = useCallback(async ({ triggeredByButton = false } = {}) => {
     if (triggeredByButton) {
@@ -56,6 +77,10 @@ export const DisponibilidadProvider = ({ children }: { children: ReactNode }) =>
       }
     }
   }, []);
+
+  useEffect(() => {
+    void cargarDatosGuardados();
+  }, [cargarDatosGuardados]);
 
   const value = useMemo(
     () => ({

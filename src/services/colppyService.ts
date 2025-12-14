@@ -399,6 +399,32 @@ export class ColppyService {
     }
   }
 
+  async obtenerDisponibilidadTesoreriaGuardada(): Promise<TesoreriaDisponibilidadResponse | null> {
+    try {
+      console.log('🔄 Obteniendo disponibilidad guardada desde Tesorería...');
+
+      const token = getAuthToken();
+      if (!token) {
+        console.warn('⚠️ No se encontró token JWT en localStorage');
+      } else {
+        console.log('🔑 Token JWT encontrado, enviando en Authorization header');
+      }
+
+      const response = await apiClient<TesoreriaDisponibilidadResponse>(
+        'caja-diaria/colppy/tesoreria/disponibilidad',
+        {
+          method: 'GET'
+        }
+      );
+
+      console.log('✅ Disponibilidad guardada obtenida desde Tesorería:', response);
+      return response;
+    } catch (error) {
+      console.error('❌ Error obteniendo disponibilidad guardada de Tesorería:', error);
+      return null;
+    }
+  }
+
   async sincronizarTodos(options?: SincronizarOptions): Promise<{ success: boolean; message: string; data?: any }> {
     try {
       console.log('🔄 Iniciando sincronización completa con Colppy...');
