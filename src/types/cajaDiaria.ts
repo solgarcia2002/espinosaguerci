@@ -101,6 +101,7 @@ export interface ProveedorEntity {
   montoPendiente?: number;
   cbu?: string | null;
   conceptoPreestablecido?: string | null;
+  fechaVencimiento?: string | null;
 }
 
 export interface PaginationInfo {
@@ -131,6 +132,7 @@ export interface ClienteEntity {
   saldo?: number;
   montoCobrado?: number;
   montoPendienteCobro?: number;
+  fechaVencimiento?: string | null;
 }
 
 export interface ClientesResponse {

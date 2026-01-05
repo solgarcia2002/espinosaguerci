@@ -202,28 +202,60 @@ export default function PendienteCobroTab() {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Pendiente
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha Vencimiento
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {clientes.map((cliente: ClienteEntity) => (
-                  <tr key={cliente.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{cliente.nombre}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                      {cliente.cuit || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                      {formatCurrency(cliente.saldo ?? 0)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600 font-semibold">
-                      {formatCurrency(cliente.montoCobrado ?? 0)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-orange-600 font-semibold">
-                      {formatCurrency(cliente.montoPendienteCobro ?? 0)}
-                    </td>
-                  </tr>
-                ))}
+                {clientes.map((cliente: ClienteEntity) => {
+                  const fechaVencimiento = cliente.fechaVencimiento 
+                    ? new Date(cliente.fechaVencimiento)
+                    : null;
+                  const hoy = new Date();
+                  hoy.setHours(0, 0, 0, 0);
+                  const estaVencida = fechaVencimiento && fechaVencimiento < hoy;
+                  const proximaSemana = fechaVencimiento && fechaVencimiento <= new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+                  
+                  return (
+                    <tr key={cliente.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{cliente.nombre}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                        {cliente.cuit || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        {formatCurrency(cliente.saldo ?? 0)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600 font-semibold">
+                        {formatCurrency(cliente.montoCobrado ?? 0)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-orange-600 font-semibold">
+                        {formatCurrency(cliente.montoPendienteCobro ?? 0)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {fechaVencimiento ? (
+                          <span className={`font-mono ${
+                            estaVencida 
+                              ? 'text-red-600 font-semibold' 
+                              : proximaSemana 
+                              ? 'text-orange-600 font-semibold'
+                              : 'text-gray-900'
+                          }`}>
+                            {fechaVencimiento.toLocaleDateString('es-AR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

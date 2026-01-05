@@ -189,62 +189,94 @@ export default function PendientePagoTab() {
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Monto Pendiente
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha Vencimiento
+                    </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Saldo
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {proveedores.map((proveedor) => (
-                    <tr key={proveedor.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="text-2xl mr-3">🏢</div>
-                          <div className="text-sm font-medium text-gray-900 max-w-xs">
-                            {proveedor.nombre}
+                  {proveedores.map((proveedor) => {
+                    const fechaVencimiento = proveedor.fechaVencimiento 
+                      ? new Date(proveedor.fechaVencimiento)
+                      : null;
+                    const hoy = new Date();
+                    hoy.setHours(0, 0, 0, 0);
+                    const estaVencida = fechaVencimiento && fechaVencimiento < hoy;
+                    const proximaSemana = fechaVencimiento && fechaVencimiento <= new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    
+                    return (
+                      <tr key={proveedor.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div className="text-2xl mr-3">🏢</div>
+                            <div className="text-sm font-medium text-gray-900 max-w-xs">
+                              {proveedor.nombre}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                        {proveedor.cuit || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {proveedor.tipoDocumento || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                        {proveedor.direccion || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                        {proveedor.colppyId || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        {proveedor.montoPendiente !== undefined ? (
-                          <span className="font-medium text-orange-600">
-                            {formatCurrency(proveedor.montoPendiente)}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        {proveedor.saldo !== undefined ? (
-                          <span className={`font-medium ${
-                            proveedor.saldo > 0
-                              ? 'text-red-600'
-                              : proveedor.saldo < 0
-                              ? 'text-green-600'
-                              : 'text-gray-600'
-                          }`}>
-                            {formatCurrency(Math.abs(proveedor.saldo))}
-                            {proveedor.saldo > 0 && ' (Debe)'}
-                            {proveedor.saldo < 0 && ' (A favor)'}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                          {proveedor.cuit || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {proveedor.tipoDocumento || '-'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                          {proveedor.direccion || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                          {proveedor.colppyId || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                          {proveedor.montoPendiente !== undefined ? (
+                            <span className="font-medium text-orange-600">
+                              {formatCurrency(proveedor.montoPendiente)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {fechaVencimiento ? (
+                            <span className={`font-mono ${
+                              estaVencida 
+                                ? 'text-red-600 font-semibold' 
+                                : proximaSemana 
+                                ? 'text-orange-600 font-semibold'
+                                : 'text-gray-900'
+                            }`}>
+                              {fechaVencimiento.toLocaleDateString('es-AR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                          {proveedor.saldo !== undefined ? (
+                            <span className={`font-medium ${
+                              proveedor.saldo > 0
+                                ? 'text-red-600'
+                                : proveedor.saldo < 0
+                                ? 'text-green-600'
+                                : 'text-gray-600'
+                            }`}>
+                              {formatCurrency(Math.abs(proveedor.saldo))}
+                              {proveedor.saldo > 0 && ' (Debe)'}
+                              {proveedor.saldo < 0 && ' (A favor)'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

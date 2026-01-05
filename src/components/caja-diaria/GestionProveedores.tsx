@@ -22,10 +22,16 @@ export default function GestionProveedores() {
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [busqueda, setBusqueda] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<string>('');
+  const [filtrosAplicados, setFiltrosAplicados] = useState({
+    fechaDesde,
+    fechaHasta,
+    filtroTipo: '',
+    busqueda: ''
+  });
 
   useEffect(() => {
     cargarFacturas();
-  }, [paginaActual, itemsPorPagina, fechaDesde, fechaHasta, filtroTipo]);
+  }, [paginaActual, itemsPorPagina, filtrosAplicados]);
 
   const cargarFacturas = async () => {
     try {
@@ -33,10 +39,10 @@ export default function GestionProveedores() {
       const data = await cajaDiariaService.obtenerFacturasProveedores({
         page: paginaActual,
         limit: itemsPorPagina,
-        fechaDesde,
-        fechaHasta,
-        tipo: filtroTipo || undefined,
-        busqueda: busqueda || undefined
+        fechaDesde: filtrosAplicados.fechaDesde,
+        fechaHasta: filtrosAplicados.fechaHasta,
+        tipo: filtrosAplicados.filtroTipo || undefined,
+        busqueda: filtrosAplicados.busqueda || undefined
       });
       setFacturasData(data);
       setFacturas(data.data);
@@ -46,6 +52,30 @@ export default function GestionProveedores() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const aplicarFiltros = () => {
+    setFiltrosAplicados({
+      fechaDesde,
+      fechaHasta,
+      filtroTipo,
+      busqueda
+    });
+    setPaginaActual(1);
+  };
+
+  const limpiarFiltros = () => {
+    setFechaDesde(fechasDefault.fechaDesde);
+    setFechaHasta(fechasDefault.fechaHasta);
+    setFiltroTipo('');
+    setBusqueda('');
+    setFiltrosAplicados({
+      fechaDesde: fechasDefault.fechaDesde,
+      fechaHasta: fechasDefault.fechaHasta,
+      filtroTipo: '',
+      busqueda: ''
+    });
+    setPaginaActual(1);
   };
 
   const sincronizarFacturasProveedores = async () => {
@@ -184,7 +214,25 @@ export default function GestionProveedores() {
 
       {/* Filtros */}
       <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
+            <input
+              type="date"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="input w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
+            <input
+              type="date"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="input w-full"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
             <input
@@ -193,16 +241,18 @@ export default function GestionProveedores() {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="input w-full"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  aplicarFiltros();
+                }
+              }}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
             <select
               value={filtroTipo}
-              onChange={(e) => {
-                setFiltroTipo(e.target.value);
-                setPaginaActual(1);
-              }}
+              onChange={(e) => setFiltroTipo(e.target.value)}
               className="input w-full"
             >
               <option value="">Todos</option>
@@ -212,16 +262,20 @@ export default function GestionProveedores() {
               <option value="PAG">PAG</option>
             </select>
           </div>
-          <div className="flex items-end">
-            {busqueda && (
-              <button
-                onClick={() => setBusqueda('')}
-                className="btn-secondary text-sm"
-              >
-                Limpiar búsqueda
-              </button>
-            )}
-          </div>
+        </div>
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <button
+            onClick={limpiarFiltros}
+            className="btn-secondary text-sm px-4 py-2"
+          >
+            Limpiar filtros
+          </button>
+          <button
+            onClick={aplicarFiltros}
+            className="btn-primary text-sm px-4 py-2"
+          >
+            Aplicar filtros
+          </button>
         </div>
       </div>
 
