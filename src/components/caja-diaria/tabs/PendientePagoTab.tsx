@@ -177,23 +177,14 @@ export default function PendientePagoTab() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       CUIT
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tipo Documento
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dirección
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Colppy ID
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Saldo
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Monto Pendiente
+                      Pendiente
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Fecha Vencimiento
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Saldo
                     </th>
                   </tr>
                 </thead>
@@ -220,14 +211,22 @@ export default function PendientePagoTab() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
                           {proveedor.cuit || '-'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {proveedor.tipoDocumento || '-'}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                          {proveedor.direccion || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                          {proveedor.colppyId || '-'}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                          {proveedor.saldo !== undefined ? (
+                            <span className={`font-medium ${
+                              proveedor.saldo > 0
+                                ? 'text-red-600'
+                                : proveedor.saldo < 0
+                                ? 'text-green-600'
+                                : 'text-gray-600'
+                            }`}>
+                              {formatCurrency(Math.abs(proveedor.saldo))}
+                              {proveedor.saldo > 0 && ' (Debe)'}
+                              {proveedor.saldo < 0 && ' (A favor)'}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                           {proveedor.montoPendiente !== undefined ? (
@@ -252,23 +251,6 @@ export default function PendientePagoTab() {
                                 month: '2-digit',
                                 year: 'numeric'
                               })}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                          {proveedor.saldo !== undefined ? (
-                            <span className={`font-medium ${
-                              proveedor.saldo > 0
-                                ? 'text-red-600'
-                                : proveedor.saldo < 0
-                                ? 'text-green-600'
-                                : 'text-gray-600'
-                            }`}>
-                              {formatCurrency(Math.abs(proveedor.saldo))}
-                              {proveedor.saldo > 0 && ' (Debe)'}
-                              {proveedor.saldo < 0 && ' (A favor)'}
                             </span>
                           ) : (
                             <span className="text-gray-400">-</span>
