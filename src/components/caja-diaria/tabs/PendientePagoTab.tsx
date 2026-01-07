@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FacturasProveedoresResponse, FacturaProveedor, ProveedoresResponse } from '@/types/cajaDiaria';
+import { ProveedoresResponse, FacturasProveedoresResponse, FacturaProveedor } from '@/types/cajaDiaria';
 import { apiClient } from '@/services/apiClient';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
@@ -45,7 +45,8 @@ export default function PendientePagoTab() {
           { method: 'GET' },
           {
             page: 1,
-            limit: 1000
+            limit: 1000,
+            proveedorId: proveedor.id
           }
         ).then(result => ({
           proveedorNombre: proveedor.nombre,
@@ -208,7 +209,7 @@ export default function PendientePagoTab() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Razón Social
+                      Nombre
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Tipo
