@@ -27,20 +27,47 @@ export default function PendientePagoTab() {
   const cargarFacturas = async () => {
     try {
       setLoading(true);
-      const data = await cajaDiariaService.obtenerFacturasProveedores({
-        page: paginaActual,
-        limit: itemsPorPagina,
+      const proveedoresData = await cajaDiariaService.obtenerProveedoresConPaginacion(
+        paginaActual,
+        itemsPorPagina,
+        'pendiente',
         fechaDesde,
-        fechaHasta
+        fechaHasta,
+        undefined,
+        undefined,
+        undefined,
+        'nombre',
+        'desc'
+      );
+
+      const facturasPromises = proveedoresData.data.map(proveedor =>
+        cajaDiariaService.obtenerFacturasProveedores({
+          page: 1,
+          limit: 1000,
+          fechaDesde,
+          fechaHasta,
+          proveedorId: proveedor.id
+        }).then(result => ({
+          proveedorNombre: proveedor.nombre,
+          facturas: result.data.filter(f => f.pendiente > 0)
+        }))
+      );
+
+      const facturasResults = await Promise.all(facturasPromises);
+      const todasLasFacturas = facturasResults.flatMap(result => 
+        result.facturas.map(factura => ({
+          ...factura,
+          proveedorNombre: result.proveedorNombre
+        }))
+      ).sort((a, b) => {
+        const nombreA = a.proveedorNombre || a.razonSocial || '';
+        const nombreB = b.proveedorNombre || b.razonSocial || '';
+        return nombreB.localeCompare(nombreA);
       });
-      const facturasPendientes = data.data.filter(f => f.pendiente > 0);
+
       setFacturasData({
-        ...data,
-        data: facturasPendientes,
-        pagination: {
-          ...data.pagination,
-          total: facturasPendientes.length
-        }
+        data: todasLasFacturas,
+        pagination: proveedoresData.pagination
       });
     } catch (error) {
       console.error('Error al cargar facturas pendientes de pago:', error);

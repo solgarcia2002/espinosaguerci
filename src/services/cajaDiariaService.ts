@@ -184,14 +184,16 @@ export class CajaDiariaService {
     fechaHasta?: string,
     nombre?: string,
     cuit?: string,
-    email?: string
+    email?: string,
+    orderBy?: string,
+    order?: 'asc' | 'desc'
   ): Promise<ProveedoresResponse> {
     try {
       const params: Record<string, string> = { 
         page: String(page), 
         limit: String(limit), 
-        orderBy: 'saldo', 
-        order: 'desc' 
+        orderBy: orderBy || 'saldo', 
+        order: order || 'desc' 
       };
       if (estadoPago) params.estadoPago = estadoPago;
       if (fechaDesde) params.fechaDesde = fechaDesde;
