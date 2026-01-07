@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ClientesResponse, FacturasClientesResponse, FacturaCliente } from '@/types/cajaDiaria';
+import { ClientesResponse, FacturasClientesResponse, FacturaCliente, FacturasClientesAPIResponse } from '@/types/cajaDiaria';
 import { apiClient } from '@/services/apiClient';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
@@ -25,7 +25,7 @@ export default function PendienteCobroTab() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiClient<FacturasClientesResponse>(
+      const apiResponse = await apiClient<FacturasClientesAPIResponse>(
         'caja-diaria/clientes/facturas',
         { method: 'GET' },
         {
@@ -35,6 +35,37 @@ export default function PendienteCobroTab() {
           order: 'desc'
         }
       );
+
+      const facturasMapeadas: FacturaCliente[] = apiResponse.items
+        .filter(item => !item.pagada)
+        .map(item => ({
+          id: item.id,
+          cliente: item.clientNombre,
+          razonSocial: item.razonSocialEmisor,
+          tipo: item.tipoComprobante as 'FAC-C' | 'FAC-A' | 'FAC-X' | 'COB',
+          fecha: item.fechaEmision,
+          referencia: item.nroComprobante,
+          vencimiento: item.fechaVencimiento,
+          total: item.importeTotal,
+          cobrado: 0,
+          pendiente: item.importeTotal,
+          clienteId: item.clientId
+        }));
+
+      const totalPages = Math.ceil(apiResponse.total / itemsPorPagina);
+
+      const data: FacturasClientesResponse = {
+        data: facturasMapeadas,
+        pagination: {
+          page: paginaActual,
+          limit: itemsPorPagina,
+          total: apiResponse.total,
+          totalPages,
+          hasNext: paginaActual < totalPages,
+          hasPrev: paginaActual > 1
+        }
+      };
+
       setFacturasData(data);
     } catch (err) {
       console.error('Error al cargar facturas pendientes de cobro:', err);

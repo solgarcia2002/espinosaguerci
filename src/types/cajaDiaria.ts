@@ -302,6 +302,31 @@ export interface FacturaCliente {
   updatedAt?: string;
 }
 
+export interface FacturaClienteAPI {
+  id: string;
+  fechaEmision: string;
+  nroComprobante: string;
+  tipoComprobante: string;
+  cuitEmisor: string | null;
+  razonSocialEmisor: string;
+  importeTotal: number;
+  fechaVencimiento: string | null;
+  pagada: boolean;
+  fechaPago: string | null;
+  medioPago: string | null;
+  fileUrl: string | null;
+  clientId: string;
+  clientNombre: string;
+  pagos: unknown[];
+  items: unknown[];
+}
+
+export interface FacturasClientesAPIResponse {
+  success: boolean;
+  total: number;
+  items: FacturaClienteAPI[];
+}
+
 export interface FacturasClientesResponse {
   data: FacturaCliente[];
   pagination: PaginationInfo;
