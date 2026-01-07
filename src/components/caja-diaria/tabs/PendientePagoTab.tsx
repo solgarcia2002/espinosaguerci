@@ -45,8 +45,7 @@ export default function PendientePagoTab() {
           { method: 'GET' },
           {
             page: 1,
-            limit: 1000,
-            proveedorId: proveedor.id
+            limit: 1000
           }
         ).then(result => ({
           proveedorNombre: proveedor.nombre,
