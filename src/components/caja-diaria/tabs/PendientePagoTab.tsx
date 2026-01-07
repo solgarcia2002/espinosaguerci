@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ProveedoresResponse, ProveedorEntity } from '@/types/cajaDiaria';
+import { FacturasProveedoresResponse, FacturaProveedor } from '@/types/cajaDiaria';
 import { cajaDiariaService } from '@/services/cajaDiariaService';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
@@ -11,7 +11,7 @@ import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
 
 export default function PendientePagoTab() {
   const fechasDefault = obtenerFechasUltimoMes();
-  const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
+  const [facturasData, setFacturasData] = useState<FacturasProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
@@ -21,21 +21,30 @@ export default function PendientePagoTab() {
   const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
 
   useEffect(() => {
-    cargarProveedores();
+    cargarFacturas();
   }, [paginaActual, itemsPorPagina]);
 
-  const cargarProveedores = async () => {
+  const cargarFacturas = async () => {
     try {
       setLoading(true);
-      const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
-        paginaActual,
-        itemsPorPagina,
-        'pendiente'
-      );
-      setProveedoresData(data);
+      const data = await cajaDiariaService.obtenerFacturasProveedores({
+        page: paginaActual,
+        limit: itemsPorPagina,
+        fechaDesde,
+        fechaHasta
+      });
+      const facturasPendientes = data.data.filter(f => f.pendiente > 0);
+      setFacturasData({
+        ...data,
+        data: facturasPendientes,
+        pagination: {
+          ...data.pagination,
+          total: facturasPendientes.length
+        }
+      });
     } catch (error) {
-      console.error('Error al cargar proveedores pendientes de pago:', error);
-      toast.error('Error al cargar los proveedores');
+      console.error('Error al cargar facturas pendientes de pago:', error);
+      toast.error('Error al cargar las facturas');
     } finally {
       setLoading(false);
     }
@@ -64,7 +73,7 @@ export default function PendientePagoTab() {
 
       if (resultado.success) {
         toast.success('Facturas de proveedores sincronizadas correctamente');
-        await cargarProveedores();
+        await cargarFacturas();
       } else {
         toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
       }
@@ -77,9 +86,9 @@ export default function PendientePagoTab() {
     }
   };
 
-  const proveedores = proveedoresData?.data || [];
-  const montoTotal = proveedoresData?.montoTotal ?? proveedores.reduce((sum, p) => sum + (p.montoPendiente ?? p.saldo ?? 0), 0);
-  const cantidadProveedores = proveedoresData?.pagination.total || 0;
+  const facturas = facturasData?.data || [];
+  const montoTotal = facturas.reduce((sum, f) => sum + f.pendiente, 0);
+  const cantidadFacturas = facturasData?.pagination.total || 0;
 
   if (loading) {
     return (
@@ -99,7 +108,7 @@ export default function PendientePagoTab() {
           scope="facturas"
           onComplete={() => {
             setShowProgress(false);
-            cargarProveedores();
+            cargarFacturas();
           }}
           onError={() => {
             setShowProgress(false);
@@ -151,18 +160,18 @@ export default function PendientePagoTab() {
           </div>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Cantidad de Proveedores</div>
+          <div className="text-sm font-medium text-gray-500">Cantidad de Facturas</div>
           <div className="text-2xl font-bold text-purple-600">
-            {cantidadProveedores}
+            {cantidadFacturas}
           </div>
         </div>
       </div>
 
-      {proveedores.length === 0 ? (
+      {facturas.length === 0 ? (
         <div className="card p-8 text-center">
-          <div className="text-gray-400 text-6xl mb-4">🏢</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay proveedores pendientes de pago</h3>
-          <p className="text-gray-500">No se encontraron proveedores con estado de pago pendiente.</p>
+          <div className="text-gray-400 text-6xl mb-4">📄</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay facturas pendientes de pago</h3>
+          <p className="text-gray-500">No se encontraron facturas con estado de pago pendiente.</p>
         </div>
       ) : (
         <>
@@ -172,26 +181,35 @@ export default function PendientePagoTab() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nombre
+                      Razón Social
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      CUIT
+                      Tipo
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Referencia
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Vencimiento
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Saldo
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Pagado
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Pendiente
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha Vencimiento
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {proveedores.map((proveedor) => {
-                    const fechaVencimiento = proveedor.fechaVencimiento 
-                      ? new Date(proveedor.fechaVencimiento)
+                  {facturas.map((factura) => {
+                    const fechaVencimiento = factura.vencimiento 
+                      ? new Date(factura.vencimiento)
                       : null;
                     const hoy = new Date();
                     hoy.setHours(0, 0, 0, 0);
@@ -199,43 +217,29 @@ export default function PendientePagoTab() {
                     const proximaSemana = fechaVencimiento && fechaVencimiento <= new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
                     
                     return (
-                      <tr key={proveedor.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="text-2xl mr-3">🏢</div>
-                            <div className="text-sm font-medium text-gray-900 max-w-xs">
-                              {proveedor.nombre}
-                            </div>
-                          </div>
+                      <tr key={factura.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {factura.razonSocial}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            factura.tipo === 'FAC-C' ? 'bg-blue-100 text-blue-800' :
+                            factura.tipo === 'FAC-A' ? 'bg-green-100 text-green-800' :
+                            factura.tipo === 'FAC-X' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {factura.tipo}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                          {proveedor.cuit || '-'}
+                          {new Date(factura.fecha).toLocaleDateString('es-AR', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric' 
+                          })}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                          {proveedor.saldo !== undefined ? (
-                            <span className={`font-medium ${
-                              proveedor.saldo > 0
-                                ? 'text-red-600'
-                                : proveedor.saldo < 0
-                                ? 'text-green-600'
-                                : 'text-gray-600'
-                            }`}>
-                              {formatCurrency(Math.abs(proveedor.saldo))}
-                              {proveedor.saldo > 0 && ' (Debe)'}
-                              {proveedor.saldo < 0 && ' (A favor)'}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                          {proveedor.montoPendiente !== undefined ? (
-                            <span className="font-medium text-orange-600">
-                              {formatCurrency(proveedor.montoPendiente)}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                          {factura.referencia}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           {fechaVencimiento ? (
@@ -256,6 +260,19 @@ export default function PendientePagoTab() {
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-semibold">
+                          {formatCurrency(factura.total)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-green-600">
+                          {formatCurrency(factura.pagado)}
+                        </td>
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-semibold ${
+                          factura.pendiente > 0 ? 'text-orange-600' : 
+                          factura.pendiente < 0 ? 'text-red-600' : 
+                          'text-gray-600'
+                        }`}>
+                          {formatCurrency(factura.pendiente)}
+                        </td>
                       </tr>
                     );
                   })}
@@ -264,7 +281,7 @@ export default function PendientePagoTab() {
             </div>
           </div>
 
-          {proveedoresData?.pagination && proveedoresData.pagination.totalPages > 1 && (
+          {facturasData?.pagination && facturasData.pagination.totalPages > 1 && (
             <div className="card p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -284,16 +301,16 @@ export default function PendientePagoTab() {
                   </div>
 
                   <div className="text-sm text-gray-700">
-                    Mostrando {((proveedoresData.pagination.page - 1) * proveedoresData.pagination.limit) + 1} a{' '}
-                    {Math.min(proveedoresData.pagination.page * proveedoresData.pagination.limit, proveedoresData.pagination.total)} de{' '}
-                    {proveedoresData.pagination.total} resultados
+                    Mostrando {((facturasData.pagination.page - 1) * facturasData.pagination.limit) + 1} a{' '}
+                    {Math.min(facturasData.pagination.page * facturasData.pagination.limit, facturasData.pagination.total)} de{' '}
+                    {facturasData.pagination.total} resultados
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => cambiarPagina(1)}
-                    disabled={!proveedoresData.pagination.hasPrev}
+                    disabled={!facturasData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⏮️ Primera
@@ -301,25 +318,25 @@ export default function PendientePagoTab() {
 
                   <button
                     onClick={() => cambiarPagina(paginaActual - 1)}
-                    disabled={!proveedoresData.pagination.hasPrev}
+                    disabled={!facturasData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⬅️ Anterior
                   </button>
 
                   <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(5, proveedoresData.pagination.totalPages) }, (_, i) => {
-                      const startPage = Math.max(1, proveedoresData.pagination.page - 2);
+                    {Array.from({ length: Math.min(5, facturasData.pagination.totalPages) }, (_, i) => {
+                      const startPage = Math.max(1, facturasData.pagination.page - 2);
                       const pageNum = startPage + i;
 
-                      if (pageNum > proveedoresData.pagination.totalPages) return null;
+                      if (pageNum > facturasData.pagination.totalPages) return null;
 
                       return (
                         <button
                           key={pageNum}
                           onClick={() => cambiarPagina(pageNum)}
                           className={`px-3 py-1 text-sm rounded ${
-                            pageNum === proveedoresData.pagination.page
+                            pageNum === facturasData.pagination.page
                               ? 'bg-blue-600 text-white'
                               : 'btn-secondary'
                           }`}
@@ -332,15 +349,15 @@ export default function PendientePagoTab() {
 
                   <button
                     onClick={() => cambiarPagina(paginaActual + 1)}
-                    disabled={!proveedoresData.pagination.hasNext}
+                    disabled={!facturasData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Siguiente ➡️
                   </button>
 
                   <button
-                    onClick={() => cambiarPagina(proveedoresData.pagination.totalPages)}
-                    disabled={!proveedoresData.pagination.hasNext}
+                    onClick={() => cambiarPagina(facturasData.pagination.totalPages)}
+                    disabled={!facturasData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Última ⏭️
