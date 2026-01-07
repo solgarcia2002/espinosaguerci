@@ -253,6 +253,31 @@ export interface FacturaProveedor {
   updatedAt?: string;
 }
 
+export interface FacturaProveedorAPI {
+  id: string;
+  fechaEmision: string;
+  nroComprobante: string;
+  tipoComprobante: string;
+  cuitEmisor: string | null;
+  razonSocialEmisor: string;
+  importeTotal: number;
+  fechaVencimiento: string | null;
+  pagada: boolean;
+  fechaPago: string | null;
+  medioPago: string | null;
+  fileUrl: string | null;
+  clientId: string;
+  clientNombre: string;
+  pagos: unknown[];
+  items: unknown[];
+}
+
+export interface FacturasProveedoresAPIResponse {
+  success: boolean;
+  total: number;
+  items: FacturaProveedorAPI[];
+}
+
 export interface FacturasProveedoresResponse {
   data: FacturaProveedor[];
   pagination: PaginationInfo;

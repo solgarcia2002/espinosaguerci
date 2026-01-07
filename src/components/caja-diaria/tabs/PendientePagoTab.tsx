@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ProveedoresResponse, FacturasProveedoresResponse, FacturaProveedor } from '@/types/cajaDiaria';
+import { ProveedoresResponse, FacturasProveedoresResponse, FacturaProveedor, FacturasProveedoresAPIResponse } from '@/types/cajaDiaria';
 import { apiClient } from '@/services/apiClient';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
@@ -27,7 +27,7 @@ export default function PendientePagoTab() {
   const cargarFacturas = async () => {
     try {
       setLoading(true);
-      const data = await apiClient<FacturasProveedoresResponse>(
+      const apiResponse = await apiClient<FacturasProveedoresAPIResponse>(
         'caja-diaria/proveedores/facturas',
         { method: 'GET' },
         {
@@ -37,6 +37,37 @@ export default function PendientePagoTab() {
           order: 'asc'
         }
       );
+
+      const facturasMapeadas: FacturaProveedor[] = apiResponse.items
+        .filter(item => !item.pagada)
+        .map(item => ({
+          id: item.id,
+          proveedor: item.clientNombre,
+          razonSocial: item.razonSocialEmisor,
+          tipo: item.tipoComprobante as 'FAC-C' | 'FAC-A' | 'FAC-X' | 'PAG',
+          fecha: item.fechaEmision,
+          referencia: item.nroComprobante,
+          vencimiento: item.fechaVencimiento,
+          total: item.importeTotal,
+          pagado: item.pagada ? item.importeTotal : 0,
+          pendiente: item.pagada ? 0 : item.importeTotal,
+          proveedorId: item.clientId
+        }));
+
+      const totalPages = Math.ceil(apiResponse.total / itemsPorPagina);
+
+      const data: FacturasProveedoresResponse = {
+        data: facturasMapeadas,
+        pagination: {
+          page: paginaActual,
+          limit: itemsPorPagina,
+          total: apiResponse.total,
+          totalPages,
+          hasNext: paginaActual < totalPages,
+          hasPrev: paginaActual > 1
+        }
+      };
+
       setFacturasData(data);
     } catch (error) {
       console.error('Error al cargar facturas pendientes de pago:', error);
