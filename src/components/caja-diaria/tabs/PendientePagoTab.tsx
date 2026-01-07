@@ -31,8 +31,8 @@ export default function PendientePagoTab() {
         paginaActual,
         itemsPorPagina,
         'pendiente',
-        fechaDesde,
-        fechaHasta,
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -44,8 +44,6 @@ export default function PendientePagoTab() {
         cajaDiariaService.obtenerFacturasProveedores({
           page: 1,
           limit: 1000,
-          fechaDesde,
-          fechaHasta,
           proveedorId: proveedor.id
         }).then(result => ({
           proveedorNombre: proveedor.nombre,
