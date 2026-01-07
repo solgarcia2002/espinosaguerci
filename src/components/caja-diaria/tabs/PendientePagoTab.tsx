@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FacturasProveedoresResponse, FacturaProveedor } from '@/types/cajaDiaria';
-import { cajaDiariaService } from '@/services/cajaDiariaService';
+import { FacturasProveedoresResponse, FacturaProveedor, ProveedoresResponse } from '@/types/cajaDiaria';
+import { apiClient } from '@/services/apiClient';
 import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -27,27 +27,30 @@ export default function PendientePagoTab() {
   const cargarFacturas = async () => {
     try {
       setLoading(true);
-      const proveedoresData = await cajaDiariaService.obtenerProveedoresConPaginacion(
-        paginaActual,
-        itemsPorPagina,
-        'pendiente',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        'nombre',
-        'desc'
+      const proveedoresData = await apiClient<ProveedoresResponse>(
+        'caja-diaria/proveedores',
+        { method: 'GET' },
+        {
+          page: paginaActual,
+          limit: itemsPorPagina,
+          orderBy: 'nombre',
+          order: 'desc',
+          estadoPago: 'pendiente'
+        }
       );
 
       const facturasPromises = proveedoresData.data.map(proveedor =>
-        cajaDiariaService.obtenerFacturasProveedores({
-          page: 1,
-          limit: 1000,
-          proveedorId: proveedor.id
-        }).then(result => ({
+        apiClient<FacturasProveedoresResponse>(
+          'caja-diaria/proveedores/facturas',
+          { method: 'GET' },
+          {
+            page: 1,
+            limit: 1000,
+            proveedorId: proveedor.id
+          }
+        ).then(result => ({
           proveedorNombre: proveedor.nombre,
-          facturas: result.data.filter(f => f.pendiente > 0)
+          facturas: result.data.filter((f: FacturaProveedor) => f.pendiente > 0)
         }))
       );
 
@@ -57,7 +60,7 @@ export default function PendientePagoTab() {
           ...factura,
           proveedorNombre: result.proveedorNombre
         }))
-      ).sort((a, b) => {
+      ).sort((a: FacturaProveedor & { proveedorNombre?: string }, b: FacturaProveedor & { proveedorNombre?: string }) => {
         const nombreA = a.proveedorNombre || a.razonSocial || '';
         const nombreB = b.proveedorNombre || b.razonSocial || '';
         return nombreB.localeCompare(nombreA);
