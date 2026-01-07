@@ -25,49 +25,17 @@ export default function PendienteCobroTab() {
     setLoading(true);
     setError(null);
     try {
-      const clientesData = await apiClient<ClientesResponse>(
-        'caja-diaria/clientes',
+      const data = await apiClient<FacturasClientesResponse>(
+        'caja-diaria/clientes/facturas',
         { method: 'GET' },
         {
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',
-          order: 'desc',
-          estadoCobro: 'pendiente'
+          order: 'desc'
         }
       );
-
-      const facturasPromises = clientesData.data.map(cliente =>
-        apiClient<FacturasClientesResponse>(
-          'caja-diaria/clientes/facturas',
-          { method: 'GET' },
-          {
-            page: 1,
-            limit: 1000,
-            clienteId: cliente.id
-          }
-        ).then(result => ({
-          clienteNombre: cliente.nombre,
-          facturas: result.data.filter((f: FacturaCliente) => f.pendiente > 0)
-        }))
-      );
-
-      const facturasResults = await Promise.all(facturasPromises);
-      const todasLasFacturas = facturasResults.flatMap(result => 
-        result.facturas.map(factura => ({
-          ...factura,
-          clienteNombre: result.clienteNombre
-        }))
-      ).sort((a: FacturaCliente & { clienteNombre?: string }, b: FacturaCliente & { clienteNombre?: string }) => {
-        const nombreA = a.clienteNombre || a.razonSocial || '';
-        const nombreB = b.clienteNombre || b.razonSocial || '';
-        return nombreB.localeCompare(nombreA);
-      });
-
-      setFacturasData({
-        data: todasLasFacturas,
-        pagination: clientesData.pagination
-      });
+      setFacturasData(data);
     } catch (err) {
       console.error('Error al cargar facturas pendientes de cobro:', err);
       setError('No se pudieron cargar las facturas pendientes');
