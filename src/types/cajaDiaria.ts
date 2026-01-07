@@ -258,6 +258,30 @@ export interface FacturasProveedoresResponse {
   pagination: PaginationInfo;
 }
 
+export interface FacturaCliente {
+  id: string;
+  cliente: string;
+  razonSocial: string;
+  tipo: 'FAC-C' | 'FAC-A' | 'FAC-X' | 'COB';
+  fecha: string;
+  referencia: string;
+  vencimiento?: string | null;
+  total: number;
+  totalME?: number | null;
+  tipoCambio?: string | null;
+  cobrado: number;
+  pendiente: number;
+  clienteId?: string;
+  colppyId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FacturasClientesResponse {
+  data: FacturaCliente[];
+  pagination: PaginationInfo;
+}
+
 export interface UltimoProcesoSincronizacion {
   id: string;
   scope: string;
