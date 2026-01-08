@@ -106,42 +106,22 @@ export default function CajaDiariaPage() {
         password: 'Mati.46939'
       };
 
-      toast.info('Iniciando sincronización de los 3 RPA...');
+      toast.info('Iniciando sincronización completa con Colppy...');
 
-      const [disponibilidadResult, clientesResult, proveedoresResult] = await Promise.allSettled([
-        colppyService.obtenerDisponibilidadTesoreria(credenciales),
-        colppyService.sincronizarFacturasClientes({
-          fechaDesde: fechasDefault.fechaDesde,
-          fechaHasta: fechasDefault.fechaHasta,
-          ...credenciales
-        }),
-        colppyService.sincronizarFacturasProveedores({
-          fechaDesde: fechasDefault.fechaDesde,
-          fechaHasta: fechasDefault.fechaHasta,
-          ...credenciales
-        })
-      ]);
+      const resultado = await colppyService.sincronizarTodos(credenciales);
 
-      const resultados = {
-        disponibilidad: disponibilidadResult.status === 'fulfilled' && disponibilidadResult.value?.success,
-        clientes: clientesResult.status === 'fulfilled' && clientesResult.value.success,
-        proveedores: proveedoresResult.status === 'fulfilled' && proveedoresResult.value.success
-      };
-
-      const exitosos = Object.values(resultados).filter(Boolean).length;
-      
-      if (exitosos === 3) {
-        toast.success('Todos los RPA se ejecutaron correctamente');
+      if (resultado.success) {
+        toast.success(resultado.message || 'Todos los robots se ejecutaron correctamente');
       } else {
-        toast.warning(`Se ejecutaron ${exitosos} de 3 RPA correctamente`);
+        toast.error(resultado.message || 'Error al ejecutar los robots');
       }
 
       if (datosCargados) {
         await cargarDatos();
       }
     } catch (error) {
-      console.error('Error ejecutando RPA:', error);
-      toast.error('Error al ejecutar los RPA');
+      console.error('Error ejecutando robots:', error);
+      toast.error('Error al ejecutar los robots');
     } finally {
       setEjecutandoRPA(false);
     }

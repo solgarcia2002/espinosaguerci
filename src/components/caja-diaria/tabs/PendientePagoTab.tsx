@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ProveedoresResponse, FacturasProveedoresResponse, FacturaProveedor, FacturasProveedoresAPIResponse } from '@/types/cajaDiaria';
 import { apiClient } from '@/services/apiClient';
-import { colppyService } from '@/services/colppyService';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-import ColppyProgress from '@/components/ColppyProgress';
 import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
 
 export default function PendientePagoTab() {
@@ -15,8 +13,6 @@ export default function PendientePagoTab() {
   const [loading, setLoading] = useState(true);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
-  const [sincronizando, setSincronizando] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
   const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
   const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
 
@@ -86,32 +82,6 @@ export default function PendientePagoTab() {
     setPaginaActual(1);
   };
 
-  const sincronizarFacturasProveedores = async () => {
-    try {
-      setSincronizando(true);
-      setShowProgress(true);
-
-      const resultado = await colppyService.sincronizarFacturasProveedores({
-        fechaDesde,
-        fechaHasta,
-        email: 'matiespinosa05@gmail.com',
-        password: 'Mati.46939'
-      });
-
-      if (resultado.success) {
-        toast.success('Facturas de proveedores sincronizadas correctamente');
-        await cargarFacturas();
-      } else {
-        toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
-      }
-    } catch (error) {
-      console.error('Error sincronizando facturas de proveedores:', error);
-      toast.error('Error al sincronizar facturas de proveedores');
-    } finally {
-      setSincronizando(false);
-      setTimeout(() => setShowProgress(false), 2000);
-    }
-  };
 
   const facturas = facturasData?.data || [];
   const montoTotal = facturas.reduce((sum, f) => sum + f.pendiente, 0);
@@ -130,24 +100,12 @@ export default function PendientePagoTab() {
 
   return (
     <div className="space-y-6">
-      {showProgress && (
-        <ColppyProgress
-          scope="facturas"
-          onComplete={() => {
-            setShowProgress(false);
-            cargarFacturas();
-          }}
-          onError={() => {
-            setShowProgress(false);
-          }}
-        />
-      )}
 
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Pendientes de Pago</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
             <input
@@ -165,16 +123,6 @@ export default function PendientePagoTab() {
               onChange={(e) => setFechaHasta(e.target.value)}
               className="input"
             />
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={sincronizarFacturasProveedores}
-              disabled={sincronizando}
-              className="btn-primary flex items-center space-x-2 disabled:opacity-50 px-3 py-1 text-sm"
-            >
-              <span>🔄</span>
-              <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-            </button>
           </div>
         </div>
       </div>

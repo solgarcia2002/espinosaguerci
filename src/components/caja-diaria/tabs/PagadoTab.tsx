@@ -1,41 +1,73 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ProveedoresResponse, ProveedorEntity } from '@/types/cajaDiaria';
-import { cajaDiariaService } from '@/services/cajaDiariaService';
-import { colppyService } from '@/services/colppyService';
+import { FacturasProveedoresResponse, FacturaProveedor, FacturasProveedoresAPIResponse } from '@/types/cajaDiaria';
+import { apiClient } from '@/services/apiClient';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-import ColppyProgress from '@/components/ColppyProgress';
 import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
 
 export default function PagadoTab() {
   const fechasDefault = obtenerFechasUltimoMes();
-  const [proveedoresData, setProveedoresData] = useState<ProveedoresResponse | null>(null);
+  const [facturasData, setFacturasData] = useState<FacturasProveedoresResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
-  const [sincronizando, setSincronizando] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
   const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
   const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
 
   useEffect(() => {
-    cargarProveedores();
+    cargarFacturas();
   }, [paginaActual, itemsPorPagina]);
 
-  const cargarProveedores = async () => {
+  const cargarFacturas = async () => {
     try {
       setLoading(true);
-      const data = await cajaDiariaService.obtenerProveedoresConPaginacion(
-        paginaActual,
-        itemsPorPagina,
-        'pagado'
+      const apiResponse = await apiClient<FacturasProveedoresAPIResponse>(
+        'caja-diaria/proveedores/facturas',
+        { method: 'GET' },
+        {
+          page: paginaActual,
+          limit: itemsPorPagina,
+          orderBy: 'nombre',
+          order: 'asc'
+        }
       );
-      setProveedoresData(data);
+
+      const facturasMapeadas: FacturaProveedor[] = apiResponse.items
+        .filter(item => item.pagada)
+        .map(item => ({
+          id: item.id,
+          proveedor: item.clientNombre,
+          razonSocial: item.razonSocialEmisor,
+          tipo: item.tipoComprobante as 'FAC-C' | 'FAC-A' | 'FAC-X' | 'PAG',
+          fecha: item.fechaEmision,
+          referencia: item.nroComprobante,
+          vencimiento: item.fechaVencimiento,
+          total: item.importeTotal,
+          pagado: item.importeTotal,
+          pendiente: 0,
+          proveedorId: item.clientId
+        }));
+
+      const totalPages = Math.ceil(apiResponse.total / itemsPorPagina);
+
+      const data: FacturasProveedoresResponse = {
+        data: facturasMapeadas,
+        pagination: {
+          page: paginaActual,
+          limit: itemsPorPagina,
+          total: apiResponse.total,
+          totalPages,
+          hasNext: paginaActual < totalPages,
+          hasPrev: paginaActual > 1
+        }
+      };
+
+      setFacturasData(data);
     } catch (error) {
-      console.error('Error al cargar proveedores pagados:', error);
-      toast.error('Error al cargar los proveedores');
+      console.error('Error al cargar facturas pagadas:', error);
+      toast.error('Error al cargar las facturas');
     } finally {
       setLoading(false);
     }
@@ -50,42 +82,17 @@ export default function PagadoTab() {
     setPaginaActual(1);
   };
 
-  const sincronizarFacturasProveedores = async () => {
-    try {
-      setSincronizando(true);
-      setShowProgress(true);
 
-      const resultado = await colppyService.sincronizarFacturasProveedores({
-        fechaDesde,
-        fechaHasta,
-        email: 'matiespinosa05@gmail.com',
-        password: 'Mati.46939'
-      });
-
-      if (resultado.success) {
-        toast.success('Facturas de proveedores sincronizadas correctamente');
-        await cargarProveedores();
-      } else {
-        toast.error(resultado.message || 'Error al sincronizar facturas de proveedores');
-      }
-    } catch (error) {
-      console.error('Error sincronizando facturas de proveedores:', error);
-      toast.error('Error al sincronizar facturas de proveedores');
-    } finally {
-      setSincronizando(false);
-      setTimeout(() => setShowProgress(false), 2000);
-    }
-  };
-
-  const proveedores = proveedoresData?.data || [];
-  const cantidadProveedores = proveedoresData?.pagination.total || 0;
+  const facturas = facturasData?.data || [];
+  const montoTotal = facturas.reduce((sum, f) => sum + f.pagado, 0);
+  const cantidadFacturas = facturasData?.pagination.total || 0;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando proveedores pagados...</p>
+          <p className="text-gray-600">Cargando facturas pagadas...</p>
         </div>
       </div>
     );
@@ -93,24 +100,12 @@ export default function PagadoTab() {
 
   return (
     <div className="space-y-6">
-      {showProgress && (
-        <ColppyProgress
-          scope="facturas"
-          onComplete={() => {
-            setShowProgress(false);
-            cargarProveedores();
-          }}
-          onError={() => {
-            setShowProgress(false);
-          }}
-        />
-      )}
 
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Proveedores Pagados</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
             <input
@@ -129,33 +124,29 @@ export default function PagadoTab() {
               className="input"
             />
           </div>
-          <div className="flex items-end">
-            <button
-              onClick={sincronizarFacturasProveedores}
-              disabled={sincronizando} 
-              className="btn-primary flex items-center space-x-2 disabled:opacity-50 px-3 py-1 text-sm"
-              >
-                <span>🔄</span>
-                <span>{sincronizando ? 'Sincronizando...' : 'Sincronizar con Colppy'}</span>
-              </button>
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-sm font-medium text-gray-500">Cantidad de Proveedores</div>
+          <div className="text-sm font-medium text-gray-500">Monto Total</div>
+          <div className="text-2xl font-bold text-orange-600">
+            {formatCurrency(montoTotal)}
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="text-sm font-medium text-gray-500">Cantidad de Facturas</div>
           <div className="text-2xl font-bold text-purple-600">
-            {cantidadProveedores}
+            {cantidadFacturas}
           </div>
         </div>
       </div>
 
-      {proveedores.length === 0 ? (
+      {facturas.length === 0 ? (
         <div className="card p-8 text-center">
-          <div className="text-gray-400 text-6xl mb-4">🏢</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay proveedores pagados</h3>
-          <p className="text-gray-500">No se encontraron proveedores con estado de pago completado.</p>
+          <div className="text-gray-400 text-6xl mb-4">📄</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay facturas pagadas</h3>
+          <p className="text-gray-500">No se encontraron facturas con estado de pago completado.</p>
         </div>
       ) : (
         <>
@@ -168,82 +159,104 @@ export default function PagadoTab() {
                       Nombre
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      CUIT
+                      Tipo
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tipo Documento
+                      Fecha
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Dirección
+                      Referencia
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Colppy ID
+                      Vencimiento
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Monto Pagado
+                      Total
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Saldo
+                      Pagado
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Pendiente
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {proveedores.map((proveedor) => (
-                    <tr key={proveedor.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="text-2xl mr-3">🏢</div>
-                          <div className="text-sm font-medium text-gray-900 max-w-xs">
-                            {proveedor.nombre}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                        {proveedor.cuit || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {proveedor.tipoDocumento || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                        {proveedor.direccion || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                        {proveedor.colppyId || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        {proveedor.montoPagado !== undefined ? (
-                          <span className="font-medium text-green-600">
-                            {formatCurrency(proveedor.montoPagado)}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                        {proveedor.saldo !== undefined ? (
-                          <span className={`font-medium ${
-                            proveedor.saldo > 0
-                              ? 'text-red-600'
-                              : proveedor.saldo < 0
-                              ? 'text-green-600'
-                              : 'text-gray-600'
+                  {facturas.map((factura) => {
+                    const fechaVencimiento = factura.vencimiento 
+                      ? new Date(factura.vencimiento)
+                      : null;
+                    const hoy = new Date();
+                    hoy.setHours(0, 0, 0, 0);
+                    const estaVencida = fechaVencimiento && fechaVencimiento < hoy;
+                    const proximaSemana = fechaVencimiento && fechaVencimiento <= new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    
+                    return (
+                      <tr key={factura.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {factura.razonSocial}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            factura.tipo === 'FAC-C' ? 'bg-blue-100 text-blue-800' :
+                            factura.tipo === 'FAC-A' ? 'bg-green-100 text-green-800' :
+                            factura.tipo === 'FAC-X' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
-                            {formatCurrency(Math.abs(proveedor.saldo))}
-                            {proveedor.saldo > 0 && ' (Debe)'}
-                            {proveedor.saldo < 0 && ' (A favor)'}
+                            {factura.tipo}
                           </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                          {new Date(factura.fecha).toLocaleDateString('es-AR', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric' 
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                          {factura.referencia}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {fechaVencimiento ? (
+                            <span className={`font-mono ${
+                              estaVencida 
+                                ? 'text-red-600 font-semibold' 
+                                : proximaSemana 
+                                ? 'text-orange-600 font-semibold'
+                                : 'text-gray-900'
+                            }`}>
+                              {fechaVencimiento.toLocaleDateString('es-AR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-semibold">
+                          {formatCurrency(factura.total)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-green-600">
+                          {formatCurrency(factura.pagado)}
+                        </td>
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-mono font-semibold ${
+                          factura.pendiente > 0 ? 'text-orange-600' : 
+                          factura.pendiente < 0 ? 'text-red-600' : 
+                          'text-gray-600'
+                        }`}>
+                          {formatCurrency(factura.pendiente)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {proveedoresData?.pagination && proveedoresData.pagination.totalPages > 1 && (
+          {facturasData?.pagination && facturasData.pagination.totalPages > 1 && (
             <div className="card p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -263,16 +276,16 @@ export default function PagadoTab() {
                   </div>
 
                   <div className="text-sm text-gray-700">
-                    Mostrando {((proveedoresData.pagination.page - 1) * proveedoresData.pagination.limit) + 1} a{' '}
-                    {Math.min(proveedoresData.pagination.page * proveedoresData.pagination.limit, proveedoresData.pagination.total)} de{' '}
-                    {proveedoresData.pagination.total} resultados
+                    Mostrando {((facturasData.pagination.page - 1) * facturasData.pagination.limit) + 1} a{' '}
+                    {Math.min(facturasData.pagination.page * facturasData.pagination.limit, facturasData.pagination.total)} de{' '}
+                    {facturasData.pagination.total} resultados
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => cambiarPagina(1)}
-                    disabled={!proveedoresData.pagination.hasPrev}
+                    disabled={!facturasData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⏮️ Primera
@@ -280,25 +293,25 @@ export default function PagadoTab() {
 
                   <button
                     onClick={() => cambiarPagina(paginaActual - 1)}
-                    disabled={!proveedoresData.pagination.hasPrev}
+                    disabled={!facturasData.pagination.hasPrev}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ⬅️ Anterior
                   </button>
 
                   <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(5, proveedoresData.pagination.totalPages) }, (_, i) => {
-                      const startPage = Math.max(1, proveedoresData.pagination.page - 2);
+                    {Array.from({ length: Math.min(5, facturasData.pagination.totalPages) }, (_, i) => {
+                      const startPage = Math.max(1, facturasData.pagination.page - 2);
                       const pageNum = startPage + i;
 
-                      if (pageNum > proveedoresData.pagination.totalPages) return null;
+                      if (pageNum > facturasData.pagination.totalPages) return null;
 
                       return (
                         <button
                           key={pageNum}
                           onClick={() => cambiarPagina(pageNum)}
                           className={`px-3 py-1 text-sm rounded ${
-                            pageNum === proveedoresData.pagination.page
+                            pageNum === facturasData.pagination.page
                               ? 'bg-blue-600 text-white'
                               : 'btn-secondary'
                           }`}
@@ -311,15 +324,15 @@ export default function PagadoTab() {
 
                   <button
                     onClick={() => cambiarPagina(paginaActual + 1)}
-                    disabled={!proveedoresData.pagination.hasNext}
+                    disabled={!facturasData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Siguiente ➡️
                   </button>
 
                   <button
-                    onClick={() => cambiarPagina(proveedoresData.pagination.totalPages)}
-                    disabled={!proveedoresData.pagination.hasNext}
+                    onClick={() => cambiarPagina(facturasData.pagination.totalPages)}
+                    disabled={!facturasData.pagination.hasNext}
                     className="btn-secondary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Última ⏭️
