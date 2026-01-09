@@ -36,7 +36,6 @@ export default function PagadoTab() {
       );
 
       const facturasMapeadas: FacturaProveedor[] = apiResponse.items
-        .filter(item => item.pagada)
         .map(item => ({
           id: item.id,
           proveedor: item.clientNombre,
