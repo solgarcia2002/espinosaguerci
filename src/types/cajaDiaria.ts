@@ -247,6 +247,7 @@ export interface FacturaProveedor {
   tipoCambio?: string | null;
   pagado: number;
   pendiente: number;
+  fechaPago?: string | null;
   proveedorId?: string;
   colppyId?: string | null;
   createdAt?: string;
@@ -296,6 +297,7 @@ export interface FacturaCliente {
   tipoCambio?: string | null;
   cobrado: number;
   pendiente: number;
+  fechaCobro?: string | null;
   clienteId?: string;
   colppyId?: string | null;
   createdAt?: string;

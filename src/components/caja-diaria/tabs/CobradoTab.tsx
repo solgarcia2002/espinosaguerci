@@ -34,7 +34,6 @@ export default function CobradoTab() {
       );
 
       const facturasMapeadas: FacturaCliente[] = apiResponse.items
-        .filter(item => item.pagada)
         .map(item => ({
           id: item.id,
           cliente: item.clientNombre,
@@ -46,6 +45,7 @@ export default function CobradoTab() {
           total: item.importeTotal,
           cobrado: item.importeTotal,
           pendiente: 0,
+          fechaCobro: item.fechaPago,
           clienteId: item.clientId
         }));
 
@@ -178,6 +178,9 @@ export default function CobradoTab() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Vencimiento
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha Cobro
+                    </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Total
                     </th>
@@ -239,6 +242,17 @@ export default function CobradoTab() {
                                 year: 'numeric'
                               })}
                             </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                          {factura.fechaCobro ? (
+                            new Date(factura.fechaCobro).toLocaleDateString('es-AR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
