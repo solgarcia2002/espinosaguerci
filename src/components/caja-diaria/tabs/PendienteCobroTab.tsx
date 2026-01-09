@@ -25,6 +25,7 @@ export default function PendienteCobroTab() {
         'caja-diaria/clientes/facturas',
         { method: 'GET' },
         {
+          estadoCobro: 'pendiente',
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',

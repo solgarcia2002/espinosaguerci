@@ -25,6 +25,7 @@ export default function CobradoTab() {
         'caja-diaria/clientes/facturas',
         { method: 'GET' },
         {
+          estadoCobro: 'cobrado',
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',

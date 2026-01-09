@@ -27,6 +27,7 @@ export default function PagadoTab() {
         'caja-diaria/proveedores/facturas',
         { method: 'GET' },
         {
+          estadoPago: 'pagado',
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',
@@ -174,7 +175,7 @@ export default function PagadoTab() {
                       Total
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Pagado
+                      Cobrado
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Pendiente
