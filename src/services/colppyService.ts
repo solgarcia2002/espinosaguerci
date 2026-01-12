@@ -4,6 +4,8 @@ import { Cliente, Proveedor, ColppyApiResponse, TesoreriaDisponibilidadResponse,
 export interface SincronizarOptions {
   email?: string;
   password?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
 }
 
 export interface SincronizarFacturasOptions {
@@ -439,6 +441,8 @@ export class ColppyService {
       const body: Record<string, string> = {};
       if (options?.email) body.email = options.email;
       if (options?.password) body.password = options.password;
+      if (options?.fechaDesde) body.fechaDesde = options.fechaDesde;
+      if (options?.fechaHasta) body.fechaHasta = options.fechaHasta;
       
       const response = await apiClient<{ success: boolean; message: string; data?: any }>(
         'caja-diaria/colppy/sincronizar/todos',

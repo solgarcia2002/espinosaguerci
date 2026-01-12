@@ -18,7 +18,7 @@ export default function PagadoTab({ fechaDesde, fechaHasta }: PagadoTabProps) {
 
   useEffect(() => {
     cargarFacturas();
-  }, [paginaActual, itemsPorPagina]);
+  }, [paginaActual, itemsPorPagina, fechaDesde, fechaHasta]);
 
   const cargarFacturas = async () => {
     try {
@@ -31,7 +31,9 @@ export default function PagadoTab({ fechaDesde, fechaHasta }: PagadoTabProps) {
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',
-          order: 'asc'
+          order: 'asc',
+          from: fechaDesde,
+          to: fechaHasta
         }
       );
 

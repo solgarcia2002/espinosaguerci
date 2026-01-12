@@ -104,7 +104,9 @@ export default function CajaDiariaPage() {
       setEjecutandoRPA(true);
       const credenciales = {
         email: 'matiespinosa05@gmail.com',
-        password: 'Mati.46939'
+        password: 'Mati.46939',
+        fechaDesde,
+        fechaHasta
       };
 
       toast.info('Iniciando sincronización completa con Colppy...');

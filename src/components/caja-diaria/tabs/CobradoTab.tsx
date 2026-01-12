@@ -29,7 +29,9 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
           page: paginaActual,
           limit: itemsPorPagina,
           orderBy: 'nombre',
-          order: 'desc'
+          order: 'asc',
+          from: fechaDesde,
+          to: fechaHasta
         }
       );
 
@@ -74,7 +76,7 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
 
   useEffect(() => {
     cargarFacturas();
-  }, [paginaActual, itemsPorPagina]);
+  }, [paginaActual, itemsPorPagina, fechaDesde, fechaHasta]);
 
   const facturas = facturasData?.data || [];
   const pagination = facturasData?.pagination;
