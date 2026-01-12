@@ -25,6 +25,8 @@ interface CajaDiariaTabsProps {
   onEdit: (movimiento: MovimientoCaja) => void;
   onRefresh: () => void;
   onNuevoMovimiento: () => void;
+  fechaDesde: string;
+  fechaHasta: string;
 }
 
 const tabs = [
@@ -88,7 +90,9 @@ export default function CajaDiariaTabs({
   onLimpiar,
   onEdit,
   onRefresh,
-  onNuevoMovimiento
+  onNuevoMovimiento,
+  fechaDesde,
+  fechaHasta
 }: CajaDiariaTabsProps) {
   const [activeTab, setActiveTab] = useState('disponibilidad');
   const [mesSeleccionado, setMesSeleccionado] = useState('2025-08');
@@ -99,16 +103,16 @@ export default function CajaDiariaTabs({
         return <DisponibilidadTab />;
 
       case 'pagado':
-        return <PagadoTab />;
+        return <PagadoTab fechaDesde={fechaDesde} fechaHasta={fechaHasta} />;
 
       case 'cobrado':
-        return <CobradoTab />;
+        return <CobradoTab fechaDesde={fechaDesde} fechaHasta={fechaHasta} />;
 
       case 'pendiente-cobro':
-        return <PendienteCobroTab />;
+        return <PendienteCobroTab fechaDesde={fechaDesde} fechaHasta={fechaHasta} />;
 
       case 'pendiente-pago':
-        return <PendientePagoTab />;
+        return <PendientePagoTab fechaDesde={fechaDesde} fechaHasta={fechaHasta} />;
 
       case 'clientes':
         return <ClientesTab />;

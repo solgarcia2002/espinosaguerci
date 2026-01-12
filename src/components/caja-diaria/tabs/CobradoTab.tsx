@@ -5,17 +5,17 @@ import { FacturasClientesResponse, FacturaCliente, FacturasClientesAPIResponse }
 import { apiClient } from '@/services/apiClient';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-import { obtenerFechasUltimoMes } from '@/lib/fecha-utils';
+interface CobradoTabProps {
+  fechaDesde: string;
+  fechaHasta: string;
+}
 
-export default function CobradoTab() {
-  const fechasDefault = obtenerFechasUltimoMes();
+export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) {
   const [facturasData, setFacturasData] = useState<FacturasClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [error, setError] = useState<string | null>(null);
-  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
-  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
 
   const cargarFacturas = async () => {
     setLoading(true);
@@ -105,31 +105,6 @@ export default function CobradoTab() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Clientes cobrados</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
-            <input
-              type="date"
-              value={fechaDesde}
-              onChange={(e) => setFechaDesde(e.target.value)}
-              className="input"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
-            <input
-              type="date"
-              value={fechaHasta}
-              onChange={(e) => setFechaHasta(e.target.value)}
-              className="input"
-            />
-          </div>
-        </div>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <p className="text-sm font-medium text-gray-500">Monto Total</p>

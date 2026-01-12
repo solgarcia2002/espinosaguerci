@@ -19,10 +19,11 @@ export default function CajaDiariaPage() {
   const [filtros, setFiltros] = useState<FiltrosCajaType>({});
   const [datosCargados, setDatosCargados] = useState(false);
   const [ejecutandoRPA, setEjecutandoRPA] = useState(false);
-
-  // Fecha actual por defecto
-  const fechaActual = new Date().toISOString().split('T')[0];
   const fechasDefault = obtenerFechasUltimoMes();
+  const [fechaDesde, setFechaDesde] = useState(fechasDefault.fechaDesde);
+  const [fechaHasta, setFechaHasta] = useState(fechasDefault.fechaHasta);
+
+  const fechaActual = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -134,22 +135,44 @@ export default function CajaDiariaPage() {
   return (
     <Layout>
       <div className="p-8">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
-            <p className="text-gray-600 mt-1">
-              Gestiona los movimientos de caja diaria
-            </p>
-          </div>
-          <div>
-            <button
-              onClick={ejecutarTodosLosRPA}
-              disabled={ejecutandoRPA}
-              className="px-4 py-2 flex items-center gap-2 disabled:opacity-50 btn-primary"
-            >
-              <span>🤖</span>
-              <span>{ejecutandoRPA ? 'Ejecutando RPA...' : 'Ejecutar todos los Robots de sincronizacion con Colppy'}</span>
-            </button>
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
+              <p className="text-gray-600 mt-1">
+                Gestiona los movimientos de caja diaria
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
+                  <input
+                    type="date"
+                    value={fechaDesde}
+                    onChange={(e) => setFechaDesde(e.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
+                  <input
+                    type="date"
+                    value={fechaHasta}
+                    onChange={(e) => setFechaHasta(e.target.value)}
+                    className="input"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={ejecutarTodosLosRPA}
+                disabled={ejecutandoRPA}
+                className="px-4 py-2 flex items-center gap-2 disabled:opacity-50 btn-primary"
+              >
+                <span>🤖</span>
+                <span>{ejecutandoRPA ? 'Ejecutando RPA...' : 'Ejecutar todos los Robots de sincronizacion con Colppy'}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -164,6 +187,8 @@ export default function CajaDiariaPage() {
           onEdit={handleEditarMovimiento}
           onRefresh={cargarDatos}
           onNuevoMovimiento={handleNuevoMovimiento}
+          fechaDesde={fechaDesde}
+          fechaHasta={fechaHasta}
         />
       </div>
     </Layout>
