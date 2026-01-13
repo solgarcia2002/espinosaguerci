@@ -182,10 +182,6 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
                     const fechaVencimiento = factura.vencimiento 
                       ? new Date(factura.vencimiento)
                       : null;
-                    const hoy = new Date();
-                    hoy.setHours(0, 0, 0, 0);
-                    const estaVencida = fechaVencimiento && fechaVencimiento < hoy;
-                    const proximaSemana = fechaVencimiento && fechaVencimiento <= new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
                     
                     return (
                       <tr key={factura.id} className="hover:bg-gray-50">
@@ -212,21 +208,13 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
                           {factura.referencia}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
                           {fechaVencimiento ? (
-                            <span className={`font-mono ${
-                              estaVencida 
-                                ? 'text-red-600 font-semibold' 
-                                : proximaSemana 
-                                ? 'text-orange-600 font-semibold'
-                                : 'text-gray-900'
-                            }`}>
-                              {fechaVencimiento.toLocaleDateString('es-AR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                              })}
-                            </span>
+                            fechaVencimiento.toLocaleDateString('es-AR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
