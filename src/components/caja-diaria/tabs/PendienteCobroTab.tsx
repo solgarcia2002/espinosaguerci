@@ -16,6 +16,10 @@ export default function PendienteCobroTab({ fechaDesde, fechaHasta }: PendienteC
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [error, setError] = useState<string | null>(null);
+  const [totales, setTotales] = useState<{
+    totalPendiente?: number;
+    cantidadPendiente?: number;
+  }>({});
 
   const cargarFacturas = async () => {
     setLoading(true);
@@ -66,6 +70,10 @@ export default function PendienteCobroTab({ fechaDesde, fechaHasta }: PendienteC
       };
 
       setFacturasData(data);
+      setTotales({
+        totalPendiente: apiResponse.totalPendiente,
+        cantidadPendiente: apiResponse.cantidadPendiente
+      });
     } catch (err) {
       console.error('Error al cargar facturas pendientes de cobro:', err);
       setError('No se pudieron cargar las facturas pendientes');
@@ -80,8 +88,8 @@ export default function PendienteCobroTab({ fechaDesde, fechaHasta }: PendienteC
 
   const facturas = facturasData?.data || [];
   const pagination = facturasData?.pagination;
-  const montoTotal = facturas.reduce((sum, f) => sum + f.pendiente, 0);
-  const cantidadFacturas = pagination?.total || 0;
+  const montoTotal = totales.totalPendiente ?? 0;
+  const cantidadFacturas = totales.cantidadPendiente ?? 0;
 
 
   const cambiarPagina = (pagina: number) => {

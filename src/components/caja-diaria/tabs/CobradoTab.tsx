@@ -16,6 +16,10 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
   const [error, setError] = useState<string | null>(null);
+  const [totales, setTotales] = useState<{
+    totalCobrado?: number;
+    cantidadCobrada?: number;
+  }>({});
 
   const cargarFacturas = async () => {
     setLoading(true);
@@ -66,6 +70,10 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
       };
 
       setFacturasData(data);
+      setTotales({
+        totalCobrado: apiResponse.totalCobrado,
+        cantidadCobrada: apiResponse.cantidadCobrada
+      });
     } catch (err) {
       console.error('Error al cargar facturas cobradas:', err);
       setError('No se pudieron cargar las facturas cobradas');
@@ -80,8 +88,8 @@ export default function CobradoTab({ fechaDesde, fechaHasta }: CobradoTabProps) 
 
   const facturas = facturasData?.data || [];
   const pagination = facturasData?.pagination;
-  const montoTotal = facturas.reduce((sum, f) => sum + f.cobrado, 0);
-  const cantidadFacturas = pagination?.total || 0;
+  const montoTotal = totales.totalCobrado ?? 0;
+  const cantidadFacturas = totales.cantidadCobrada ?? 0;
 
 
   const cambiarPagina = (pagina: number) => {

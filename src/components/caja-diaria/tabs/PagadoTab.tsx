@@ -15,6 +15,10 @@ export default function PagadoTab({ fechaDesde, fechaHasta }: PagadoTabProps) {
   const [loading, setLoading] = useState(true);
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(20);
+  const [totales, setTotales] = useState<{
+    totalPagada?: number;
+    cantidadPagada?: number;
+  }>({});
 
   useEffect(() => {
     cargarFacturas();
@@ -68,6 +72,10 @@ export default function PagadoTab({ fechaDesde, fechaHasta }: PagadoTabProps) {
       };
 
       setFacturasData(data);
+      setTotales({
+        totalPagada: apiResponse.totalPagada,
+        cantidadPagada: apiResponse.cantidadPagada
+      });
     } catch (error) {
       console.error('Error al cargar facturas pagadas:', error);
       toast.error('Error al cargar las facturas');
@@ -87,8 +95,8 @@ export default function PagadoTab({ fechaDesde, fechaHasta }: PagadoTabProps) {
 
 
   const facturas = facturasData?.data || [];
-  const montoTotal = facturas.reduce((sum, f) => sum + f.pagado, 0);
-  const cantidadFacturas = facturasData?.pagination.total || 0;
+  const montoTotal = totales.totalPagada ?? 0;
+  const cantidadFacturas = totales.cantidadPagada ?? 0;
 
   if (loading) {
     return (

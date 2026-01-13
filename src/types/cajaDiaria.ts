@@ -276,6 +276,13 @@ export interface FacturaProveedorAPI {
 export interface FacturasProveedoresAPIResponse {
   success: boolean;
   total: number;
+  totalPendiente?: number;
+  totalPagada?: number;
+  totalCobrado?: number;
+  totalSaldo?: number;
+  cantidadPendiente?: number;
+  cantidadPagada?: number;
+  cantidadCobrada?: number;
   items: FacturaProveedorAPI[];
 }
 
@@ -326,6 +333,13 @@ export interface FacturaClienteAPI {
 export interface FacturasClientesAPIResponse {
   success: boolean;
   total: number;
+  totalPendiente?: number;
+  totalPagada?: number;
+  totalCobrado?: number;
+  totalSaldo?: number;
+  cantidadPendiente?: number;
+  cantidadPagada?: number;
+  cantidadCobrada?: number;
   items: FacturaClienteAPI[];
 }
 
